@@ -1,18 +1,15 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Iesi.Collections.Generic;
 using log4net;
 using Lucene.Net.Documents;
-using Lucene.Net.Index;
 using Lucene.Net.Search;
 using NHibernate.Engine;
 using NHibernate.Engine.Query;
-using NHibernate.Expressions;
 using NHibernate.Impl;
-using System.Collections;
 using NHibernate.Search.Engine;
-using Directory = Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Query
 {
