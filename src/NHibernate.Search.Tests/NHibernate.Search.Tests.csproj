@@ -66,6 +66,7 @@
     <Compile Include="Inheritance\Animal.cs" />
     <Compile Include="Inheritance\InheritanceTest.cs" />
     <Compile Include="Inheritance\Mammal.cs" />
+    <Compile Include="ListenerCfg\ListenerRegistrationTests.cs" />
     <Compile Include="Query\AlternateBook.cs" />
     <Compile Include="Query\Book.cs" />
     <Compile Include="Query\Clock.cs" />

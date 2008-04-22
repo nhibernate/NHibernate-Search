@@ -9,16 +9,9 @@ namespace NHibernate.Search.Backend
     /// </summary>
     public interface IQueueingProcessor
     {
-        /// <summary>
-        /// Performs all the work in the queue
-        /// </summary>
-        /// <param name="queue">The queue.</param>
-        void PerformWork(List<LuceneWork> queue);
-
-        /// <summary>
-        /// Rollback 
-        /// </summary>
-        /// <param name="queue"></param>
-        void CancelWork(List<LuceneWork> queue);
+        void PerformWorks(WorkQueue workQueue);
+    	void CancelWorks(WorkQueue workQueue);
+    	void Add(Work work, WorkQueue workQueue);
+    	void PrepareWorks(WorkQueue workQueue);
     }
 }

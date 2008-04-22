@@ -4,6 +4,7 @@ using Iesi.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using NHibernate.Cfg;
+using NHibernate.Engine;
 using NHibernate.Mapping;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Backend.Impl;
@@ -13,9 +14,10 @@ using NHibernate.Util;
 
 namespace NHibernate.Search.Engine
 {
-    public class SearchFactory
+	public class SearchFactory   
     {
-        private static readonly WeakHashtable sessionFactory2SearchFactory = new WeakHashtable();
+		[ThreadStatic]
+		private static WeakHashtable cfg2SearchFactory = new WeakHashtable(); //it's now a <Configuration, SearchFactory> map
         private static readonly object searchFactoryKey = new object();
 
         /// <summary>
@@ -25,42 +27,29 @@ namespace NHibernate.Search.Engine
         private readonly Dictionary<System.Type, DocumentBuilder> documentBuilders = new Dictionary<System.Type, DocumentBuilder>();
         private readonly IQueueingProcessor queueingProcessor;
         private IBackendQueueProcessorFactory backendQueueProcessorFactory;
+		private IWorker worker;
 
         public Dictionary<System.Type, DocumentBuilder> DocumentBuilders
         {
             get { return documentBuilders; }
         }
 
-        public static SearchFactory GetSearchFactory(ISession session)
-        {
-            SearchFactory searchFactory = (SearchFactory) sessionFactory2SearchFactory[session.SessionFactory];
-            if (searchFactory == null)
-            {
-                throw new HibernateException(
-                    @"A Full Text Query was attempted on a session whose factory is not initialized to use Full Text Querying. 
-Did you forget to call SearchFactory.Initialize(sessionFactory) ? ");
-            }
-            return searchFactory;
-        }
+		
 
-        public static SearchFactory GetSearchFactory(ISessionFactory sessionFactory)
+ 
+		public static SearchFactory GetSearchFactory(Configuration cfg)
         {
-            return (SearchFactory) sessionFactory2SearchFactory[sessionFactory];
-        }
+			if (cfg2SearchFactory == null)
+				cfg2SearchFactory = new WeakHashtable();
+			SearchFactory searchFactory = (SearchFactory) cfg2SearchFactory[cfg];
+			if (searchFactory == null) {
+				searchFactory = new SearchFactory(cfg);
+				cfg2SearchFactory[cfg] = searchFactory;
+			}
+			return searchFactory;
+        } 
 
-        public static void Initialize(Configuration cfg, ISessionFactory sessionFactory)
-        {
-            //This is a bit tricky, but we basically need to have a way to attach 
-            //a search factory to a session factory.
-            //The session factory is keeping a reference to the items as long as it is alive, so we put
-            //the search factory inside the cfg factory, and thus keeping the GC from collecting it.
-            //We may want to find a better way
-            SearchFactory searchFactory = new SearchFactory(cfg);
-            sessionFactory.Items[searchFactoryKey] = searchFactory;
-            sessionFactory2SearchFactory[sessionFactory] = searchFactory;
-        }
-
-        private SearchFactory(Configuration cfg)
+		private SearchFactory(Configuration cfg)
         {
             System.Type analyzerClass;
 
@@ -122,25 +111,11 @@ Did you forget to call SearchFactory.Initialize(sessionFactory) ? ");
             {
                 documentBuilder.PostInitialize(classes);
             }
+			worker = WorkerFactory.CreateWorker(cfg, this);
         }
+ 
 
-        public void ExecuteQueue(List<LuceneWork> luceneWork, ISession session)
-        {
-            if (session.Transaction.IsActive)
-            {
-                SearchInterceptor interceptor = (SearchInterceptor) session.GetSessionImplementation().Interceptor;
-                interceptor.RegisterSyncronization(session.Transaction, luceneWork);
-            }
-            else
-            {
-                ExecuteQueueImmediate(luceneWork);
-            }
-        }
-
-        public void ExecuteQueueImmediate(List<LuceneWork> luceneWork)
-        {
-            queueingProcessor.PerformWork(luceneWork);
-        }
+	 
 
 
         public DocumentBuilder GetDocumentBuilder(object entity)
@@ -168,12 +143,10 @@ Did you forget to call SearchFactory.Initialize(sessionFactory) ? ");
 
         public void PerformWork(object entity, object id, ISession session, WorkType workType)
         {
-            DocumentBuilder documentBuilder = GetDocumentBuilder(entity);
-            if (documentBuilder == null)
-                return;
-            List<LuceneWork> queue = new List<LuceneWork>();
-            documentBuilder.AddToWorkQueue(entity, id, workType, queue, this);
-            ExecuteQueue(queue, session);
+
+			Work work = new Work(entity, id, workType);
+			worker.PerformWork(work,(ISessionImplementor) session);
+            
         }
 
         public void SetbackendQueueProcessorFactory(IBackendQueueProcessorFactory backendQueueProcessorFactory)

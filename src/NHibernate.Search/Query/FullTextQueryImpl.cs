@@ -10,6 +10,7 @@ using NHibernate.Engine;
 using NHibernate.Engine.Query;
 using NHibernate.Impl;
 using NHibernate.Search.Engine;
+using NHibernate.Search.Util;
 
 namespace NHibernate.Search.Query
 {
@@ -21,6 +22,9 @@ namespace NHibernate.Search.Query
         private ISet<System.Type> classesAndSubclasses;
         private int resultSize;
         private int batchSize = 1;
+    	private SearchFactory searchFactory;
+
+		
 
         /// <summary>
         /// classes must be immutable
@@ -48,7 +52,7 @@ namespace NHibernate.Search.Query
             //user stop using it
             //scrollable is better in this area
 
-            SearchFactory searchFactory = SearchFactory.GetSearchFactory(Session.GetSession());
+            SearchFactory searchFactory = ContextHelper.GetSearchFactoryBySFI(Session);
             //find the directories
             Searcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out classesAndSubclasses, classes);
             if (searcher == null)
@@ -131,9 +135,8 @@ namespace NHibernate.Search.Query
 
         public override void List(IList list)
         {
-            SearchFactory searchFactory = SearchFactory.GetSearchFactory(Session.GetSession());
             //find the directories
-            Searcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out classesAndSubclasses, classes);
+            Searcher searcher = FullTextSearchHelper.BuildSearcher(SearchFactory, out classesAndSubclasses, classes);
             if (searcher == null)
                 return;
             try
@@ -147,7 +150,7 @@ namespace NHibernate.Search.Query
                 {
                     Document document = hits.Doc(index);
                     System.Type clazz = DocumentBuilder.GetDocumentClass(document);
-                    object id = DocumentBuilder.GetDocumentId(searchFactory, document);
+                    object id = DocumentBuilder.GetDocumentId(SearchFactory, document);
                     list.Add(this.Session.GetSession().Load(clazz, id));
                     //use load to benefit from the batch-size
                     //we don't face proxy casting issues since the exact class is extracted from the index
@@ -241,6 +244,14 @@ namespace NHibernate.Search.Query
     	{
 			// TODO: Implement FullTextQueryImpl.ExecuteUpdate()
 			throw new NotImplementedException("Implement FullTextQueryImpl.ExecuteUpdate()");
+    	}
+
+    	private SearchFactory SearchFactory {
+    		get {
+				if (searchFactory == null)
+					searchFactory = ContextHelper.GetSearchFactoryBySFI(Session);
+    			return searchFactory;
+    		}
     	}
     }
 }

@@ -1,6 +1,7 @@
 using Lucene.Net.Analysis;
 using Lucene.Net.Store;
 using NHibernate.Cfg;
+using NHibernate.Event;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Storage;
@@ -13,32 +14,26 @@ namespace NHibernate.Search.Tests
 	{
 		protected Directory GetDirectory(System.Type clazz)
 		{
-			return SearchFactory.GetSearchFactory(sessions).GetDirectoryProvider(clazz).Directory;
+			return SearchFactory.GetSearchFactory(cfg).GetDirectoryProvider(clazz).Directory;
 		}
 
 		protected override void Configure(Configuration configuration)
 		{
 			cfg.SetProperty("hibernate.search.default.directory_provider", typeof (RAMDirectoryProvider).AssemblyQualifiedName);
 			cfg.SetProperty(Environment.AnalyzerClass, typeof (StopAnalyzer).AssemblyQualifiedName);
+			SetListener(cfg);
 		}
 
-
-		protected override ISession OpenSession()
-		{
-			lastOpenedSession = sessions.OpenSession(new SearchInterceptor());
-			return lastOpenedSession;
+		public static void SetListener(Configuration configure) {
+			configure.SetListener(ListenerType.PostUpdate, new NHibernate.Search.Event.FullTextIndexEventListener());
+			configure.SetListener(ListenerType.PostInsert, new NHibernate.Search.Event.FullTextIndexEventListener());
+			configure.SetListener(ListenerType.PostDelete, new NHibernate.Search.Event.FullTextIndexEventListener());
 		}
 
 		protected override string MappingsAssembly
 		{
 			get { return "NHibernate.Search.Tests"; }
 		}
-
-		protected override void BuildSessionFactory()
-		{
-			base.BuildSessionFactory();
-			SearchFactory.Initialize(cfg, sessions);
-		}
-
+ 
 	}
 }

@@ -41,7 +41,6 @@ namespace NHibernate.Search.Tests.DirectoryProvider
 			foreach (Configuration configuration in configurations)
 			{
 				ISessionFactory sessionFactory = configuration.BuildSessionFactory();
-				SearchFactory.Initialize(configuration,sessionFactory);
 				sessionFactories.Add(sessionFactory);
 			}
 		}
@@ -65,6 +64,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
 			{
 				cfg.AddResource(assembly.GetName().Name + "." + file, assembly);
 			}
+			SearchTestCase.SetListener(cfg);
 			return cfg;
 		}
 

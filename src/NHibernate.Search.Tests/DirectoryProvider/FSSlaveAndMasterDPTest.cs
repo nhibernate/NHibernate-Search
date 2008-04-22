@@ -97,7 +97,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
 
 		private ISession CreateSession(int sessionFactoryNumber)
 		{
-			return SessionFactories[sessionFactoryNumber].OpenSession(new SearchInterceptor());
+			return SessionFactories[sessionFactoryNumber].OpenSession( );
 		}
 
 		[TearDown]

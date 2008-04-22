@@ -76,7 +76,7 @@ namespace NHibernate.Search.Tests.Workers
 
 			public void Run(object ignored)
 			{
-				ISession s = sf.OpenSession(new SearchInterceptor());
+				ISession s = sf.OpenSession();
 				ITransaction tx = s.BeginTransaction();
 				Employee ee = new Employee();
 				ee.Name = ("Emmanuel");
@@ -87,7 +87,7 @@ namespace NHibernate.Search.Tests.Workers
 				tx.Commit();
 				s.Close();
 
-				s = sf.OpenSession(new SearchInterceptor());
+				s = sf.OpenSession();
 				tx = s.BeginTransaction();
 				ee = (Employee) s.Get(typeof (Employee), ee.Id);
 				ee.Name = ("Emmanuel2");
@@ -132,7 +132,7 @@ namespace NHibernate.Search.Tests.Workers
 
 			public void Run(object ignored)
 			{
-				ISession s = sf.OpenSession(new SearchInterceptor());
+				ISession s = sf.OpenSession();
 				ITransaction tx = s.BeginTransaction();
 				Employer er = new Employer();
 				er.Name = ("RH");

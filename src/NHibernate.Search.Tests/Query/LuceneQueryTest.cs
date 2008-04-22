@@ -86,7 +86,10 @@ namespace NHibernate.Search.Tests.Queries
 		[Test]
 		public void FirstMax()
 		{
-			IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+			ISession sess = OpenSession();
+			Assert.AreEqual(0, sess.CreateCriteria(typeof(Clock)).List().Count);
+
+			IFullTextSession s = Search.CreateFullTextSession(sess);
 			ITransaction tx = s.BeginTransaction();
 			Clock clock = new Clock(1, "Seiko");
 			s.Save(clock);

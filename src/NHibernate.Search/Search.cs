@@ -10,15 +10,6 @@ namespace NHibernate.Search
 	{
 		public static IFullTextSession CreateFullTextSession(ISession session)
 		{
-			ISessionImplementor sessionImplementor = (ISessionImplementor)session;
-			if((sessionImplementor.Interceptor is SearchInterceptor)==false)
-			{
-				throw new HibernateException(@"
-The session interceptor was not a SearchInterceptor.
-In order to use Full Text Query, you must open the session with a SearchInterceptor. Like this:
-sessionFactory.OpenSession(new SearchInterceptor());
-");
-			}
 			return new FullTextSessionImpl(session);
 		}
 

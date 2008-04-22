@@ -63,11 +63,18 @@
     <Compile Include="Attributes\Resolution.cs" />
     <Compile Include="Attributes\Store.cs" />
     <Compile Include="AttributeUtil.cs" />
+    <Compile Include="Backend\Impl\PostTransactionWorkQueueSynchronization.cs" />
+    <Compile Include="Backend\Impl\TransactionalWorker.cs" />
     <Compile Include="Backend\IWorker.cs" />
     <Compile Include="Backend\LuceneIndexingParameters.cs" />
     <Compile Include="Backend\OptimizeLuceneWork.cs" />
     <Compile Include="Backend\PurgeAllLuceneWork.cs" />
+    <Compile Include="Backend\WorkerFactory.cs" />
+    <Compile Include="Backend\WorkQueue.cs" />
     <Compile Include="Engine\ISearchFactoryImplementor.cs" />
+    <Compile Include="Event\FullTextIndexEventListener.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Filter\FilterKey.cs" />
     <Compile Include="Filter\IFilterCachingStrategy.cs" />
     <Compile Include="ISearchFactory.cs" />
@@ -97,7 +104,6 @@
     <Compile Include="Reader\IReaderProvider.cs" />
     <Compile Include="SearchException.cs" />
     <Compile Include="Engine\SearchFactory.cs" />
-    <Compile Include="Impl\SearchInterceptor.cs" />
     <Compile Include="Bridge\Builtin\SimpleBridge.cs" />
     <Compile Include="Bridge\TwoWayString2FieldBridgeAdaptor.cs" />
     <Compile Include="Bridge\Builtin\ValueTypeBridge.cs" />
@@ -117,14 +123,13 @@
     <Compile Include="Store\Optimization\IOptimizerStrategy.cs" />
     <Compile Include="Store\RAMDirectoryProvider.cs" />
     <Compile Include="Bridge\String2FieldBridgeAdaptor.cs" />
+    <Compile Include="Util\ContextHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Event\" />
     <Folder Include="Properties\" />
-    <Folder Include="Util\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

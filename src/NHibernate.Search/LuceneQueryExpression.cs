@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Impl;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
+using NHibernate.Search.Util;
 
 namespace NHibernate.Search
 {
@@ -21,7 +22,7 @@ namespace NHibernate.Search
 		public override NHibernate.SqlCommand.SqlString ToSqlString(ICriteria criteria, ICriteriaQuery criteriaQuery, IDictionary<string, IFilter> enabledFilters)
 		{
 			System.Type type = GetCriteriaClass(criteria);
-			SearchFactory searchFactory = SearchFactory.GetSearchFactory(GetSession(criteria));
+			SearchFactory searchFactory =ContextHelper.GetSearchFactory(GetSession(criteria));
 			ISet<System.Type> types;
 			Searcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out types, type);
 			if (searcher == null)
