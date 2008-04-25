@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="nhs-configuration" targetNamespace="urn:nhs-configuration-1.0" xmlns="urn:nhs-configuration-1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:NS="urn:nhs-configuration-1.0">
+  <xs:element name="property">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="name" use="required">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>
+                  Default values:
+                  analyzer = Lucene.Net.Analysis.Standard.StandardAnalyzer, Lucene.Net
+                  indexBase = .
+                  indexBase.create = false
+                  default.directory_provider = NHibernate.Search.Storage.FSDirectoryProvider, NHibernate.Search
+                </xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string"></xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="nhs-configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -21,7 +21,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
 		}
 
 		[TestFixtureSetUp]
-		public virtual void TestInitialize()
+		public virtual void FixtureSetUp()
 		{
 			Configure();
 			CreateSchema();

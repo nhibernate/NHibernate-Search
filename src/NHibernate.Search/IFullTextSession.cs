@@ -9,7 +9,7 @@ namespace NHibernate.Search
 
 		IQuery CreateFullTextQuery<TEntity>(string query);
 
-        IQuery CreateFullTextQuery(Lucene.Net.Search.Query luceneQuery, params System.Type[] entities);
+        IFullTextQuery CreateFullTextQuery(Lucene.Net.Search.Query luceneQuery, params System.Type[] entities);
 
 		/// <summary>
 		/// Force the (re)indexing of a given <b>managed</b> object.

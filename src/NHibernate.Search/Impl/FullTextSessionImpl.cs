@@ -376,7 +376,7 @@ namespace NHibernate.Search.Impl {
 			return CreateFullTextQuery(query, typeof (TEntity));
 		}
 
-		public IQuery CreateFullTextQuery(Lucene.Net.Search.Query luceneQuery, params System.Type[] entities) {
+		public IFullTextQuery CreateFullTextQuery(Lucene.Net.Search.Query luceneQuery, params System.Type[] entities) {
 			return new FullTextQueryImpl(luceneQuery, entities, session, null);
 		}
 

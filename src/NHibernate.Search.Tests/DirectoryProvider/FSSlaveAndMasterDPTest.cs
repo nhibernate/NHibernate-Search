@@ -17,14 +17,14 @@ namespace NHibernate.Search.Tests.DirectoryProvider
 	[TestFixture]
 	public class FSSlaveAndMasterDPTest : MultiplySessionFactoriesTestCase
 	{
-		public override void TestInitialize()
+		public override void FixtureSetUp()
 		{
 			if(Directory.Exists("./lucenedirs/"))
 				Directory.Delete("./lucenedirs/",true);
 			Directory.CreateDirectory("./lucenedirs/master/copy");
 			Directory.CreateDirectory("./lucenedirs/master/main");
 			Directory.CreateDirectory("./lucenedirs/slave");
-			base.TestInitialize();
+			base.FixtureSetUp();
 		}
 
 		[Test]

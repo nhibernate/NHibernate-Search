@@ -82,6 +82,53 @@ namespace NHibernate.Search.Tests.Queries
 			tx.Commit();
 			s.Close();
 		}
+		[Test]
+		public void ResultSize()
+		{
+			IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+			ITransaction tx = s.BeginTransaction();
+			Clock clock = new Clock(1, "Seiko");
+			s.Save(clock);
+			clock = new Clock(2, "Festina");
+			s.Save(clock);
+			Book book = new Book(1, "La chute de la petite reine a travers les yeux de Festina", "La chute de la petite reine a travers les yeux de Festina, blahblah");
+			s.Save(book);
+			book = new Book(2, "La gloire de mon père", "Les deboires de mon père en vélo");
+			s.Save(book);
+			tx.Commit();
+			s.Clear();
+			tx = s.BeginTransaction();
+			QueryParser parser = new QueryParser("title", new StopAnalyzer());
+
+            Lucene.Net.Search.Query query = parser.Parse("Summary:noword");
+			IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
+			Assert.AreEqual(0, hibQuery.ResultSize);
+
+			query = parser.Parse("Summary:Festina Or Brand:Seiko");
+			hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
+			Assert.AreEqual(2, hibQuery.ResultSize, "Query with explicit class filter");
+
+
+			query = parser.Parse("Summary:Festina Or Brand:Seiko");
+			hibQuery = s.CreateFullTextQuery(query);
+			Assert.AreEqual(2, hibQuery.ResultSize, "Query with no class filter");
+			foreach (Object element in hibQuery.List())
+			{
+				Assert.IsTrue(NHibernateUtil.IsInitialized(element));
+				s.Delete(element);
+			}
+			s.Flush();
+			tx.Commit();
+
+			tx = s.BeginTransaction();
+			query = parser.Parse("Summary:Festina Or Brand:Seiko");
+			hibQuery = s.CreateFullTextQuery(query);
+			Assert.AreEqual(0, hibQuery.ResultSize, "Query with delete objects");
+
+			s.Delete("from System.Object");
+			tx.Commit();
+			s.Close();
+		}
 
 		[Test]
 		public void FirstMax()

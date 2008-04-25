@@ -57,6 +57,7 @@
     <Compile Include="Bridge\Cloud.cs" />
     <Compile Include="Bridge\CloudType.cs" />
     <Compile Include="Bridge\TruncateFieldBridge.cs" />
+    <Compile Include="Cfg\ConfigurationFixture.cs" />
     <Compile Include="DirectoryProvider\FSSlaveAndMasterDPTest.cs" />
     <Compile Include="DirectoryProvider\MultiplySessionFactoriesTestCase.cs" />
     <Compile Include="DirectoryProvider\SnowStorm.cs" />

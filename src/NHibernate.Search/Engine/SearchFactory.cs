@@ -51,6 +51,7 @@ namespace NHibernate.Search.Engine
 
 		private SearchFactory(Configuration cfg)
         {
+			Cfg.CfgHelper.Config(cfg);
             System.Type analyzerClass;
 
             String analyzerClassName = cfg.GetProperty(Environment.AnalyzerClass);
