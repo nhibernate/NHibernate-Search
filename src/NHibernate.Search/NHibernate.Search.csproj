@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Attributes\AnalyzerAttribute.cs" />
     <Compile Include="Attributes\BoostAttribute.cs" />
     <Compile Include="Attributes\ClassBridgeAttribute.cs" />
@@ -85,7 +86,6 @@
     <Compile Include="Filter\FilterKey.cs" />
     <Compile Include="Filter\IFilterCachingStrategy.cs" />
     <Compile Include="ISearchFactory.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\FullTextSearchHelper.cs" />
     <Compile Include="LuceneQueryExpression.cs" />
     <Compile Include="Backend\Impl\Lucene\LuceneWorker.cs" />
@@ -144,6 +144,9 @@
     <None Include="Cfg\nhs-configuration.xsx">
       <DependentUpon>nhs-configuration.xsd</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

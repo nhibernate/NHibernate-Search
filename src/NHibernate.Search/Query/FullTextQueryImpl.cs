@@ -21,6 +21,7 @@ namespace NHibernate.Search.Query {
 		private ISet<System.Type> classesAndSubclasses;
 		private int resultSize = -1;
 		private SearchFactory searchFactory;
+        private Lucene.Net.Search.Sort sort; 
 
 		/// <summary>
 		/// classes must be immutable
@@ -166,6 +167,11 @@ namespace NHibernate.Search.Query {
 			throw new NotImplementedException("Full Text Query doesn't support lock modes");
 		}
 
+	    public Sort Sort {
+	        get{ return sort;}
+            set{ sort = value;}
+	    }
+
 		public override int ExecuteUpdate() {
 			// TODO: Implement FullTextQueryImpl.ExecuteUpdate()
 			throw new NotImplementedException("Implement FullTextQueryImpl.ExecuteUpdate()");
@@ -175,7 +181,7 @@ namespace NHibernate.Search.Query {
 
 		private Hits GetHits(Searcher searcher) {
 			Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
-			return searcher.Search(query);
+			return searcher.Search(query,null, sort);
 		}
 
 		private void CloseSearcher(Searcher searcher) {
