@@ -14,31 +14,27 @@ using NHibernate.Search.Storage;
 using NHibernate.Util;
 using FieldInfo=System.Reflection.FieldInfo;
 
-namespace NHibernate.Search.Engine
-{
+namespace NHibernate.Search.Engine {
     /// <summary>
     /// Set up and provide a manager for indexes classes
     /// </summary>
-    public class DocumentBuilder
-    {
-        private static readonly ILog log = LogManager.GetLogger(typeof(DocumentBuilder));
+    public class DocumentBuilder {
+        public const string CLASS_FIELDNAME = "_hibernate_class";
+        private static readonly ILog log = LogManager.GetLogger(typeof (DocumentBuilder));
+        private readonly Analyzer analyzer;
 
-        private readonly PropertiesMetadata rootPropertiesMetadata = new PropertiesMetadata();
         private readonly System.Type beanClass;
         private readonly IDirectoryProvider directoryProvider;
-        private String idKeywordName;
-        private MemberInfo idGetter;
-        private readonly Analyzer analyzer;
+        private readonly PropertiesMetadata rootPropertiesMetadata = new PropertiesMetadata();
         private float? idBoost;
-        public const string CLASS_FIELDNAME = "_hibernate_class";
         private ITwoWayFieldBridge idBridge;
-        private ISet<System.Type> mappedSubclasses = new HashedSet<System.Type>();
+        private MemberInfo idGetter;
+        private String idKeywordName;
         private int level = 0;
+        private ISet<System.Type> mappedSubclasses = new HashedSet<System.Type>();
         private int maxLevel = int.MaxValue;
 
-
-        public DocumentBuilder(System.Type clazz, Analyzer analyzer, IDirectoryProvider directory)
-        {
+        public DocumentBuilder(System.Type clazz, Analyzer analyzer, IDirectoryProvider directory) {
             beanClass = clazz;
             this.analyzer = analyzer;
             directoryProvider = directory;
@@ -52,60 +48,60 @@ namespace NHibernate.Search.Engine
             //processedClasses.remove( clazz ); for the sake of completness
 
             if (idKeywordName == null)
-            {
                 throw new SearchException("No document id for: " + clazz.Name);
-            }
+        }
+
+        public IDirectoryProvider DirectoryProvider {
+            get { return directoryProvider; }
+        }
+
+        public Analyzer Analyzer {
+            get { return analyzer; }
+        }
+
+        public ITwoWayFieldBridge IdBridge {
+            get { return idBridge; }
+        }
+
+        public ISet<System.Type> MappedSubclasses {
+            get { return mappedSubclasses; }
         }
 
         private void InitializeMembers(
             System.Type clazz, PropertiesMetadata propertiesMetadata, bool isRoot, String prefix,
-            ISet<System.Type> processedClasses)
-        {
+            ISet<System.Type> processedClasses) {
             PropertyInfo[] propertyInfos = clazz.GetProperties();
             foreach (PropertyInfo propertyInfo in propertyInfos)
-            {
                 InitializeMember(propertyInfo, propertiesMetadata, isRoot, prefix, processedClasses);
-            }
 
             FieldInfo[] fields = clazz.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             foreach (FieldInfo fieldInfo in fields)
-            {
                 InitializeMember(fieldInfo, propertiesMetadata, isRoot, prefix, processedClasses);
-            }
         }
 
         private void InitializeMember(
             MemberInfo member, PropertiesMetadata propertiesMetadata, bool isRoot,
-            String prefix, ISet<System.Type> processedClasses)
-        {
+            String prefix, ISet<System.Type> processedClasses) {
             DocumentIdAttribute documentIdAnn = AttributeUtil.GetDocumentId(member);
-            if (isRoot && documentIdAnn != null)
-            {
+            if (isRoot && documentIdAnn != null) {
                 if (idKeywordName != null)
-                {
                     if (documentIdAnn.Name != null)
                         throw new AssertionFailure("Two document id assigned: "
                                                    + idKeywordName + " and " + documentIdAnn.Name);
-                }
                 idKeywordName = prefix + documentIdAnn.Name;
                 IFieldBridge fieldBridge = BridgeFactory.GuessType(member);
                 if (fieldBridge is ITwoWayFieldBridge)
-                {
                     idBridge = (ITwoWayFieldBridge) fieldBridge;
-                }
                 else
-                {
                     throw new SearchException(
                         "Bridge for document id does not implement IdFieldBridge: " + member.Name);
-                }
                 idBoost = GetBoost(member);
                 idGetter = member;
             }
 
             FieldAttribute fieldAnn = AttributeUtil.GetField(member)
                 ;
-            if (fieldAnn != null)
-            {
+            if (fieldAnn != null) {
                 propertiesMetadata.fieldGetters.Add(member);
                 propertiesMetadata.fieldNames.Add(prefix + fieldAnn.Name);
                 propertiesMetadata.fieldStore.Add(GetStore(fieldAnn.Store));
@@ -114,11 +110,8 @@ namespace NHibernate.Search.Engine
             }
         }
 
-
-        private static Field.Store GetStore(Attributes.Store store)
-        {
-            switch (store)
-            {
+        private static Field.Store GetStore(Attributes.Store store) {
+            switch (store) {
                 case Attributes.Store.No:
                     return Field.Store.NO;
                 case Attributes.Store.Yes:
@@ -130,10 +123,8 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private static Field.Index GetIndex(Index index)
-        {
-            switch (index)
-            {
+        private static Field.Index GetIndex(Index index) {
+            switch (index) {
                 case Index.No:
                     return Field.Index.NO;
                 case Index.NoNormalization:
@@ -147,8 +138,7 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private static float? GetBoost(MemberInfo element)
-        {
+        private static float? GetBoost(MemberInfo element) {
             if (element == null) return null;
             BoostAttribute boost = AttributeUtil.GetBoost(element);
             if (boost == null)
@@ -156,8 +146,7 @@ namespace NHibernate.Search.Engine
             return boost.Value;
         }
 
-        private static object GetMemberValue(Object instnace, MemberInfo getter)
-        {
+        private static object GetMemberValue(Object instnace, MemberInfo getter) {
             PropertyInfo info = getter as PropertyInfo;
             if (info != null)
                 return info.GetValue(instnace, null);
@@ -169,19 +158,15 @@ namespace NHibernate.Search.Engine
         /// This add the new work to the queue, so it can be processed in a batch fashion later
         /// </summary>
         public void AddToWorkQueue(object entity, object id, WorkType workType, List<LuceneWork> queue,
-                                   SearchFactory searchFactory)
-        {
+                                   SearchFactory searchFactory) {
             System.Type entityClass = NHibernateUtil.GetClass(entity);
             foreach (LuceneWork luceneWork in queue)
-            {
                 if (luceneWork.EntityClass == entityClass && luceneWork.Id.Equals(id))
                     return;
-            }
             /*bool searchForContainers = false;*/
             string idString = idBridge.ObjectToString(id);
 
-            switch (workType)
-            {
+            switch (workType) {
                 case WorkType.Add:
                     queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id)));
                     /*searchForContainers = true;*/
@@ -232,20 +217,16 @@ namespace NHibernate.Search.Engine
 	    */
 
         private void ProcessContainedInValue(object value, List<LuceneWork> queue, System.Type valueClass,
-                                             DocumentBuilder builder, SearchFactory searchFactory)
-        {
+                                             DocumentBuilder builder, SearchFactory searchFactory) {
             object id = GetMemberValue(value, builder.idGetter);
             builder.AddToWorkQueue(value, id, WorkType.Update, queue, searchFactory);
         }
 
-        public Document GetDocument(object instance, object id)
-        {
+        public Document GetDocument(object instance, object id) {
             Document doc = new Document();
             System.Type instanceClass = instance.GetType();
             if (rootPropertiesMetadata.boost != null)
-            {
                 doc.SetBoost(rootPropertiesMetadata.boost.Value);
-            }
             // TODO: Check if that should be an else?
             {
                 Field classField =
@@ -258,12 +239,10 @@ namespace NHibernate.Search.Engine
             return doc;
         }
 
-        private static void BuildDocumentFields(Object instance, Document doc, PropertiesMetadata propertiesMetadata)
-        {
+        private static void BuildDocumentFields(Object instance, Document doc, PropertiesMetadata propertiesMetadata) {
             if (instance == null) return;
 
-            for (int i = 0; i < propertiesMetadata.fieldNames.Count; i++)
-            {
+            for (int i = 0; i < propertiesMetadata.fieldNames.Count; i++) {
                 MemberInfo member = propertiesMetadata.fieldGetters[i];
                 Object value = GetMemberValue(instance, member);
                 propertiesMetadata.fieldBridges[i].Set(
@@ -272,8 +251,7 @@ namespace NHibernate.Search.Engine
                     );
             }
 
-            for (int i = 0; i < propertiesMetadata.embeddedGetters.Count; i++)
-            {
+            for (int i = 0; i < propertiesMetadata.embeddedGetters.Count; i++) {
                 MemberInfo member = propertiesMetadata.embeddedGetters[i];
                 Object value = GetMemberValue(instance, member);
                 //if ( ! Hibernate.isInitialized( value ) ) continue; //this sounds like a bad idea 
@@ -282,84 +260,56 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        public Term GetTerm(object id)
-        {
+        public Term GetTerm(object id) {
             return new Term(idKeywordName, idBridge.ObjectToString(id));
         }
 
-        public IDirectoryProvider DirectoryProvider
-        {
-            get { return directoryProvider; }
-        }
-
-        public Analyzer Analyzer
-        {
-            get { return analyzer; }
-        }
-
-
-        public ITwoWayFieldBridge IdBridge
-        {
-            get { return idBridge; }
-        }
-
-        public String getIdKeywordName()
-        {
+        public String getIdKeywordName() {
             return idKeywordName;
         }
 
-        public static System.Type GetDocumentClass(Document document)
-        {
+        public static System.Type GetDocumentClass(Document document) {
             String className = document.Get(CLASS_FIELDNAME);
-            try
-            {
+            try {
                 return ReflectHelper.ClassForName(className);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 throw new SearchException("Unable to load indexed class: " + className, e);
             }
         }
 
-        public static object GetDocumentId(SearchFactory searchFactory, Document document)
-        {
+        public static object GetDocumentId(SearchFactory searchFactory, Document document) {
             System.Type clazz = GetDocumentClass(document);
             DocumentBuilder builder = searchFactory.DocumentBuilders[clazz];
             if (builder == null) throw new SearchException("No Lucene configuration set up for: " + clazz.Name);
             return builder.IdBridge.Get(builder.getIdKeywordName(), document);
         }
 
-        public void PostInitialize(ISet<System.Type> indexedClasses)
-        {
+        public void PostInitialize(ISet<System.Type> indexedClasses) {
             //this method does not requires synchronization
             System.Type plainClass = beanClass;
             ISet<System.Type> tempMappedSubclasses = new HashedSet<System.Type>();
             //together with the caller this creates a o(2), but I think it's still faster than create the up hierarchy for each class
             foreach (System.Type currentClass in indexedClasses)
-            {
                 if (plainClass.IsAssignableFrom(currentClass))
                     tempMappedSubclasses.Add(currentClass);
-            }
             mappedSubclasses = tempMappedSubclasses;
         }
 
-        public ISet<System.Type> MappedSubclasses
-        {
-            get { return mappedSubclasses; }
-        }
+        #region Nested type: PropertiesMetadata
 
-
-        private class PropertiesMetadata
-        {
-            public float? boost = null;
-            public readonly List<String> fieldNames = new List<String>();
-            public readonly List<MemberInfo> fieldGetters = new List<MemberInfo>();
-            public readonly List<IFieldBridge> fieldBridges = new List<IFieldBridge>();
-            public readonly List<Field.Store> fieldStore = new List<Field.Store>();
-            public readonly List<Field.Index> fieldIndex = new List<Field.Index>();
+        private class PropertiesMetadata {
+            public readonly List<MemberInfo> containedInGetters = new List<MemberInfo>();
             public readonly List<MemberInfo> embeddedGetters = new List<MemberInfo>();
             public readonly List<PropertiesMetadata> embeddedPropertiesMetadata = new List<PropertiesMetadata>();
-            public readonly List<MemberInfo> containedInGetters = new List<MemberInfo>();
+            public readonly List<IFieldBridge> fieldBridges = new List<IFieldBridge>();
+            public readonly List<MemberInfo> fieldGetters = new List<MemberInfo>();
+            public readonly List<Field.Index> fieldIndex = new List<Field.Index>();
+            public readonly List<String> fieldNames = new List<String>();
+            public readonly List<Field.Store> fieldStore = new List<Field.Store>();
+            public float? boost = null;
         }
+
+        #endregion
     }
 }

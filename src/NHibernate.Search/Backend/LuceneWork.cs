@@ -1,25 +1,21 @@
 using Lucene.Net.Documents;
 
-namespace NHibernate.Search.Backend
-{
-    public abstract class LuceneWork
-    {
+namespace NHibernate.Search.Backend {
+    public abstract class LuceneWork {
+        private readonly Document document;
+        private readonly System.Type entityClass;
         private readonly object id;
         private readonly string idInString;
-        private readonly System.Type entityClass;
-        private readonly Document document;
 
         // Flag indicating that the lucene work has to be indexed in batch mode
         private bool isBatch;
 
         #region Constructors
 
-        protected LuceneWork(object id, string idInString, System.Type entityClass) : this(id, idInString, entityClass, null)
-        {
-        }
+        protected LuceneWork(object id, string idInString, System.Type entityClass)
+            : this(id, idInString, entityClass, null) {}
 
-        protected LuceneWork(object id, string idInString, System.Type entityClass, Document document)
-        {
+        protected LuceneWork(object id, string idInString, System.Type entityClass, Document document) {
             this.id = id;
             this.idInString = idInString;
             this.entityClass = entityClass;
@@ -30,28 +26,23 @@ namespace NHibernate.Search.Backend
 
         #region Property methods
 
-        public System.Type EntityClass
-        {
+        public System.Type EntityClass {
             get { return entityClass; }
         }
 
-        public object Id
-        {
+        public object Id {
             get { return id; }
         }
 
-        public string IdInString
-        {
+        public string IdInString {
             get { return idInString; }
         }
 
-        public Document Document
-        {
+        public Document Document {
             get { return document; }
         }
 
-        public bool IsBatch
-        {
+        public bool IsBatch {
             get { return isBatch; }
             set { isBatch = value; }
         }

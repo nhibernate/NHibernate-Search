@@ -1,13 +1,11 @@
 using NHibernate.Search.Reader;
 using NHibernate.Search.Storage;
 
-namespace NHibernate.Search
-{
+namespace NHibernate.Search {
     /// <summary>
     /// Provide application wide operations as well as access to the underlying Lucene resources.
     /// </summary>
-    public interface ISearchFactory
-    {
+    public interface ISearchFactory {
         /// <summary>
         /// Provide the configured readerProvider strategy,
         /// hence access to a Lucene IndexReader

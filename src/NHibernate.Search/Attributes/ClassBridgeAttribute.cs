@@ -1,7 +1,6 @@
 using System;
 
-namespace NHibernate.Search.Attributes
-{
+namespace NHibernate.Search.Attributes {
     /// <summary>
     /// This annotation allows a user to apply an implementation
     /// class to a Lucene document to manipulate it in any way
@@ -9,42 +8,36 @@ namespace NHibernate.Search.Attributes
     /// </summary>
     /// <remarks>We allow multiple instances of this attribute rather than having a ClassBridgesAttribute as per Java</remarks>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class ClassBridgeAttribute : Attribute
-    {
-        private string name = null;
-        private Store store = Store.No;
-        private System.Type analyzer;
-        private Index index = Index.Tokenized;
-        private float boost = 1.0F;
+    public class ClassBridgeAttribute : Attribute {
         private readonly System.Type impl;
         private readonly object[] parameters;
+        private System.Type analyzer;
+        private float boost = 1.0F;
+        private Index index = Index.Tokenized;
+        private string name = null;
+        private Store store = Store.No;
 
-        public ClassBridgeAttribute(System.Type impl, params object[] parameters)
-        {
+        public ClassBridgeAttribute(System.Type impl, params object[] parameters) {
             this.impl = impl;
             this.parameters = parameters;
         }
 
-        public string Name
-        {
+        public string Name {
             get { return name; }
             set { name = value; }
         }
 
-        public Store Store
-        {
+        public Store Store {
             get { return store; }
             set { store = value; }
         }
 
-        public Index Index
-        {
+        public Index Index {
             get { return index; }
             set { index = value; }
         }
 
-        public System.Type Analyzer
-        {
+        public System.Type Analyzer {
             get { return analyzer; }
             set { analyzer = value; }
         }
@@ -52,19 +45,16 @@ namespace NHibernate.Search.Attributes
         /// <summary>
         /// 
         /// </summary>
-        public float Boost
-        {
+        public float Boost {
             get { return boost; }
             set { boost = value; }
         }
 
-        public System.Type Impl
-        {
+        public System.Type Impl {
             get { return impl; }
         }
 
-        public object[] Parameters
-        {
+        public object[] Parameters {
             get { return parameters; }
         }
     }

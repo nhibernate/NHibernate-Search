@@ -10,8 +10,7 @@ using Lucene.Net.Store;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
 
-namespace NHibernate.Search.Storage
-{
+namespace NHibernate.Search.Storage {
     /// <summary>
     /// File based DirectoryProvider that takes care of index copy
     /// The base directory is represented by hibernate.search.<index>.indexBase
@@ -19,17 +18,17 @@ namespace NHibernate.Search.Storage
     /// The source (aka copy) directory is built from <sourceBase>/<index name>
     /// A copy is triggered every refresh seconds
     /// </summary>
-    public class FSMasterDirectoryProvider : IDirectoryProvider
-    {
-        private static ILog log = LogManager.GetLogger(typeof(FSMasterDirectoryProvider));
-        private FSDirectory directory;
+    public class FSMasterDirectoryProvider : IDirectoryProvider {
+        private static ILog log = LogManager.GetLogger(typeof (FSMasterDirectoryProvider));
         private int current;
+        private FSDirectory directory;
         private String indexName;
-        private Timer timer;
         private SearchFactory searchFactory;
+        private Timer timer;
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory)
-        {
+        #region IDirectoryProvider Members
+
+        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory) {
             //source guessing
             String source =
                 DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source,
@@ -43,34 +42,26 @@ namespace NHibernate.Search.Storage
             long period = int.Parse(refreshPeriod);
             log.Debug("Refresh period " + period + " seconds");
             period *= 1000; //per second
-            try
-            {
+            try {
                 bool create = !File.Exists(Path.Combine(indexDir.FullName, "segments"));
                 indexName = indexDir.FullName;
-                if (create)
-                {
+                if (create) {
                     log.Debug("Index directory '" + indexName + "' will be initialized");
                     indexDir.Create();
                 }
                 directory = FSDirectory.GetDirectory(indexName, create);
 
-                if (create)
-                {
+                if (create) {
                     IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), create);
                     iw.Close();
                 }
 
                 //copy to source
                 if (File.Exists(Path.Combine(source, "current1")))
-                {
                     current = 2;
-                }
                 else if (File.Exists(Path.Combine(source, "current2")))
-                {
                     current = 1;
-                }
-                else
-                {
+                else {
                     log.Debug("Source directory for '" + indexName + "' will be initialized");
                     current = 1;
                 }
@@ -81,8 +72,7 @@ namespace NHibernate.Search.Storage
                 File.Delete(Path.Combine(source, "current2"));
                 log.Debug("Current directory: " + current);
             }
-            catch (IOException e)
-            {
+            catch (IOException e) {
                 throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
             }
             searchFactory.RegisterDirectoryProviderForLocks(this);
@@ -93,13 +83,13 @@ namespace NHibernate.Search.Storage
             this.searchFactory = searchFactory;
         }
 
-        public Directory Directory
-        {
+        public Directory Directory {
             get { return directory; }
         }
 
-        public override bool Equals(Object obj)
-        {
+        #endregion
+
+        public override bool Equals(Object obj) {
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call
@@ -108,8 +98,7 @@ namespace NHibernate.Search.Storage
             return indexName.Equals(((FSMasterDirectoryProvider) obj).indexName);
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call
@@ -117,69 +106,60 @@ namespace NHibernate.Search.Storage
             return 37*hash + indexName.GetHashCode();
         }
 
+        #region Nested type: CopyDirectory
 
-        private class CopyDirectory
-        {
+        private class CopyDirectory {
+            private readonly string destination;
             private readonly FSMasterDirectoryProvider parent;
             private readonly string source;
-            private readonly string destination;
             private object directoryProviderLock;
 
-            public CopyDirectory(FSMasterDirectoryProvider parent, string source, string destination)
-            {
+            public CopyDirectory(FSMasterDirectoryProvider parent, string source, string destination) {
                 this.parent = parent;
                 this.source = source;
                 this.destination = destination;
             }
 
             [MethodImpl(MethodImplOptions.Synchronized)]
-            public void Run(object ignored)
-            {
+            public void Run(object ignored) {
                 //TODO get rid of current and use the marker file instead?
                 DateTime start = DateTime.Now;
                 if (directoryProviderLock == null)
-                {
                     directoryProviderLock = parent.searchFactory.GetLockObjForDirectoryProvider(parent);
-                }
-                lock (directoryProviderLock)
-                {
+                lock (directoryProviderLock) {
                     int oldIndex = parent.current;
                     int index = parent.current == 1 ? 2 : 1;
                     DirectoryInfo sourceFile = new DirectoryInfo(source);
 
                     DirectoryInfo destinationFile = new DirectoryInfo(Path.Combine(destination, index.ToString()));
                     //TODO make smart a parameter
-                    try
-                    {
+                    try {
                         log.Info("Copying " + sourceFile + " into " + destinationFile);
                         FileHelper.Synchronize(sourceFile, destinationFile, true);
                         parent.current = index;
                     }
-                    catch (IOException e)
-                    {
+                    catch (IOException e) {
                         //don't change current
                         log.Error("Unable to synchronize source of " + parent.indexName, e);
                         return;
                     }
-                    try
-                    {
+                    try {
                         File.Delete(Path.Combine(destination, "current" + oldIndex));
                     }
-                    catch (IOException e)
-                    {
+                    catch (IOException e) {
                         log.Warn("Unable to remove previous marker file from source of " + parent.indexName, e);
                     }
-                    try
-                    {
+                    try {
                         File.Create(Path.Combine(destination, "current" + index)).Dispose();
                     }
-                    catch (IOException e)
-                    {
+                    catch (IOException e) {
                         log.Warn("Unable to create current marker in source of " + parent.indexName, e);
                     }
                 }
                 log.Info("Copy for " + parent.indexName + " took " + (DateTime.Now - start) + ".");
             }
         }
+
+        #endregion
     }
 }

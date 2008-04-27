@@ -2,77 +2,58 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using NHibernate.Cfg;
-using NHibernate.Search.Engine;
 using NHibernate.Tool.hbm2ddl;
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests.DirectoryProvider
-{
-	public abstract class MultiplySessionFactoriesTestCase
-	{
-		private List<ISessionFactory> sessionFactories = new List<ISessionFactory>();
-		private List<Configuration> configurations;
+namespace NHibernate.Search.Tests.DirectoryProvider {
+    public abstract class MultiplySessionFactoriesTestCase {
+        private List<Configuration> configurations;
+        private List<ISessionFactory> sessionFactories = new List<ISessionFactory>();
 
-		protected abstract int NumberOfSessionFactories { get; }
+        protected abstract int NumberOfSessionFactories { get; }
 
-		protected IList<ISessionFactory> SessionFactories
-		{
-			get { return sessionFactories; }
-		}
+        protected IList<ISessionFactory> SessionFactories {
+            get { return sessionFactories; }
+        }
 
-		[TestFixtureSetUp]
-		public virtual void FixtureSetUp()
-		{
-			Configure();
-			CreateSchema();
-			BuildSessionFactories();
-		}
+        protected abstract IList Mappings { get; }
 
-		private void CreateSchema()
-		{
-			foreach (Configuration configuration in configurations)
-			{
-				new SchemaExport(configuration).Create(false, true);
-			}
-		}
+        [TestFixtureSetUp]
+        public virtual void FixtureSetUp() {
+            Configure();
+            CreateSchema();
+            BuildSessionFactories();
+        }
 
-		public void BuildSessionFactories()
-		{
-			foreach (Configuration configuration in configurations)
-			{
-				ISessionFactory sessionFactory = configuration.BuildSessionFactory();
-				sessionFactories.Add(sessionFactory);
-			}
-		}
+        private void CreateSchema() {
+            foreach (Configuration configuration in configurations)
+                new SchemaExport(configuration).Create(false, true);
+        }
 
-		private void Configure()
-		{
-			configurations = new List<Configuration>();
-			for (int i = 0; i < NumberOfSessionFactories; i++)
-			{
-				configurations.Add(CreateConfiguration());
-			}
-			Configure(configurations);
-		}
+        public void BuildSessionFactories() {
+            foreach (Configuration configuration in configurations) {
+                ISessionFactory sessionFactory = configuration.BuildSessionFactory();
+                sessionFactories.Add(sessionFactory);
+            }
+        }
 
-		private Configuration CreateConfiguration()
-		{
-			Configuration cfg = new Configuration();
-			Assembly assembly = Assembly.GetExecutingAssembly();
+        private void Configure() {
+            configurations = new List<Configuration>();
+            for (int i = 0; i < NumberOfSessionFactories; i++)
+                configurations.Add(CreateConfiguration());
+            Configure(configurations);
+        }
 
-			foreach (string file in Mappings)
-			{
-				cfg.AddResource(assembly.GetName().Name + "." + file, assembly);
-			}
-			SearchTestCase.SetListener(cfg);
-			return cfg;
-		}
+        private Configuration CreateConfiguration() {
+            Configuration cfg = new Configuration();
+            Assembly assembly = Assembly.GetExecutingAssembly();
 
-		protected abstract void Configure(IList<Configuration> cfg);
+            foreach (string file in Mappings)
+                cfg.AddResource(assembly.GetName().Name + "." + file, assembly);
+            SearchTestCase.SetListener(cfg);
+            return cfg;
+        }
 
-		protected abstract IList Mappings
-		{
-			get;
-		}
-	}
+        protected abstract void Configure(IList<Configuration> cfg);
+    }
 }

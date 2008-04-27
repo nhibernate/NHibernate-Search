@@ -3,62 +3,56 @@ using Lucene.Net.Documents;
 using NHibernate.Search.Attributes;
 using NHibernate.Util;
 
-namespace NHibernate.Search.Bridge.Builtin
-{
-    public class DateBridge : ITwoWayStringBridge, IParameterizedBridge
-    {
-        public static readonly ITwoWayStringBridge DATE_YEAR = new DateBridge(Resolution.Year);
-        public static readonly ITwoWayStringBridge DATE_MONTH = new DateBridge(Resolution.Month);
+namespace NHibernate.Search.Bridge.Builtin {
+    public class DateBridge : ITwoWayStringBridge, IParameterizedBridge {
         public static readonly ITwoWayStringBridge DATE_DAY = new DateBridge(Resolution.Day);
         public static readonly ITwoWayStringBridge DATE_HOUR = new DateBridge(Resolution.Hour);
-        public static readonly ITwoWayStringBridge DATE_MINUTE = new DateBridge(Resolution.Minute);
-        public static readonly ITwoWayStringBridge DATE_SECOND = new DateBridge(Resolution.Second);
         public static readonly ITwoWayStringBridge DATE_MILLISECOND = new DateBridge(Resolution.Millisecond);
+        public static readonly ITwoWayStringBridge DATE_MINUTE = new DateBridge(Resolution.Minute);
+        public static readonly ITwoWayStringBridge DATE_MONTH = new DateBridge(Resolution.Month);
+        public static readonly ITwoWayStringBridge DATE_SECOND = new DateBridge(Resolution.Second);
+        public static readonly ITwoWayStringBridge DATE_YEAR = new DateBridge(Resolution.Year);
 
         private DateTools.Resolution resolution;
 
-        public DateBridge()
-        {
-        }
+        public DateBridge() {}
 
-        public DateBridge(Resolution resolution)
-        {
+        public DateBridge(Resolution resolution) {
             SetResolution(resolution);
         }
 
-        public Object StringToObject(String stringValue)
-        {
+        #region IParameterizedBridge Members
+
+        public void SetParameterValues(object[] parameters) {
+            if (parameters.Length != 0)
+                SetResolution((Resolution) parameters[0]);
+        }
+
+        #endregion
+
+        #region ITwoWayStringBridge Members
+
+        public Object StringToObject(String stringValue) {
             if (StringHelper.IsEmpty(stringValue)) return null;
-            try
-            {
+            try {
                 return DateTools.StringToDate(stringValue);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 throw new HibernateException("Unable to parse into date: " + stringValue, e);
             }
         }
 
-        public String ObjectToString(Object obj)
-        {
+        public String ObjectToString(Object obj) {
             if (obj != null)
                 return DateTools.DateToString((DateTime) obj, resolution);
             else
                 return null;
         }
 
-        public void SetParameterValues(object[] parameters)
-        {
-            if (parameters.Length != 0)
-            {
-                SetResolution((Resolution) parameters[0]);
-            }
-        }
+        #endregion
 
-        private void SetResolution(Resolution hibResolution)
-        {
-            switch (hibResolution)
-            {
+        private void SetResolution(Resolution hibResolution) {
+            switch (hibResolution) {
                 case Resolution.Year:
                     resolution = DateTools.Resolution.YEAR;
                     break;

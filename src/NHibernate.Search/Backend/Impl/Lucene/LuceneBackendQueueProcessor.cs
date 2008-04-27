@@ -1,21 +1,16 @@
-using System;
 using System.Collections.Generic;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 
-namespace NHibernate.Search.Backend.Impl.Lucene
-{
+namespace NHibernate.Search.Backend.Impl.Lucene {
     /// <summary>
     /// Apply the operations to Lucene directories avoiding deadlocks
     /// </summary>
-    public class LuceneBackendQueueProcessor
-    {
-		private readonly SearchFactory searchFactory;
-
+    public class LuceneBackendQueueProcessor {
         private readonly List<LuceneWork> queue;
+        private readonly SearchFactory searchFactory;
 
-        public LuceneBackendQueueProcessor(List<LuceneWork> queue, SearchFactory searchFactory)
-        {
+        public LuceneBackendQueueProcessor(List<LuceneWork> queue, SearchFactory searchFactory) {
             this.queue = queue;
             this.searchFactory = searchFactory;
         }
@@ -27,8 +22,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         /// We rely on the both the DocumentBuilder.GetHashCode() and the GetWorkHashCode() to 
         /// sort them by predictive order at all times, and to put deletes before adds
         /// </summary>
-        private static void SortQueueToAvoidDeadLocks(List<LuceneWork> queue, Workspace luceneWorkspace)
-        {
+        private static void SortQueueToAvoidDeadLocks(List<LuceneWork> queue, Workspace luceneWorkspace) {
             queue.Sort(delegate(LuceneWork x, LuceneWork y)
                            {
                                long h1 = GetWorkHashCode(x, luceneWorkspace);
@@ -41,8 +35,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                            });
         }
 
-        private static long GetWorkHashCode(LuceneWork luceneWork, Workspace luceneWorkspace)
-        {
+        private static long GetWorkHashCode(LuceneWork luceneWork, Workspace luceneWorkspace) {
             long h = luceneWorkspace.GetDocumentBuilder(luceneWork.EntityClass).GetHashCode()*2;
             if (luceneWork is AddLuceneWork)
                 h += 1; //addwork after deleteWork
@@ -53,20 +46,15 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         /// 
         /// </summary>
         /// <param name="ignore">Ignored, used to keep the delegate signature that WaitCallback requires</param>
-        public void Run(object ignore)
-        {
+        public void Run(object ignore) {
             Workspace workspace = new Workspace(searchFactory);
             LuceneWorker worker = new LuceneWorker(workspace);
-            try
-            {
+            try {
                 SortQueueToAvoidDeadLocks(queue, workspace);
                 foreach (LuceneWork luceneWork in queue)
-                {
                     worker.PerformWork(new LuceneWorker.WorkWithPayload(luceneWork, null));
-                }
             }
-            finally
-            {
+            finally {
                 workspace.Dispose();
                 queue.Clear();
             }

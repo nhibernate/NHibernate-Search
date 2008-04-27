@@ -3,13 +3,11 @@ using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Storage;
 
-namespace NHibernate.Search.Store.Optimization
-{
+namespace NHibernate.Search.Store.Optimization {
     /// <summary>
     /// Defines the index optimizer strategy
     /// </summary>
-    public interface IOptimizerStrategy
-    {
+    public interface IOptimizerStrategy {
         /// <summary>
         /// 
         /// </summary>

@@ -1,5 +1,4 @@
-namespace NHibernate.Search.Backend
-{
+namespace NHibernate.Search.Backend {
     /// <summary>
     /// Wrapper class around the Lucene indexing parameters <i>mergeFactor</i>, <i>maxMergeDocs</i> and
     /// <i>maxBufferedDocs</i>.
@@ -7,27 +6,23 @@ namespace NHibernate.Search.Backend
     /// There are two sets of these parameters. One is for regular indexing the other is for batch indexing
     /// triggered by <code>FullTextSessoin.index(Object entity)</code>
     /// </summary>
-    public class LuceneIndexingParameters
-    {
-        private int transactionMergeFactor = 10;
-        private int transactionMaxMergeDocs = int.MaxValue;
-        private int transactionMaxBufferedDocs = 10;
-        private int batchMergeFactor = 10;
-        private int batchMaxMergeDocs = int.MinValue;
-        private int batchMaxBufferedDocs = 10;
-
-        // the defaults settings
-        private const int DEFAULT_MERGE_FACTOR = 10;
-        private const int DEFAULT_MAX_MERGE_DOCS = int.MinValue;
+    public class LuceneIndexingParameters {
         private const int DEFAULT_MAX_BUFFERED_DOCS = 10;
+        private const int DEFAULT_MAX_MERGE_DOCS = int.MinValue;
+        private const int DEFAULT_MERGE_FACTOR = 10;
+        private int batchMaxBufferedDocs = 10;
+        private int batchMaxMergeDocs = int.MinValue;
+        private int batchMergeFactor = 10;
+        private int transactionMaxBufferedDocs = 10;
+        private int transactionMaxMergeDocs = int.MaxValue;
+        private int transactionMergeFactor = 10;
 
         #region Constructors
 
         /// <summary>
         /// Constructor which instantiates a new parameter object with the the default values.
         /// </summary>    
-        public LuceneIndexingParameters()
-        {
+        public LuceneIndexingParameters() {
             transactionMergeFactor = DEFAULT_MERGE_FACTOR;
             batchMergeFactor = DEFAULT_MERGE_FACTOR;
             transactionMaxMergeDocs = DEFAULT_MAX_MERGE_DOCS;
@@ -43,8 +38,7 @@ namespace NHibernate.Search.Backend
         /// <summary>
         /// 
         /// </summary>
-        public int TransactionMaxMergeDocs
-        {
+        public int TransactionMaxMergeDocs {
             get { return transactionMaxMergeDocs; }
             set { transactionMaxMergeDocs = value; }
         }
@@ -52,8 +46,7 @@ namespace NHibernate.Search.Backend
         /// <summary>
         /// 
         /// </summary>
-        public int TransactionMergeFactor
-        {
+        public int TransactionMergeFactor {
             get { return transactionMergeFactor; }
             set { transactionMergeFactor = value; }
         }
@@ -61,8 +54,7 @@ namespace NHibernate.Search.Backend
         /// <summary>
         /// 
         /// </summary>
-        public int BatchMaxMergeDocs
-        {
+        public int BatchMaxMergeDocs {
             get { return batchMaxMergeDocs; }
             set { batchMaxMergeDocs = value; }
         }
@@ -70,8 +62,7 @@ namespace NHibernate.Search.Backend
         /// <summary>
         /// 
         /// </summary>
-        public int BatchMergeFactor
-        {
+        public int BatchMergeFactor {
             get { return batchMergeFactor; }
             set { batchMergeFactor = value; }
         }
@@ -79,8 +70,7 @@ namespace NHibernate.Search.Backend
         /// <summary>
         /// 
         /// </summary>
-        public int BatchMaxBufferedDocs
-        {
+        public int BatchMaxBufferedDocs {
             get { return batchMaxBufferedDocs; }
             set { batchMaxBufferedDocs = value; }
         }
@@ -88,8 +78,7 @@ namespace NHibernate.Search.Backend
         /// <summary>
         /// 
         /// </summary>
-        public int TransactionMaxBufferedDocs
-        {
+        public int TransactionMaxBufferedDocs {
             get { return transactionMaxBufferedDocs; }
             set { transactionMaxBufferedDocs = value; }
         }
