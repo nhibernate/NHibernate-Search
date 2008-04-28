@@ -1,5 +1,7 @@
-namespace NHibernate.Search.Attributes {
-    public enum Resolution {
+namespace NHibernate.Search.Attributes
+{
+    public enum Resolution
+    {
         Year,
         Month,
         Day,

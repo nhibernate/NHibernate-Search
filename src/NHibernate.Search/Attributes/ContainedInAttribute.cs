@@ -1,6 +1,7 @@
 using System;
 
-namespace NHibernate.Search.Attributes {
+namespace NHibernate.Search.Attributes
+{
     /// <summary>
     /// Describe the owning entity as being part of the target entity's
     /// index (to be more accurate, being part of the indexed object graph)
@@ -10,7 +11,24 @@ namespace NHibernate.Search.Attributes {
     /// to the IndexedEmbedded owning Entity
     /// 
     /// Not necessary if the class is an Embeddable class.
+    /// <code>
+    /// [Indexed]
+    /// public class OrderLine
+    /// {
+    ///    [IndexedEmbedded]
+    ///    private Order order;
+    /// }
+    ///
+    /// [Indexed]
+    /// public class Order 
+    /// {
+    ///     [ContainedIn]
+    ///     Set<OrderLine> lines;
+    /// }
+    /// </code>
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class ContainedInAttribute : Attribute {}
+    public class ContainedInAttribute : Attribute
+    {
+    }
 }

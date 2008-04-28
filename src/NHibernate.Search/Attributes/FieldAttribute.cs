@@ -1,28 +1,72 @@
 using System;
 
-namespace NHibernate.Search.Attributes {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class FieldAttribute : Attribute {
-        private Index index;
+namespace NHibernate.Search.Attributes
+{
+    /// <summary>
+    /// Mark a property as indexable
+    /// </summary>
+    /// <remarks>We allow multiple instances of this attribute rather than having a Fields as per Java</remarks>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
+    public class FieldAttribute : Attribute
+    {
+        private readonly Index index;
         private string name = null;
         private Store store = Store.No;
+        private AnalyzerAttribute analyzer;
+        private FieldBridgeAttribute fieldBridge;
 
-        public FieldAttribute(Index index) {
+        public FieldAttribute(Index index)
+        {
             this.index = index;
         }
 
-        public string Name {
+        /// <summary>
+        /// Field name, default to the property name
+        /// </summary>
+        public string Name
+        {
             get { return name; }
             set { name = value; }
         }
 
-        public Store Store {
+        /// <summary>
+        /// Should the value be stored in the document
+        /// defaults to no.
+        /// </summary>
+        public Store Store
+        {
             get { return store; }
             set { store = value; }
         }
 
-        public Index Index {
+        /// <summary>
+        /// Defines how the Field should be indexed
+        /// defaults to tokenized
+        /// </summary>
+        public Index Index
+        {
             get { return index; }
+        }
+
+        /// <summary>
+        /// Define an analyzer for the field, default to
+        /// the inherited analyzer
+        /// </summary>
+        /// TODO: Not sure if this is correct
+        public AnalyzerAttribute Analyzer
+        {
+            get { return analyzer; }
+            set { analyzer = value; }
+        }
+
+        /// <summary>
+        /// Field bridge used. Default is autowired.
+        /// </summary>
+        /// TODO: Not sure if this is correct
+        public FieldBridgeAttribute FieldBridge
+        {
+            get { return fieldBridge; }
+            set { fieldBridge = value; }
         }
     }
 }

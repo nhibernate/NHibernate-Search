@@ -57,11 +57,15 @@
     <Compile Include="Attributes\ContainedInAttribute.cs" />
     <Compile Include="Attributes\DateBridgeAttribute.cs" />
     <Compile Include="Attributes\DocumentIdAttribute.cs" />
+    <Compile Include="Attributes\FactoryAttribute.cs" />
     <Compile Include="Attributes\FieldAttribute.cs" />
     <Compile Include="Attributes\FieldBridgeAttribute.cs" />
+    <Compile Include="Attributes\FullTextFilterDefAttribute.cs" />
     <Compile Include="Attributes\Index.cs" />
     <Compile Include="Attributes\Indexed.cs" />
     <Compile Include="Attributes\IndexedEmbedded.cs" />
+    <Compile Include="Attributes\KeyAttribute.cs" />
+    <Compile Include="Attributes\ParameterAttribute.cs" />
     <Compile Include="Attributes\Resolution.cs" />
     <Compile Include="Attributes\Store.cs" />
     <Compile Include="AttributeUtil.cs" />

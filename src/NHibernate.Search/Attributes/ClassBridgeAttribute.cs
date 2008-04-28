@@ -1,14 +1,16 @@
 using System;
 
-namespace NHibernate.Search.Attributes {
+namespace NHibernate.Search.Attributes
+{
     /// <summary>
     /// This annotation allows a user to apply an implementation
     /// class to a Lucene document to manipulate it in any way
-    /// the usersees fit.
+    /// the user sees fit.
     /// </summary>
     /// <remarks>We allow multiple instances of this attribute rather than having a ClassBridgesAttribute as per Java</remarks>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class ClassBridgeAttribute : Attribute {
+    public class ClassBridgeAttribute : Attribute
+    {
         private readonly System.Type impl;
         private readonly object[] parameters;
         private System.Type analyzer;
@@ -17,45 +19,86 @@ namespace NHibernate.Search.Attributes {
         private string name = null;
         private Store store = Store.No;
 
-        public ClassBridgeAttribute(System.Type impl, params object[] parameters) {
+        #region Constructors
+
+        public ClassBridgeAttribute(System.Type impl, params object[] parameters)
+        {
             this.impl = impl;
             this.parameters = parameters;
         }
 
-        public string Name {
+        #endregion
+
+        #region Property methods
+
+        /// <summary>
+        /// Field name, default to the property name.
+        /// </summary>
+        public string Name
+        {
             get { return name; }
             set { name = value; }
         }
 
-        public Store Store {
+        /// <summary>
+        /// Should the value be stored in the document.
+        /// defaults to no.
+        /// </summary>
+        public Store Store
+        {
             get { return store; }
             set { store = value; }
         }
 
-        public Index Index {
+        /// <summary>
+        /// Defines how the Field should be indexed
+        /// defaults to tokenized.
+        /// </summary>
+        public Index Index
+        {
             get { return index; }
             set { index = value; }
         }
 
-        public System.Type Analyzer {
+        /// <summary>
+        /// Define an analyzer for the field, default to
+        /// the inherited analyzer.
+        /// </summary>
+        /// TODO: Java has this as the AnalyzerAttribute - can we do this in .NET?
+        public System.Type Analyzer
+        {
             get { return analyzer; }
             set { analyzer = value; }
         }
 
         /// <summary>
-        /// 
+        /// A float value of the amount of lucene defined
+        /// boost to apply to a field.
         /// </summary>
-        public float Boost {
+        public float Boost
+        {
             get { return boost; }
             set { boost = value; }
         }
 
-        public System.Type Impl {
+        /// <summary>
+        /// User supplied class to manipulate document in
+        /// whatever mysterious ways they wish to.
+        /// </summary>
+        public System.Type Impl
+        {
             get { return impl; }
         }
 
-        public object[] Parameters {
+        /// <summary>
+        /// Array of fields to work with. The imnpl class
+        /// above will work on these fields.
+        /// </summary>
+        public object[] Parameters
+        {
             get { return parameters; }
         }
+
+        #endregion
     }
 }
