@@ -44,6 +44,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene {
             if (log.IsDebugEnabled)
                 log.Debug("Add to Lucene index: " + entity + "#" + id + ": " + document);
             IndexWriter writer = workspace.GetIndexWriter(entity);
+            
             try {
                 writer.AddDocument(document);
             }
@@ -135,7 +136,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene {
 
             IndexReader reader = workspace.GetIndexReader(entity);
             try {
-                Term term = new Term(DocumentBuilder.CLASS_FIELDNAME, entity.Name);
+                Term term = new Term(DocumentBuilder.CLASS_FIELDNAME, entity.AssemblyQualifiedName);
                 reader.DeleteDocuments(term);
             }
             catch (Exception e) {

@@ -68,6 +68,8 @@
     <Compile Include="Inheritance\InheritanceTest.cs" />
     <Compile Include="Inheritance\Mammal.cs" />
     <Compile Include="ListenerCfg\ListenerRegistrationTests.cs" />
+    <Compile Include="LuceneWorker\Document.cs" />
+    <Compile Include="LuceneWorker\LuceneWorker.cs" />
     <Compile Include="Query\AlternateBook.cs" />
     <Compile Include="Query\Book.cs" />
     <Compile Include="Query\Clock.cs" />
@@ -123,6 +125,9 @@
       <Project>{CC25D767-990D-4CE0-9F64-3426E244403B}</Project>
       <Name>NHibernate.Search</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LuceneWorker\Document.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Analyzer\" />
