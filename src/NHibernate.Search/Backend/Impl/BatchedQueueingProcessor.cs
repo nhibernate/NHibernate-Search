@@ -40,7 +40,7 @@ namespace NHibernate.Search.Backend.Impl {
                     throw new SearchException("Unable to find/create processor class: " + backend, e);
                 }
             backendQueueProcessorFactory.Initialize(properties, searchFactory);
-            searchFactory.SetbackendQueueProcessorFactory(backendQueueProcessorFactory);
+            searchFactory.BackendQueueProcessorFactory = backendQueueProcessorFactory;
         }
 
         //TODO implements parallel batchWorkers (one per Directory)

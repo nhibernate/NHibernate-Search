@@ -1,4 +1,5 @@
 using System.Collections;
+using NHibernate.Search.BackEnd;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Storage;

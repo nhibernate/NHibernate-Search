@@ -2,6 +2,7 @@
 using System.Collections;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
+using NHibernate.Search.BackEnd;
 using NUnit.Framework;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;

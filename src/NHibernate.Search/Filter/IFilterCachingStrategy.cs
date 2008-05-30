@@ -1,8 +1,10 @@
-namespace NHibernate.Search.Filter {
+namespace NHibernate.Search.Filter
+{
     /// <summary>
     /// Defines the caching filter strategy
     /// </summary>
-    public interface IFilterCachingStrategy {
+    public interface IFilterCachingStrategy
+    {
         /// <summary>
         /// initialize the strategy from the properties
         /// The Properties must not be changed

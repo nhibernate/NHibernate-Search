@@ -5,7 +5,7 @@ namespace NHibernate.Search.Attributes
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class IndexedAttribute : Attribute
     {
-        private string index = null;
+        private string index = string.Empty;
 
         public string Index
         {

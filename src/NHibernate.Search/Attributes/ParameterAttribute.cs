@@ -5,7 +5,7 @@ namespace NHibernate.Search.Attributes
     /// <summary>
     /// Parameter (basically key/value pattern)
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class ParameterAttribute : Attribute
     {
         private readonly string name;

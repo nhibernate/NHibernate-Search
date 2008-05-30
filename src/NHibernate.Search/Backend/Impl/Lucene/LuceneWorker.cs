@@ -3,6 +3,7 @@ using System.IO;
 using log4net;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
+using NHibernate.Search.BackEnd;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Storage;

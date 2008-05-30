@@ -1,8 +1,15 @@
-namespace NHibernate.Search.Backend {
-    public enum WorkType {
+namespace NHibernate.Search.Backend
+{
+    /// <summary>
+    /// Enumeration of different types of Lucene work. This enumeration is used to specify the type of
+    /// index operation to be executed.
+    /// </summary>
+    public enum WorkType
+    {
         Add,
-        Delete,
         Update,
+        Delete,
+        Collection,
         /// <summary>
         /// Used to remove a specific instance of a class from an index.
         /// </summary>

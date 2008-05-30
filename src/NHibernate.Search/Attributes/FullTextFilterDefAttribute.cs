@@ -3,8 +3,7 @@ using System;
 namespace NHibernate.Search.Attributes
 {
     /// <summary>
-    /// Defines a FullTextFilter that can be optionally applied to
-    /// every FullText Queries
+    /// Defines a FullTextFilter that can be optionally applied to every FullText Queries
     /// While not related to a specific indexed entity, the annotation has to be set on one of them
     /// </summary>
     /// <remarks>We allow multiple instances of this attribute rather than having a FullTextFilterDefsAttribute as per Java</remarks>
@@ -13,6 +12,7 @@ namespace NHibernate.Search.Attributes
     {
         private readonly string name;
         private readonly System.Type impl;
+        private bool cache = true;
 
         public FullTextFilterDefAttribute(string name, System.Type impl)
         {
@@ -38,6 +38,15 @@ namespace NHibernate.Search.Attributes
         public System.Type Impl
         {
             get { return impl; }
+        }
+
+        /// <summary>
+        /// Enable caching for this filter (default true).
+        /// </summary>
+        public bool Cache
+        {
+            get { return cache; }
+            set { cache = value; }
         }
     }
 }

@@ -5,20 +5,24 @@ using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 
-namespace NHibernate.Search.Event {
+namespace NHibernate.Search.Event
+{
     public class FullTextIndexEventListener : IPostDeleteEventListener, IPostInsertEventListener,
                                               IPostUpdateEventListener,
-                                              IInitializable {
+                                              IInitializable
+    {
         protected SearchFactory searchFactory;
         protected bool used;
 
-        public SearchFactory SearchFactory {
+        public SearchFactory SearchFactory
+        {
             get { return searchFactory; }
         }
 
         #region IInitializable Members
 
-        public void Initialize(Configuration cfg) {
+        public void Initialize(Configuration cfg)
+        {
             searchFactory = SearchFactory.GetSearchFactory(cfg);
 
             String indexingStrategy = cfg.GetProperty(Environment.IndexingStrategy);
@@ -33,7 +37,8 @@ namespace NHibernate.Search.Event {
 
         #region IPostDeleteEventListener Members
 
-        public void OnPostDelete(PostDeleteEvent e) {
+        public void OnPostDelete(PostDeleteEvent e)
+        {
             if (used && EntityIsIndexed(e.Entity))
                 processWork(e.Entity, e.Id, WorkType.Delete, e);
         }
@@ -42,8 +47,10 @@ namespace NHibernate.Search.Event {
 
         #region IPostInsertEventListener Members
 
-        public void OnPostInsert(PostInsertEvent e) {
-            if (used) {
+        public void OnPostInsert(PostInsertEvent e)
+        {
+            if (used)
+            {
                 Object entity = e.Entity;
                 //not strictly necessary but a smal optimization
                 if (EntityIsIndexed(entity)) processWork(entity, e.Id, WorkType.Add, e);
@@ -54,8 +61,10 @@ namespace NHibernate.Search.Event {
 
         #region IPostUpdateEventListener Members
 
-        public void OnPostUpdate(PostUpdateEvent e) {
-            if (used) {
+        public void OnPostUpdate(PostUpdateEvent e)
+        {
+            if (used)
+            {
                 Object entity = e.Entity;
                 //not strictly necessary but a smal optimization
 
@@ -66,12 +75,14 @@ namespace NHibernate.Search.Event {
 
         #endregion
 
-        private bool EntityIsIndexed(object entity) {
+        private bool EntityIsIndexed(object entity)
+        {
             return searchFactory.GetDocumentBuilder(entity) != null;
         }
 
-        protected void processWork(Object entity, object id, WorkType workType, AbstractEvent e) {
+        protected void processWork(Object entity, object id, WorkType workType, AbstractEvent e)
+        {
             searchFactory.PerformWork(entity, id, e.Session, workType);
         }
-                                              }
+    }
 }

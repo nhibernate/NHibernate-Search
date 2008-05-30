@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Threading;
 using NHibernate.Search.Engine;
 
-namespace NHibernate.Search.Backend {
+namespace NHibernate.Search.Backend
+{
     /// <summary>
     /// Build stateful backend processor
     /// Must have a no arg constructor
     /// The factory typically prepare or pool the resources needed by the queue processor
     /// </summary>
-    public interface IBackendQueueProcessorFactory {
+    public interface IBackendQueueProcessorFactory
+    {
         void Initialize(IDictionary props, SearchFactory searchFactory);
 
         /// <summary>

@@ -127,7 +127,7 @@ namespace NHibernate.Search.Engine {
             switch (index) {
                 case Index.No:
                     return Field.Index.NO;
-                case Index.NoNormalization:
+                case Index.NoNorms:
                     return Field.Index.NO_NORMS;
                 case Index.Tokenized:
                     return Field.Index.TOKENIZED;

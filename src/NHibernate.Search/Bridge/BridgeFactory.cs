@@ -4,8 +4,10 @@ using System.Reflection;
 using NHibernate.Search.Attributes;
 using NHibernate.Search.Bridge.Builtin;
 
-namespace NHibernate.Search.Bridge {
-    public class BridgeFactory {
+namespace NHibernate.Search.Bridge
+{
+    public class BridgeFactory
+    {
         public static readonly ITwoWayFieldBridge BOOLEAN =
             new TwoWayString2FieldBridgeAdaptor(new ValueTypeBridge<bool>());
 
@@ -38,48 +40,57 @@ namespace NHibernate.Search.Bridge {
 
         public static readonly ITwoWayFieldBridge STRING = new TwoWayString2FieldBridgeAdaptor(new StringBridge());
 
-        static BridgeFactory() {
-            builtInBridges.Add(typeof (double).Name, DOUBLE);
-            builtInBridges.Add(typeof (float).Name, FLOAT);
-            builtInBridges.Add(typeof (short).Name, SHORT);
-            builtInBridges.Add(typeof (int).Name, INTEGER);
-            builtInBridges.Add(typeof (long).Name, LONG);
-            builtInBridges.Add(typeof (String).Name, STRING);
-            builtInBridges.Add(typeof (Boolean).Name, BOOLEAN);
+        static BridgeFactory()
+        {
+            builtInBridges.Add(typeof(double).Name, DOUBLE);
+            builtInBridges.Add(typeof(float).Name, FLOAT);
+            builtInBridges.Add(typeof(short).Name, SHORT);
+            builtInBridges.Add(typeof(int).Name, INTEGER);
+            builtInBridges.Add(typeof(long).Name, LONG);
+            builtInBridges.Add(typeof(String).Name, STRING);
+            builtInBridges.Add(typeof(Boolean).Name, BOOLEAN);
 
-            builtInBridges.Add(typeof (DateTime).Name, DATE_MILLISECOND);
+            builtInBridges.Add(typeof(DateTime).Name, DATE_MILLISECOND);
         }
 
-        private BridgeFactory() {}
+        private BridgeFactory()
+        {
+        }
 
-        public static IFieldBridge GuessType(MemberInfo member) {
+        public static IFieldBridge GuessType(MemberInfo member)
+        {
             IFieldBridge bridge = null;
             FieldBridgeAttribute bridgeAnn = AttributeUtil.GetFieldBridge(member);
-            if (bridgeAnn != null) {
+            if (bridgeAnn != null)
+            {
                 System.Type impl = bridgeAnn.Impl;
-                try {
-                    Object instance = Activator.CreateInstance(impl);
-                    if (typeof (IFieldBridge).IsAssignableFrom(impl))
+                try
+                {
+                    Object instance = Activator.CreateInstance((System.Type) impl);
+                    if (typeof(IFieldBridge).IsAssignableFrom(impl))
                         bridge = (IFieldBridge) instance;
-                    else if (typeof (ITwoWayStringBridge).IsAssignableFrom(impl))
+                    else if (typeof(ITwoWayStringBridge).IsAssignableFrom(impl))
                         bridge = new TwoWayString2FieldBridgeAdaptor(
                             (ITwoWayStringBridge) instance);
-                    else if (typeof (StringBridge).IsAssignableFrom(impl))
+                    else if (typeof(StringBridge).IsAssignableFrom(impl))
                         bridge = new String2FieldBridgeAdaptor((StringBridge) instance);
-                    if (bridgeAnn.Parameters.Length > 0 && typeof (IParameterizedBridge).IsAssignableFrom(impl))
+                    if (bridgeAnn.Parameters.Length > 0 && typeof(IParameterizedBridge).IsAssignableFrom(impl))
                         ((IParameterizedBridge) instance).SetParameterValues(bridgeAnn.Parameters);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     //TODO add classname
                     throw new HibernateException("Unable to instanciate IFieldBridge for " + member.Name, e);
                 }
             }
-            else if (AttributeUtil.IsDateBridge(member)) {
+            else if (AttributeUtil.IsDateBridge(member))
+            {
                 Resolution resolution =
                     AttributeUtil.GetDateBridge(member).Resolution;
                 bridge = GetDateField(resolution);
             }
-            else {
+            else
+            {
                 //find in built-ins
                 System.Type returnType = GetMemberType(member);
                 if (IsNullable(returnType))
@@ -95,11 +106,13 @@ namespace NHibernate.Search.Bridge {
             return bridge;
         }
 
-        private static bool IsNullable(System.Type returnType) {
-            return returnType.IsGenericType && typeof (Nullable<>) == returnType.GetGenericTypeDefinition();
+        private static bool IsNullable(System.Type returnType)
+        {
+            return returnType.IsGenericType && typeof(Nullable<>) == returnType.GetGenericTypeDefinition();
         }
 
-        private static System.Type GetMemberType(MemberInfo member) {
+        private static System.Type GetMemberType(MemberInfo member)
+        {
             PropertyInfo prop = member as PropertyInfo;
             if (prop != null)
                 return prop.PropertyType;
@@ -107,8 +120,10 @@ namespace NHibernate.Search.Bridge {
                 return ((FieldInfo) member).FieldType;
         }
 
-        public static IFieldBridge GetDateField(Resolution resolution) {
-            switch (resolution) {
+        public static IFieldBridge GetDateField(Resolution resolution)
+        {
+            switch (resolution)
+            {
                 case Resolution.Year:
                     return DATE_YEAR;
                 case Resolution.Month:
