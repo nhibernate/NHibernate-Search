@@ -54,9 +54,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bridge\BridgeTestCase.cs" />
+    <Compile Include="Bridge\CatFieldsClassBridge.cs" />
+    <Compile Include="Bridge\CatsDeptsFieldsClassBridge.cs" />
+    <Compile Include="Bridge\ClassBridgeTest.cs" />
     <Compile Include="Bridge\Cloud.cs" />
     <Compile Include="Bridge\CloudType.cs" />
+    <Compile Include="Bridge\Department.cs" />
+    <Compile Include="Bridge\Departments.cs" />
+    <Compile Include="Bridge\EquipmentType.cs" />
+    <Compile Include="Bridge\Gangster.cs" />
     <Compile Include="Bridge\TruncateFieldBridge.cs" />
+    <Compile Include="Bridge\TruncateStringBridge.cs" />
     <Compile Include="Cfg\ConfigurationFixture.cs" />
     <Compile Include="DirectoryProvider\FSSlaveAndMasterDPTest.cs" />
     <Compile Include="DirectoryProvider\MultiplySessionFactoriesTestCase.cs" />
@@ -128,6 +136,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LuceneWorker\Document.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Bridge\Department.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Bridge\Departments.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Bridge\Gangster.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Analyzer\" />

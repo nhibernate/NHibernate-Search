@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+				   namespace="NHibernate.Search.Tests.Bridge"
+				   assembly="NHibernate.Search.Tests">
+	<class name="Department">
+		<id name="Id">
+			<generator class="native" />
+		</id>
+		<property name="Network"/>
+		<property name="BranchHead"/>
+		<property name="Branch"/>
+		<property name="MaxEmployees"/>
+	</class>
+</hibernate-mapping>

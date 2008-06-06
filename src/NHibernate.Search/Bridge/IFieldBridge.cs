@@ -15,12 +15,12 @@ namespace NHibernate.Search.Bridge
         /// the parameters (<code>store</code>, <code>index</code>, <code>boost</code>) if the
         /// <code>value</code> is not null
         /// </summary>
-        /// <param name="idKeywordName"></param>
-        /// <param name="id"></param>
-        /// <param name="doc"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <param name="document"></param>
         /// <param name="store"></param>
         /// <param name="index"></param>
         /// <param name="boost"></param>
-        void Set(string idKeywordName, object id, Document doc, Field.Store store, Field.Index index, float? boost);
+        void Set(string name, object value, Document document, Field.Store store, Field.Index index, float? boost);
     }
 }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace NHibernate.Search.Bridge
 {
     /// <summary>
@@ -5,6 +7,6 @@ namespace NHibernate.Search.Bridge
     /// </summary>
     public interface IParameterizedBridge
     {
-        void SetParameterValues(object[] parameters);
+        void SetParameterValues(Dictionary<string, object> parameters);
     }
 }

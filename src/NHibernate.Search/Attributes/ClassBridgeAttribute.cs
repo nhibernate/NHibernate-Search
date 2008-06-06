@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NHibernate.Search.Attributes
 {
@@ -7,12 +8,14 @@ namespace NHibernate.Search.Attributes
     /// class to a Lucene document to manipulate it in any way
     /// the user sees fit.
     /// </summary>
-    /// <remarks>We allow multiple instances of this attribute rather than having a ClassBridgesAttribute as per Java</remarks>
+    /// <remarks>
+    /// We allow multiple instances of this attribute rather than having a ClassBridgesAttribute as per Java
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ClassBridgeAttribute : Attribute
     {
         private readonly System.Type impl;
-        private readonly object[] parameters;
+        private readonly Dictionary<string, object> parameters;
         private System.Type analyzer;
         private float boost = 1.0F;
         private Index index = Index.Tokenized;
@@ -21,10 +24,10 @@ namespace NHibernate.Search.Attributes
 
         #region Constructors
 
-        public ClassBridgeAttribute(System.Type impl, params object[] parameters)
+        public ClassBridgeAttribute(System.Type impl)
         {
             this.impl = impl;
-            this.parameters = parameters;
+            parameters = new Dictionary<string, object>();
         }
 
         #endregion
@@ -41,8 +44,7 @@ namespace NHibernate.Search.Attributes
         }
 
         /// <summary>
-        /// Should the value be stored in the document.
-        /// defaults to no.
+        /// Should the value be stored in the document, defaults to no.
         /// </summary>
         public Store Store
         {
@@ -51,8 +53,7 @@ namespace NHibernate.Search.Attributes
         }
 
         /// <summary>
-        /// Defines how the Field should be indexed
-        /// defaults to tokenized.
+        /// Defines how the Field should be indexed defaults to tokenized.
         /// </summary>
         public Index Index
         {
@@ -61,10 +62,9 @@ namespace NHibernate.Search.Attributes
         }
 
         /// <summary>
-        /// Define an analyzer for the field, default to
-        /// the inherited analyzer.
+        /// Define an analyzer for the field, default to the inherited analyzer.
         /// </summary>
-        /// TODO: Java has this as the AnalyzerAttribute - can we do this in .NET?
+        /// <remarks>The Java uses an Analyzer annotation here, we can't do that, so just supply the analyzer's type</remarks>
         public System.Type Analyzer
         {
             get { return analyzer; }
@@ -72,8 +72,7 @@ namespace NHibernate.Search.Attributes
         }
 
         /// <summary>
-        /// A float value of the amount of lucene defined
-        /// boost to apply to a field.
+        /// A float value of the amount of lucene defined boost to apply to a field.
         /// </summary>
         public float Boost
         {
@@ -94,7 +93,7 @@ namespace NHibernate.Search.Attributes
         /// Array of fields to work with. The imnpl class
         /// above will work on these fields.
         /// </summary>
-        public object[] Parameters
+        public Dictionary<string, object> Parameters
         {
             get { return parameters; }
         }

@@ -57,6 +57,40 @@ namespace NHibernate.Search.Bridge
         {
         }
 
+        public static IFieldBridge ExtractType(ClassBridgeAttribute cb)
+        {
+            IFieldBridge bridge = null;
+
+            if (cb != null)
+            {
+                System.Type impl = cb.Impl;
+
+                if (impl != null)
+                {
+                    try
+                    {
+                        Object instance = Activator.CreateInstance(impl);
+                        if (typeof(IFieldBridge).IsAssignableFrom(impl))
+                            bridge = (IFieldBridge)instance;
+                        if (cb.Parameters.Count > 0 && typeof(IParameterizedBridge).IsAssignableFrom(impl))
+                        {
+                            // Already converted the parameters by this stage
+                            ((IParameterizedBridge) instance).SetParameterValues(cb.Parameters);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //TODO add classname
+                        throw new HibernateException("Unable to instantiate IFieldBridge for " + cb.Name, e);
+                    }
+                }
+            }
+            //TODO add classname
+            if (bridge == null) throw new HibernateException("Unable to guess IFieldBridge ");
+
+            return bridge;
+        }
+
         public static IFieldBridge GuessType(MemberInfo member)
         {
             IFieldBridge bridge = null;
@@ -66,7 +100,7 @@ namespace NHibernate.Search.Bridge
                 System.Type impl = bridgeAnn.Impl;
                 try
                 {
-                    Object instance = Activator.CreateInstance((System.Type) impl);
+                    Object instance = Activator.CreateInstance(impl);
                     if (typeof(IFieldBridge).IsAssignableFrom(impl))
                         bridge = (IFieldBridge) instance;
                     else if (typeof(ITwoWayStringBridge).IsAssignableFrom(impl))
@@ -74,13 +108,13 @@ namespace NHibernate.Search.Bridge
                             (ITwoWayStringBridge) instance);
                     else if (typeof(StringBridge).IsAssignableFrom(impl))
                         bridge = new String2FieldBridgeAdaptor((StringBridge) instance);
-                    if (bridgeAnn.Parameters.Length > 0 && typeof(IParameterizedBridge).IsAssignableFrom(impl))
+                    if (bridgeAnn.Parameters.Count > 0 && typeof(IParameterizedBridge).IsAssignableFrom(impl))
                         ((IParameterizedBridge) instance).SetParameterValues(bridgeAnn.Parameters);
                 }
                 catch (Exception e)
                 {
                     //TODO add classname
-                    throw new HibernateException("Unable to instanciate IFieldBridge for " + member.Name, e);
+                    throw new HibernateException("Unable to instaniate IFieldBridge for " + member.Name, e);
                 }
             }
             else if (AttributeUtil.IsDateBridge(member))

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NHibernate.Search.Attributes
 {
@@ -9,12 +10,12 @@ namespace NHibernate.Search.Attributes
     public class FieldBridgeAttribute : Attribute
     {
         private readonly System.Type impl;
-        private readonly object[] parameters;
+        private readonly Dictionary<string, object> parameters;
 
-        public FieldBridgeAttribute(System.Type impl, params object[] parameters)
+        public FieldBridgeAttribute(System.Type impl)
         {
             this.impl = impl;
-            this.parameters = parameters;
+            parameters = new Dictionary<string, object>();
         }
 
         public System.Type Impl
@@ -22,7 +23,7 @@ namespace NHibernate.Search.Attributes
             get { return impl; }
         }
 
-        public object[] Parameters
+        public Dictionary<string, object> Parameters
         {
             get { return parameters; }
         }

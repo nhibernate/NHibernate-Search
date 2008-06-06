@@ -6,20 +6,25 @@ using Lucene.Net.QueryParsers;
 using NHibernate.Cfg;
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests.Bridge {
+namespace NHibernate.Search.Tests.Bridge
+{
     [TestFixture]
-    public class BridgeTest : SearchTestCase {
-        protected override void Configure(Configuration configuration) {
+    public class BridgeTest : SearchTestCase
+    {
+        protected override void Configure(Configuration configuration)
+        {
             base.Configure(configuration);
-            configuration.SetProperty(Environment.AnalyzerClass, typeof (SimpleAnalyzer).AssemblyQualifiedName);
+            configuration.SetProperty(Environment.AnalyzerClass, typeof(SimpleAnalyzer).AssemblyQualifiedName);
         }
 
-        protected override IList Mappings {
+        protected override IList Mappings
+        {
             get { return new string[] {"Bridge.Cloud.hbm.xml"}; }
         }
 
         [Test]
-        public void CustomBridges() {
+        public void CustomBridges()
+        {
             Cloud cloud = new Cloud();
             cloud.CustomFieldBridge = ("This is divided by 2");
             cloud.CustomStringBridge = ("This is div by 4");
@@ -43,13 +48,14 @@ namespace NHibernate.Search.Tests.Bridge {
             result = session.CreateFullTextQuery(query).List();
             Assert.AreEqual(0, result.Count, "Custom types not taken into account");
 
-            s.Delete(s.Get(typeof (Cloud), cloud.Id));
+            s.Delete(s.Get(typeof(Cloud), cloud.Id));
             tx.Commit();
             s.Close();
         }
 
         [Test]
-        public void DateTimeBridge() {
+        public void DateTimeBridge()
+        {
             Cloud cloud = new Cloud();
 
             DateTime date = new DateTime(2000, 12, 15, 3, 43, 2);
@@ -85,13 +91,14 @@ namespace NHibernate.Search.Tests.Bridge {
             result = session.CreateFullTextQuery(query).List();
             Assert.AreEqual(1, result.Count, "DateTime not found or not property truncated");
 
-            s.Delete(s.Get(typeof (Cloud), cloud.Id));
+            s.Delete(s.Get(typeof(Cloud), cloud.Id));
             tx.Commit();
             s.Close();
         }
 
         [Test]
-        public void DefaultAndNullBridges() {
+        public void DefaultAndNullBridges()
+        {
             Cloud cloud = new Cloud();
             cloud.DateTime = null;
             cloud.Double1 = (null);
@@ -126,9 +133,9 @@ namespace NHibernate.Search.Tests.Bridge {
             query = parser.Parse("Double1:[2 TO 2.1] OR Float1:[2 TO 2.1] OR Int1:[2 TO 2.1] OR Long1:[2 TO 2.1]");
             result = session.CreateFullTextQuery(query).List();
             Assert.AreEqual(0, result.Count, "null elements should not be stored");
-                //the query is dumb because restrictive
+            //the query is dumb because restrictive
 
-            s.Delete(s.Get(typeof (Cloud), cloud.Id));
+            s.Delete(s.Get(typeof(Cloud), cloud.Id));
             tx.Commit();
             s.Close();
         }
