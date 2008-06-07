@@ -24,19 +24,18 @@ namespace NHibernate.Search.Engine
     {
         public const string CLASS_FIELDNAME = "_hibernate_class";
         private static readonly ILog log = LogManager.GetLogger(typeof(DocumentBuilder));
-        private readonly Analyzer analyzer;
 
+        private readonly PropertiesMetadata rootPropertiesMetadata;
         private readonly System.Type beanClass;
         private readonly IDirectoryProvider directoryProvider;
-        private readonly PropertiesMetadata rootPropertiesMetadata;
+        private String idKeywordName;
+        private MemberInfo idGetter;
         private float? idBoost;
         private ITwoWayFieldBridge idBridge;
-        private MemberInfo idGetter;
-        private String idKeywordName;
-        private int level;
         private ISet<System.Type> mappedSubclasses = new HashedSet<System.Type>();
+        private int level;
         private int maxLevel = int.MaxValue;
-        //private ScopedAnalyzer analyzer;
+        private ScopedAnalyzer analyzer;
 
         #region Nested type: PropertiesMetadata
 
@@ -66,8 +65,8 @@ namespace NHibernate.Search.Engine
 
         public DocumentBuilder(System.Type clazz, Analyzer defaultAnalyzer, IDirectoryProvider directory)
         {
-            //analyzer = new ScopedAnalyzer();
-            analyzer = defaultAnalyzer;
+            analyzer = new ScopedAnalyzer();
+            //analyzer = defaultAnalyzer;
             beanClass = clazz;
             directoryProvider = directory;
 
@@ -82,7 +81,7 @@ namespace NHibernate.Search.Engine
             InitializeMembers(clazz, rootPropertiesMetadata, true, "", processedClasses);
             //processedClasses.remove( clazz ); for the sake of completness
 
-            //analyzer.GlobalAnalyzer = rootPropertiesMetadata.analyzer;
+            analyzer.GlobalAnalyzer = rootPropertiesMetadata.analyzer;
             if (idKeywordName == null)
                 throw new SearchException("No document id for: " + clazz.Name);
         }
@@ -125,11 +124,11 @@ namespace NHibernate.Search.Engine
             propertiesMetadata.classBridges.Add(BridgeFactory.ExtractType(ann));
             propertiesMetadata.classBoosts.Add(ann.Boost);
 
-            //Analyzer classAnalyzer = GetAnalyzer(ann.Analyzer) ?? propertiesMetadata.analyzer;
-            //if (classAnalyzer == null)
-            //    throw new NotSupportedException("Analyzer should not be undefined");
+            Analyzer classAnalyzer = GetAnalyzer(ann.Analyzer) ?? propertiesMetadata.analyzer;
+            if (classAnalyzer == null)
+                throw new NotSupportedException("Analyzer should not be undefined");
 
-            //analyzer.AddScopedAnalyzer(fieldName, classAnalyzer);
+            analyzer.AddScopedAnalyzer(fieldName, classAnalyzer);
         }
 
         private void BindFieldAnnotation(MemberInfo member, PropertiesMetadata propertiesMetadata, string prefix,
@@ -143,11 +142,11 @@ namespace NHibernate.Search.Engine
             propertiesMetadata.fieldIndex.Add(GetIndex(fieldAnn.Index));
             propertiesMetadata.fieldBridges.Add(BridgeFactory.GuessType(member));
 
-            //Analyzer memberAnalyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
-            //if (memberAnalyzer == null)
-            //    throw new NotSupportedException("Analyzer should not be undefined");
+            Analyzer memberAnalyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
+            if (memberAnalyzer == null)
+                throw new NotSupportedException("Analyzer should not be undefined");
 
-            //analyzer.AddScopedAnalyzer(fieldName, memberAnalyzer);
+            analyzer.AddScopedAnalyzer(fieldName, memberAnalyzer);
         }
 
         private static Analyzer GetAnalyzer(MemberInfo member)
@@ -226,38 +225,67 @@ namespace NHibernate.Search.Engine
             String prefix, ISet<System.Type> processedClasses)
         {
             DocumentIdAttribute documentIdAnn = AttributeUtil.GetDocumentId(member);
-            if (isRoot && documentIdAnn != null)
+            if (documentIdAnn != null)
             {
-                if (idKeywordName != null)
-                    if (documentIdAnn.Name != null)
-                        throw new AssertionFailure("Two document id assigned: "
-                                                   + idKeywordName + " and " + documentIdAnn.Name);
-                idKeywordName = prefix + documentIdAnn.Name;
-                IFieldBridge fieldBridge = BridgeFactory.GuessType(member);
-                if (fieldBridge is ITwoWayFieldBridge)
-                    idBridge = (ITwoWayFieldBridge) fieldBridge;
+                if (isRoot)
+                {
+                    if (idKeywordName != null)
+                        if (documentIdAnn.Name != null)
+                            throw new AssertionFailure("Two document id assigned: "
+                                                       + idKeywordName + " and " + documentIdAnn.Name);
+                    idKeywordName = prefix + documentIdAnn.Name;
+                    IFieldBridge fieldBridge = BridgeFactory.GuessType(member);
+                    if (fieldBridge is ITwoWayFieldBridge)
+                        idBridge = (ITwoWayFieldBridge) fieldBridge;
+                    else
+                        throw new SearchException(
+                            "Bridge for document id does not implement IdFieldBridge: " + member.Name);
+                    idBoost = GetBoost(member);
+                    idGetter = member;
+                }
                 else
-                    throw new SearchException(
-                        "Bridge for document id does not implement IdFieldBridge: " + member.Name);
-                idBoost = GetBoost(member);
-                idGetter = member;
+                {
+                    // Component should index their document id
+                    SetAccessible(member);
+                    propertiesMetadata.fieldGetters.Add(member);
+                    string fieldName = prefix + BinderHelper.GetAttributeName(member, documentIdAnn.Name);
+                    propertiesMetadata.fieldNames.Add(fieldName);
+                    propertiesMetadata.fieldStore.Add(GetStore(Attributes.Store.Yes));
+                    propertiesMetadata.fieldIndex.Add(GetIndex(Index.UnTokenized));
+                    propertiesMetadata.fieldBridges.Add(BridgeFactory.GuessType(member));
+
+                    // Field > property > entity analyzer
+                    Analyzer memberAnalyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
+                    if (memberAnalyzer == null)
+                        throw new NotSupportedException("Analyzer should not be undefined");
+
+                    analyzer.AddScopedAnalyzer(fieldName, memberAnalyzer);
+                }
             }
 
-            //List<FieldAttribute> fieldAttributes = AttributeUtil.GetFields(member);
-            //if (fieldAttributes != null)
-            //{
-            //    foreach (FieldAttribute fieldAnn in fieldAttributes)
-            //        BindFieldAnnotation(member, propertiesMetadata, prefix, fieldAnn);
-            //}
-            FieldAttribute fieldAnn = AttributeUtil.GetField(member);
-            if (fieldAnn != null)
-                BindFieldAnnotation(member, propertiesMetadata, prefix, fieldAnn);
+            List<FieldAttribute> fieldAttributes = AttributeUtil.GetFields(member);
+            if (fieldAttributes != null)
+            {
+                foreach (FieldAttribute fieldAnn in fieldAttributes)
+                    BindFieldAnnotation(member, propertiesMetadata, prefix, fieldAnn);
+            }
         }
 
         private void InitializeMembers(
             System.Type clazz, PropertiesMetadata propertiesMetadata, bool isRoot, String prefix,
             ISet<System.Type> processedClasses)
         {
+            List<ClassBridgeAttribute> classBridgeAnn = AttributeUtil.GetClassBridges(clazz);
+            if (classBridgeAnn != null)
+            {
+                // Ok, pick up the parameters as well
+                AttributeUtil.GetClassBridgeParameters(clazz, classBridgeAnn);
+
+                // Now we can process the class bridges
+                foreach (ClassBridgeAttribute cb in classBridgeAnn)
+                    BindClassAnnotation(prefix, propertiesMetadata, cb);
+            }
+
             PropertyInfo[] propertyInfos = clazz.GetProperties();
             foreach (PropertyInfo propertyInfo in propertyInfos)
                 InitializeMember(propertyInfo, propertiesMetadata, isRoot, prefix, processedClasses);
@@ -329,6 +357,14 @@ namespace NHibernate.Search.Engine
                     */
                     queue.Add(new DeleteLuceneWork(id, idString, entityClass));
                     queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id)));
+                    // searchForContainers = true;
+                    break;
+
+                case WorkType.Index:
+                    queue.Add(new DeleteLuceneWork(id, idString, entityClass));
+                    LuceneWork work = new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id));
+                    work.IsBatch = true;
+                    queue.Add(work);
                     // searchForContainers = true;
                     break;
 

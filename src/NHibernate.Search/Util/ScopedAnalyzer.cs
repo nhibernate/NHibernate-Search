@@ -39,11 +39,14 @@ namespace NHibernate.Search.Util
 
         private Analyzer GetAnalyzer(String fieldName)
         {
-            Analyzer analyzer = scopedAnalyzers[fieldName];
+            Analyzer analyzer = null;
+            if (scopedAnalyzers.ContainsKey(fieldName))
+                analyzer = scopedAnalyzers[fieldName];
+
+            // NB Think we need the re-test here as although the field might be mapped, it might not define an analyzer
             if (analyzer == null)
-            {
                 analyzer = globalAnalyzer;
-            }
+
             return analyzer;
         }
     }

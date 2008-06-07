@@ -2,7 +2,7 @@
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
 				   namespace="NHibernate.Search.Tests.Worker"
 				   assembly="NHibernate.Search.Tests">
-	<class name="Employee">
+	<class name="Food">
 		<id name="Id">
 			<generator class="native" />
 		</id>

@@ -34,7 +34,7 @@ namespace NHibernate.Search
             return attribs;
         }
 
-#endregion
+        #endregion
 
         #region Public methods
 
@@ -150,7 +150,12 @@ namespace NHibernate.Search
 
         public static List<FieldAttribute> GetFields(MemberInfo member)
         {
-            return GetAttributes<FieldAttribute>(member);
+            List<FieldAttribute> attribs = GetAttributes<FieldAttribute>(member);
+            if (attribs != null)
+                foreach (FieldAttribute attribute in attribs)
+                    attribute.Name = attribute.Name ?? member.Name;
+
+            return attribs;
         }
 
         public static FieldBridgeAttribute GetFieldBridge(ICustomAttributeProvider member)

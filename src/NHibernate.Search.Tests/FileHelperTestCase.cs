@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace NHibernate.Search.Tests {
     [TestFixture]
-    public class FileHleperTestCase {
+    public class FileHelperTestCase {
         #region Setup/Teardown
 
         [SetUp]

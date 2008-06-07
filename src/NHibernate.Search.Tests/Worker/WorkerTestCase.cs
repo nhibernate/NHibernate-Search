@@ -3,13 +3,28 @@ using System.IO;
 using System.Threading;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
+using NHibernate.Cfg;
 using NHibernate.Search.Impl;
+using NHibernate.Search.Storage;
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests.Workers {
+namespace NHibernate.Search.Tests.Worker
+{
     [TestFixture, Ignore("Only partially ported - can't figure out what this is testing.")]
-    public class WorkerTestCase : SearchTestCase {
-        protected override void OnSetUp() {
+    public class WorkerTestCase : SearchTestCase
+    {
+        protected override void Configure(Configuration configuration)
+        {
+            base.Configure(configuration);
+            DirectoryInfo sub = BaseIndexDir;
+            configuration.SetProperty("hibernate.search.default.indexBase", sub.FullName);
+            configuration.SetProperty("hibernate.search.Clock.directory_provider", typeof(FSDirectoryProvider).AssemblyQualifiedName);
+
+            configuration.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
+        }
+
+        protected override void OnSetUp()
+        {
             DirectoryInfo sub = BaseIndexDir;
             sub.Create();
             foreach (DirectoryInfo directoryInfo in sub.GetDirectories())
@@ -17,33 +32,42 @@ namespace NHibernate.Search.Tests.Workers {
             BuildSessionFactory(); //we need a fresh one per test
         }
 
-        protected override void OnTearDown() {
+        protected override void OnTearDown()
+        {
             BaseIndexDir.Delete(true);
         }
 
-        private DirectoryInfo BaseIndexDir {
+        private DirectoryInfo BaseIndexDir
+        {
             get { return new DirectoryInfo(Path.Combine(".", "indextemp")); }
         }
 
-        protected override IList Mappings {
-            get {
+        protected override IList Mappings
+        {
+            get
+            {
                 return new string[]
-                    {
-                        "Worker.Employee.hbm.xml",
-                        "Worker.Employer.hbm.xml",
-                    };
+                           {
+                               "Worker.Employee.hbm.xml",
+                               "Worker.Employer.hbm.xml",
+                               "Worker.Food.hbm.xml",
+                               "Worker.Drink.hbm.xml",
+                           };
             }
         }
 
-        protected class Work {
-            public volatile int count = 0;
-            private ISessionFactory sf;
+        protected class Work
+        {
+            private readonly ISessionFactory sf;
+            public volatile int count;
 
-            public Work(ISessionFactory sf) {
+            public Work(ISessionFactory sf)
+            {
                 this.sf = sf;
             }
 
-            public void Run(object ignored) {
+            public void Run(object ignored)
+            {
                 ISession s = sf.OpenSession();
                 ITransaction tx = s.BeginTransaction();
                 Employee ee = new Employee();
@@ -57,9 +81,9 @@ namespace NHibernate.Search.Tests.Workers {
 
                 s = sf.OpenSession();
                 tx = s.BeginTransaction();
-                ee = (Employee) s.Get(typeof (Employee), ee.Id);
+                ee = (Employee) s.Get(typeof(Employee), ee.Id);
                 ee.Name = ("Emmanuel2");
-                er = (Employer) s.Get(typeof (Employer), er.Id);
+                er = (Employer) s.Get(typeof(Employer), er.Id);
                 er.Name = ("RH2");
                 tx.Commit();
                 s.Close();
@@ -79,9 +103,9 @@ namespace NHibernate.Search.Tests.Workers {
 
                 s = sf.OpenSession();
                 tx = s.BeginTransaction();
-                ee = (Employee) s.Get(typeof (Employee), ee.Id);
+                ee = (Employee) s.Get(typeof(Employee), ee.Id);
                 s.Delete(ee);
-                er = (Employer) s.Get(typeof (Employee), er.Id);
+                er = (Employer) s.Get(typeof(Employee), er.Id);
                 s.Delete(er);
                 tx.Commit();
                 s.Close();
@@ -89,14 +113,17 @@ namespace NHibernate.Search.Tests.Workers {
             }
         }
 
-        protected class ReverseWork {
-            private ISessionFactory sf;
+        protected class ReverseWork
+        {
+            private readonly ISessionFactory sf;
 
-            public ReverseWork(ISessionFactory sf) {
+            public ReverseWork(ISessionFactory sf)
+            {
                 this.sf = sf;
             }
 
-            public void Run(object ignored) {
+            public void Run(object ignored)
+            {
                 ISession s = sf.OpenSession();
                 ITransaction tx = s.BeginTransaction();
                 Employer er = new Employer();
@@ -110,18 +137,18 @@ namespace NHibernate.Search.Tests.Workers {
 
                 s = sf.OpenSession();
                 tx = s.BeginTransaction();
-                er = (Employer) s.Get(typeof (Employer), er.Id);
+                er = (Employer) s.Get(typeof(Employer), er.Id);
                 er.Name = ("RH2");
-                ee = (Employee) s.Get(typeof (Employee), ee.Id);
+                ee = (Employee) s.Get(typeof(Employee), ee.Id);
                 ee.Name = ("Emmanuel2");
                 tx.Commit();
                 s.Close();
 
                 s = sf.OpenSession();
                 tx = s.BeginTransaction();
-                er = (Employer) s.Get(typeof (Employer), er.Id);
+                er = (Employer) s.Get(typeof(Employer), er.Id);
                 s.Delete(er);
-                ee = (Employee) s.Get(typeof (Employee), ee.Id);
+                ee = (Employee) s.Get(typeof(Employee), ee.Id);
                 s.Delete(ee);
                 tx.Commit();
                 s.Close();
@@ -129,11 +156,13 @@ namespace NHibernate.Search.Tests.Workers {
         }
 
         [Test]
-        public void Concurrency() {
+        public void Concurrency()
+        {
             Work work = new Work(sessions);
             ReverseWork reverseWork = new ReverseWork(sessions);
             int iteration = 100;
-            for (int i = 0; i < iteration; i++) {
+            for (int i = 0; i < iteration; i++)
+            {
                 ThreadPool.QueueUserWorkItem(work.Run);
                 ThreadPool.QueueUserWorkItem(reverseWork.Run);
             }

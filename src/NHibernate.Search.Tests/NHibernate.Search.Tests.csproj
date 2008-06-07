@@ -71,7 +71,7 @@
     <Compile Include="DirectoryProvider\SnowStorm.cs" />
     <Compile Include="FieldAccess\Document.cs" />
     <Compile Include="FieldAccess\FieldAccessTest.cs" />
-    <Compile Include="FileHleperTestCase.cs" />
+    <Compile Include="FileHelperTestCase.cs" />
     <Compile Include="Inheritance\Animal.cs" />
     <Compile Include="Inheritance\InheritanceTest.cs" />
     <Compile Include="Inheritance\Mammal.cs" />
@@ -85,8 +85,13 @@
     <Compile Include="SearchTestCase.cs" />
     <Compile Include="Session\Email.cs" />
     <Compile Include="Session\MassIndexTest.cs" />
+    <Compile Include="Worker\AsyncWorkerTest.cs" />
+    <Compile Include="Worker\ConcurrencyTest.cs" />
+    <Compile Include="Worker\Drink.cs" />
     <Compile Include="Worker\Employee.cs" />
     <Compile Include="Worker\Employer.cs" />
+    <Compile Include="Worker\Food.cs" />
+    <Compile Include="Worker\SyncWorkerTest.cs" />
     <Compile Include="Worker\WorkerTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -147,12 +152,19 @@
     <EmbeddedResource Include="Bridge\Gangster.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Worker\Food.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Worker\Drink.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Analyzer\" />
     <Folder Include="IndexingStrategy\" />
     <Folder Include="Optimizer\" />
     <Folder Include="Properties\" />
     <Folder Include="Reader\" />
     <Folder Include="Shards\" />
+    <Folder Include="Util\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
