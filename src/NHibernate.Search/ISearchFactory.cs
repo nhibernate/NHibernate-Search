@@ -1,5 +1,5 @@
 using NHibernate.Search.Reader;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 
 namespace NHibernate.Search
 {

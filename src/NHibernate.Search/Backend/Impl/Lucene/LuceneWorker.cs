@@ -3,10 +3,10 @@ using System.IO;
 using log4net;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
-using NHibernate.Search.BackEnd;
+using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 
 namespace NHibernate.Search.Backend.Impl.Lucene {
     public class LuceneWorker {

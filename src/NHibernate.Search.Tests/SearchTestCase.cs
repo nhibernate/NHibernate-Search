@@ -4,7 +4,7 @@ using NHibernate.Cfg;
 using NHibernate.Event;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Event;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 using NUnit.Framework;
 using TestCase=NHibernate.Test.TestCase;
 

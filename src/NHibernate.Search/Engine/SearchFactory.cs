@@ -13,7 +13,7 @@ using NHibernate.Search.Cfg;
 using NHibernate.Search.Filter;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Reader;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 using NHibernate.Search.Store.Optimization;
 using NHibernate.Util;
 

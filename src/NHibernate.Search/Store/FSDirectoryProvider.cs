@@ -8,38 +8,46 @@ using Lucene.Net.Store;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
 
-namespace NHibernate.Search.Storage {
-    public class FSDirectoryProvider : IDirectoryProvider {
-        private static ILog log = LogManager.GetLogger(typeof (FSDirectoryProvider));
+namespace NHibernate.Search.Store
+{
+    public class FSDirectoryProvider : IDirectoryProvider
+    {
+        private static ILog log = LogManager.GetLogger(typeof(FSDirectoryProvider));
         private FSDirectory directory;
         private String indexName;
 
         #region IDirectoryProvider Members
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory) {
+        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory)
+        {
             DirectoryInfo indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, properties);
-            try {
+            try
+            {
                 bool create = !indexDir.Exists;
                 indexName = indexDir.FullName;
                 directory = FSDirectory.GetDirectory(indexName, create);
-                if (create) {
+                if (create)
+                {
                     IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), create);
                     iw.Close();
                 }
                 searchFactory.RegisterDirectoryProviderForLocks(this);
             }
-            catch (IOException e) {
+            catch (IOException e)
+            {
                 throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
             }
         }
 
-        public Directory Directory {
+        public Directory Directory
+        {
             get { return directory; }
         }
 
         #endregion
 
-        public override bool Equals(Object obj) {
+        public override bool Equals(Object obj)
+        {
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call
@@ -48,7 +56,8 @@ namespace NHibernate.Search.Storage {
             return indexName.Equals(((FSDirectoryProvider) obj).indexName);
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call

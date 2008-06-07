@@ -7,36 +7,43 @@ using Lucene.Net.Store;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
 
-namespace NHibernate.Search.Storage {
-    public class RAMDirectoryProvider : IDirectoryProvider {
+namespace NHibernate.Search.Store
+{
+    public class RAMDirectoryProvider : IDirectoryProvider
+    {
         private RAMDirectory directory;
         private string indexName;
 
         #region IDirectoryProvider Members
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory) {
+        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory)
+        {
             if (directoryProviderName == null)
                 throw new ArgumentNullException("directoryProviderName");
 
             indexName = directoryProviderName;
             directory = new RAMDirectory();
-            try {
+            try
+            {
                 IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), true);
                 iw.Close();
                 searchFactory.RegisterDirectoryProviderForLocks(this);
             }
-            catch (IOException e) {
+            catch (IOException e)
+            {
                 throw new HibernateException("Unable to initialize index: " + indexName, e);
             }
         }
 
-        public Directory Directory {
+        public Directory Directory
+        {
             get { return directory; }
         }
 
         #endregion
 
-        public override bool Equals(Object obj) {
+        public override bool Equals(Object obj)
+        {
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call
@@ -45,7 +52,8 @@ namespace NHibernate.Search.Storage {
             return indexName.Equals(((RAMDirectoryProvider) obj).indexName);
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call

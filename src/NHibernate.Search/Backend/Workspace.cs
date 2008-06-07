@@ -6,9 +6,9 @@ using log4net;
 using Lucene.Net.Index;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 
-namespace NHibernate.Search.BackEnd
+namespace NHibernate.Search.Backend
 {
     //TODO introduce the notion of read only IndexReader? We cannot enforce it because Lucene use abstract classes, not interfaces
     /// <summary>

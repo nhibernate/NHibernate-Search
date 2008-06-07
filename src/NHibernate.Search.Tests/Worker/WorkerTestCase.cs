@@ -5,7 +5,7 @@ using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
 using NHibernate.Cfg;
 using NHibernate.Search.Impl;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Worker

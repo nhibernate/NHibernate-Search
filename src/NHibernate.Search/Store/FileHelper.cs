@@ -1,11 +1,14 @@
 using System.IO;
 using Iesi.Collections.Generic;
 
-namespace NHibernate.Search.Storage {
-    public class FileHelper {
+namespace NHibernate.Search.Store
+{
+    public class FileHelper
+    {
         private const int LastWriteTimePrecision = 2000;
 
-        public static void Synchronize(DirectoryInfo source, DirectoryInfo destination, bool smart) {
+        public static void Synchronize(DirectoryInfo source, DirectoryInfo destination, bool smart)
+        {
             if (!destination.Exists)
                 destination.Create();
             FileInfo[] sources = source.GetFiles();
@@ -19,7 +22,8 @@ namespace NHibernate.Search.Storage {
                 if (!srcNames.Contains(file.Name))
                     file.Delete();
             //copy each file from source
-            foreach (FileInfo sourceFile in sources) {
+            foreach (FileInfo sourceFile in sources)
+            {
                 FileInfo destinationFile = new FileInfo(Path.Combine(destination.FullName, sourceFile.Name));
                 long destinationChanged = destinationFile.LastWriteTime.Ticks/LastWriteTimePrecision;
                 long sourceChanged = sourceFile.LastWriteTime.Ticks/LastWriteTimePrecision;

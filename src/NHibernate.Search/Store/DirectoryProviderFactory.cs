@@ -7,8 +7,10 @@ using NHibernate.Search.Attributes;
 using NHibernate.Search.Engine;
 using NHibernate.Util;
 
-namespace NHibernate.Search.Storage {
-    public class DirectoryProviderFactory {
+namespace NHibernate.Search.Store
+{
+    public class DirectoryProviderFactory
+    {
         private const string DEFAULT_DIRECTORY_PROVIDER =
             "NHibernate.Search.Storage.FSDirectoryProvider, NHibernate.Search";
 
@@ -18,7 +20,8 @@ namespace NHibernate.Search.Storage {
         public List<IDirectoryProvider> providers = new List<IDirectoryProvider>();
 
         public IDirectoryProvider CreateDirectoryProvider(System.Type entity, Configuration cfg,
-                                                          SearchFactory searchFactory) {
+                                                          SearchFactory searchFactory)
+        {
             //get properties
             String directoryProviderName = GetDirectoryProviderName(entity, cfg);
             IDictionary indexProps = GetDirectoryProperties(cfg, directoryProviderName);
@@ -28,35 +31,42 @@ namespace NHibernate.Search.Storage {
             if (StringHelper.IsEmpty(className))
                 className = DEFAULT_DIRECTORY_PROVIDER;
             IDirectoryProvider provider;
-            try {
+            try
+            {
                 System.Type directoryClass = ReflectHelper.ClassForName(className);
-                provider = (IDirectoryProvider) Activator.CreateInstance(directoryClass);
+                provider = (IDirectoryProvider) Activator.CreateInstance((System.Type) directoryClass);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new HibernateException("Unable to instanciate directory provider: " + className, e);
             }
-            try {
+            try
+            {
                 provider.Initialize(directoryProviderName, indexProps, searchFactory);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new HibernateException("Unable to initialize: " + directoryProviderName, e);
             }
             int index = providers.IndexOf(provider);
             if (index != -1)
                 //share the same Directory provider for the same underlying store
-                return (IDirectoryProvider) providers[index];
-            else {
+                return providers[index];
+            else
+            {
                 providers.Add(provider);
                 return provider;
             }
         }
 
-        private static IDictionary GetDirectoryProperties(Configuration cfg, String directoryProviderName) {
+        private static IDictionary GetDirectoryProperties(Configuration cfg, String directoryProviderName)
+        {
             IDictionary props = (IDictionary) cfg.Properties;
             String indexName = LUCENE_PREFIX + directoryProviderName;
             IDictionary indexProps = new Hashtable();
             IDictionary indexSpecificProps = new Hashtable();
-            foreach (DictionaryEntry entry in props) {
+            foreach (DictionaryEntry entry in props)
+            {
                 String key = (String) entry.Key;
                 if (key.StartsWith(LUCENE_DEFAULT))
                     indexProps[key.Substring(LUCENE_DEFAULT.Length)] = entry.Value;
@@ -68,12 +78,14 @@ namespace NHibernate.Search.Storage {
             return indexProps;
         }
 
-        private static String GetDirectoryProviderName(System.Type clazz, Configuration cfg) {
+        private static String GetDirectoryProviderName(System.Type clazz, Configuration cfg)
+        {
             //get the most specialized (ie subclass > superclass) non default index name
             //if none extract the name from the most generic (superclass > subclass) [Indexed] class in the hierarchy
             PersistentClass pc = cfg.GetClassMapping(clazz);
             System.Type rootIndex = null;
-            do {
+            do
+            {
                 IndexedAttribute indexAnn = AttributeUtil.GetIndexed(pc.MappedClass);
                 if (indexAnn != null)
                     if (string.IsNullOrEmpty(indexAnn.Index) == false)

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections;
-using Lucene.Net.Analysis.Standard;
-using Lucene.Net.QueryParsers;
-using NHibernate.Search.BackEnd;
-using NUnit.Framework;
-using NHibernate.Search.Engine;
-using NHibernate.Search.Impl;
+﻿using System.Collections;
+using NHibernate.Search.Backend;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Backend.Impl.Lucene;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Engine;
+using NHibernate.Search.Store;
+using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.LuceneWorkerFixture
 {
@@ -17,8 +13,9 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
     {
         protected override IList Mappings
         {
-            get { return new string[] { "LuceneWorker.Document.hbm.xml" }; }
+            get { return new string[] {"LuceneWorker.Document.hbm.xml"}; }
         }
+
         /// <summary>
         /// Test purgation of a index.
         /// </summary>
@@ -26,12 +23,12 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
         public void PurgeAll()
         {
             using (ISession s = OpenSession())
-            { 
+            {
                 SearchFactory searchFactory = SearchFactory.GetSearchFactory(cfg);
                 System.Type targetType = typeof(Document);
                 IDirectoryProvider Directory = searchFactory.GetDirectoryProvider(targetType);
                 Workspace workspace = new Workspace(searchFactory);
-                
+
 
                 using (ITransaction tx = s.BeginTransaction())
                 {
@@ -49,10 +46,7 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
                     luceneWorker.PerformWork(new PurgeAllLuceneWork(targetType), Directory);
                 }
                 Assert.AreEqual(0, workspace.GetIndexReader(targetType).NumDocs(), "Document purgation");
-             
             }
         }
-
-      
     }
 }

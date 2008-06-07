@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Threading;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests {

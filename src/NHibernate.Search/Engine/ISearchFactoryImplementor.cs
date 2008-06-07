@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Filter;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 using NHibernate.Search.Store.Optimization;
 
 namespace NHibernate.Search.Engine

@@ -10,7 +10,7 @@ using NHibernate.Search.Attributes;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Bridge;
 using NHibernate.Search.Impl;
-using NHibernate.Search.Storage;
+using NHibernate.Search.Store;
 using NHibernate.Search.Util;
 using NHibernate.Util;
 using FieldInfo=System.Reflection.FieldInfo;
