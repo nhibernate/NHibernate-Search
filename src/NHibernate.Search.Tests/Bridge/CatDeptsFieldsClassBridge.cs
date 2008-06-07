@@ -5,7 +5,7 @@ using NHibernate.Search.Bridge;
 
 namespace NHibernate.Search.Tests.Bridge
 {
-    public class CatsDeptsFieldsClassBridge : IFieldBridge, IParameterizedBridge
+    public class CatDeptsFieldsClassBridge : IFieldBridge, IParameterizedBridge
     {
         private string sepChar;
 

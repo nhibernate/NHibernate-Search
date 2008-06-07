@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using Iesi.Collections.Generic;
 using log4net;
@@ -23,7 +24,7 @@ namespace NHibernate.Search.Engine
     public class DocumentBuilder
     {
         public const string CLASS_FIELDNAME = "_hibernate_class";
-        private static readonly ILog log = LogManager.GetLogger(typeof(DocumentBuilder));
+        private static readonly ILog logger = LogManager.GetLogger(typeof(DocumentBuilder));
 
         private readonly PropertiesMetadata rootPropertiesMetadata;
         private readonly System.Type beanClass;
@@ -35,7 +36,7 @@ namespace NHibernate.Search.Engine
         private ISet<System.Type> mappedSubclasses = new HashedSet<System.Type>();
         private int level;
         private int maxLevel = int.MaxValue;
-        private ScopedAnalyzer analyzer;
+        private readonly ScopedAnalyzer analyzer;
 
         #region Nested type: PropertiesMetadata
 
@@ -66,7 +67,6 @@ namespace NHibernate.Search.Engine
         public DocumentBuilder(System.Type clazz, Analyzer defaultAnalyzer, IDirectoryProvider directory)
         {
             analyzer = new ScopedAnalyzer();
-            //analyzer = defaultAnalyzer;
             beanClass = clazz;
             directoryProvider = directory;
 
@@ -78,9 +78,8 @@ namespace NHibernate.Search.Engine
 
             Set<System.Type> processedClasses = new HashedSet<System.Type>();
             processedClasses.Add(clazz);
-            InitializeMembers(clazz, rootPropertiesMetadata, true, "", processedClasses);
+            InitializeMembers(clazz, rootPropertiesMetadata, true, string.Empty, processedClasses);
             //processedClasses.remove( clazz ); for the sake of completness
-
             analyzer.GlobalAnalyzer = rootPropertiesMetadata.analyzer;
             if (idKeywordName == null)
                 throw new SearchException("No document id for: " + clazz.Name);
@@ -405,14 +404,48 @@ namespace NHibernate.Search.Engine
         {
             if (instance == null) return;
 
+            for (int i = 0; i < propertiesMetadata.classBridges.Count; i++)
+            {
+                IFieldBridge fb = propertiesMetadata.classBridges[i];
+
+                try
+                {
+                    fb.Set(propertiesMetadata.classNames[i],
+                           instance,
+                           doc,
+                           propertiesMetadata.classStores[i],
+                           propertiesMetadata.classIndexes[i],
+                           propertiesMetadata.classBoosts[i]);
+                }
+                catch (Exception e)
+                {
+                    logger.Error(
+                        string.Format(CultureInfo.InvariantCulture, "Error processing class bridge for {0}",
+                                      propertiesMetadata.classNames[i]), e);
+                }
+            }
+
             for (int i = 0; i < propertiesMetadata.fieldNames.Count; i++)
             {
-                MemberInfo member = propertiesMetadata.fieldGetters[i];
-                Object value = GetMemberValue(instance, member);
-                propertiesMetadata.fieldBridges[i].Set(
-                    propertiesMetadata.fieldNames[i], value, doc, propertiesMetadata.fieldStore[i],
-                    propertiesMetadata.fieldIndex[i], GetBoost(member)
-                    );
+                try
+                {
+                    MemberInfo member = propertiesMetadata.fieldGetters[i];
+                    Object value = GetMemberValue(instance, member);
+                    propertiesMetadata.fieldBridges[i].Set(
+                        propertiesMetadata.fieldNames[i],
+                        value,
+                        doc,
+                        propertiesMetadata.fieldStore[i],
+                        propertiesMetadata.fieldIndex[i],
+                        GetBoost(member)
+                        );
+                }
+                catch (Exception e)
+                {
+                    logger.Error(
+                        string.Format(CultureInfo.InvariantCulture, "Error processing field bridge for {0}.{1}",
+                                      instance.GetType().FullName, propertiesMetadata.fieldNames[i]), e);
+                }
             }
 
             for (int i = 0; i < propertiesMetadata.embeddedGetters.Count; i++)
@@ -430,7 +463,7 @@ namespace NHibernate.Search.Engine
             return new Term(idKeywordName, idBridge.ObjectToString(id));
         }
 
-        public String getIdKeywordName()
+        public String GetIdKeywordName()
         {
             return idKeywordName;
         }
@@ -453,7 +486,7 @@ namespace NHibernate.Search.Engine
             System.Type clazz = GetDocumentClass(document);
             DocumentBuilder builder = searchFactory.DocumentBuilders[clazz];
             if (builder == null) throw new SearchException("No Lucene configuration set up for: " + clazz.Name);
-            return builder.IdBridge.Get(builder.getIdKeywordName(), document);
+            return builder.IdBridge.Get(builder.GetIdKeywordName(), document);
         }
 
         public void PostInitialize(ISet<System.Type> indexedClasses)

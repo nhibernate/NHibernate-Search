@@ -54,8 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bridge\BridgeTestCase.cs" />
+    <Compile Include="Bridge\CatDeptsFieldsClassBridge.cs" />
     <Compile Include="Bridge\CatFieldsClassBridge.cs" />
-    <Compile Include="Bridge\CatsDeptsFieldsClassBridge.cs" />
     <Compile Include="Bridge\ClassBridgeTest.cs" />
     <Compile Include="Bridge\Cloud.cs" />
     <Compile Include="Bridge\CloudType.cs" />

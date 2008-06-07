@@ -3,7 +3,7 @@ using NHibernate.Search.Attributes;
 namespace NHibernate.Search.Tests.Bridge
 {
     [Indexed]
-    [ClassBridge(typeof(CatFieldsClassBridge),
+    [ClassBridge(typeof(CatDeptsFieldsClassBridge),
         Name = "branchnetwork",
         Index = Index.Tokenized,
         Store = Attributes.Store.Yes)]

@@ -96,7 +96,7 @@ namespace NHibernate.Search
                     {
                         if (classBridges.Count == 1)
                             // Case 2
-                            classBridges[0].Parameters.Add(parameter.Name, parameter.Owner);
+                            classBridges[0].Parameters.Add(parameter.Name, parameter.Value);
                         else
                             // Case 3
                             LogParameterError("Parameter needs a name when multiple bridges defined: {0}={1}, parameter={2}", member, parameter);
@@ -108,9 +108,9 @@ namespace NHibernate.Search
                     // Now see if we can find the owner
                     foreach (ClassBridgeAttribute classBridge in classBridges)
                     {
-                        if (classBridge.Name == parameter.Name)
+                        if (classBridge.Name == parameter.Owner)
                         {
-                            classBridge.Parameters.Add(parameter.Name, parameter.Owner);
+                            classBridge.Parameters.Add(parameter.Name, parameter.Value);
                             found = true;
                             break;
                         }
