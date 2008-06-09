@@ -7,7 +7,7 @@ namespace NHibernate.Search.Cfg {
 
         public object Create(object parent, object configContext, XmlNode section) {
             XmlTextReader reader = new XmlTextReader(section.OuterXml, XmlNodeType.Document, null);
-            return new NHSConfiguration(reader);
+            return new NHSConfigCollection(reader);
         }
 
         #endregion

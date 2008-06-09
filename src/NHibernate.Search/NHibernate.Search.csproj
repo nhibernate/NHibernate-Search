@@ -80,7 +80,10 @@
     <Compile Include="Cfg\CfgHelper.cs" />
     <Compile Include="Cfg\CfgXmlHelper.cs" />
     <Compile Include="Cfg\ConfigurationSectionHandler.cs" />
+    <Compile Include="Cfg\AmbiguousSearchCfgException.cs" />
+    <Compile Include="Cfg\INHSConfigCollection.cs" />
     <Compile Include="Cfg\INHSConfiguration.cs" />
+    <Compile Include="Cfg\NHSConfigCollection.cs" />
     <Compile Include="Cfg\NHSConfiguration.cs" />
     <Compile Include="Cfg\SearchConfigurationException.cs" />
     <Compile Include="Engine\DocumentExtractor.cs" />

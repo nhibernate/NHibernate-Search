@@ -11,12 +11,12 @@ namespace NHibernate.Search.Cfg {
         /// </summary>
         IDictionary<string, string> Properties { get; }
 
+        string SessionFactoryName { get; }
+        
         /// <summary>
         /// If property exists in the <see cref="Properties"/> dictionary, it returns the value.
         /// Otherwise, GetProperty will return null.
         /// </summary>
         string GetProperty(string name);
-
-        IDictionary<string, string> GetMergedProperties(Configuration cfg);
     }
 }

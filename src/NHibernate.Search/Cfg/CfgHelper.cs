@@ -7,26 +7,29 @@ using Configuration=NHibernate.Cfg.Configuration;
 
 namespace NHibernate.Search.Cfg {
     public static class CfgHelper {
-        private static readonly string configFilePath = GetDefaultConfigurationFilePath();
+      public const string DefaultNHSCfgFileName = "nhsearch.cfg.xml";
 
+      private static readonly string configFilePath = GetDefaultConfigurationFilePath();
+      private static INHSConfigCollection configCollection;
         /// <summary>
         /// Return NHibernate.Search Configuration. Loaded using the <c>&lt;nhs-configuration&gt;</c> section
         /// from the application config file, if found, or the file <c>nhsearch.cfg.xml</c> if the
         /// <c>&lt;nhs-configuration&gt;</c> section is not present.
         /// If neither is present, then a blank NHSConfiguration is returned.
         /// </summary>
-        public static INHSConfiguration LoadConfiguration() {
-            INHSConfiguration nhshc = ConfigurationManager.GetSection(CfgXmlHelper.CfgSectionName) as INHSConfiguration;
+        public static INHSConfigCollection LoadConfiguration() {
+            INHSConfigCollection nhshc = ConfigurationManager.GetSection(CfgXmlHelper.CfgSectionName) as INHSConfigCollection;
             if (nhshc != null)
                 return nhshc;
             else if (ConfigFileExists(configFilePath))
                 using (XmlTextReader reader = new XmlTextReader(configFilePath))
-                    return new NHSConfiguration(reader);
+                  return new NHSConfigCollection(reader);
             else
-                return new NHSConfiguration();
+                return new NHSConfigCollection();
         }
 
-        private static bool ConfigFileExists(string filename) {
+        private static bool ConfigFileExists(string filename)
+        {
             return File.Exists(filename);
         }
 
@@ -34,14 +37,25 @@ namespace NHibernate.Search.Cfg {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string relativeSearchPath = AppDomain.CurrentDomain.RelativeSearchPath;
             string binPath = relativeSearchPath == null ? baseDir : Path.Combine(baseDir, relativeSearchPath);
-            return Path.Combine(binPath, CfgXmlHelper.DefaultNHSCfgFileName);
+            return Path.Combine(binPath, DefaultNHSCfgFileName);
         }
 
-        public static void Config(Configuration nhCfg) {
-            //Todo: add there will be more nhsConfiguration to get
-            INHSConfiguration configuration = LoadConfiguration();
-            foreach (KeyValuePair<string, string> pair in configuration.Properties)
+        public static void Configure(Configuration nhCfg) {
+            if(configCollection == null)
+              configCollection = LoadConfiguration();
+
+            string sessionFactoryName = string.Empty;
+            
+            if (nhCfg.Properties.ContainsKey(NHibernate.Cfg.Environment.SessionFactoryName))
+              sessionFactoryName = nhCfg.Properties[NHibernate.Cfg.Environment.SessionFactoryName];
+
+            INHSConfiguration configuration = configCollection.GetConfiguration(sessionFactoryName);
+
+            if (configuration != null) {
+              foreach (KeyValuePair<string, string> pair in configuration.Properties)
                 nhCfg.Properties.Add(pair.Key, pair.Value);
+            }
+            
         }
     }
 }

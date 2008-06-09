@@ -17,21 +17,22 @@ namespace NHibernate.Search.Cfg {
         /// </summary>
         public const string CfgSectionName = "nhs-configuration";
 
-        public const string DefaultNHSCfgFileName = "nhsearch.cfg.xml";
-
-        private const string RootPrefixPath = "//" + CfgNamespacePrefix + ":";
+        private const string RootPrefixPath = "//" + CfgNamespacePrefix;
 
         private static readonly XmlNamespaceManager nsMgr;
 
-        /// <summary>XPath expression for property nodes</summary>
-        public static readonly XPathExpression PropertiesExpression;
+        public static readonly XPathExpression SearchFactoryExpression;
 
+        public static readonly string SessionFactoryNameAttribute = "sessionFactoryName";
+        public static readonly string PropertyNameAttribute = "name";
+        public static readonly string PropertiesNodeName = "property";
+      
         static CfgXmlHelper() {
             NameTable nt = new NameTable();
             nsMgr = new XmlNamespaceManager(nt);
             nsMgr.AddNamespace(CfgNamespacePrefix, CfgSchemaXMLNS);
 
-            PropertiesExpression = XPathExpression.Compile(RootPrefixPath + "property", nsMgr);
+            SearchFactoryExpression = XPathExpression.Compile(RootPrefixPath + ":search-factory", nsMgr);
         }
     }
 }

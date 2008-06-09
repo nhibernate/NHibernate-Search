@@ -41,6 +41,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider {
             cfg[0].SetProperty("hibernate.search.default.refresh", "1"); //every minute
             cfg[0].SetProperty("hibernate.search.default.directory_provider",
                                typeof (FSMasterDirectoryProvider).AssemblyQualifiedName);
+            cfg[0].Configure();
 
             //slave(s)
             cfg[1].SetProperty("hibernate.search.default.sourceBase", "./lucenedirs/master/copy");
@@ -48,6 +49,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider {
             cfg[1].SetProperty("hibernate.search.default.refresh", "1"); //every minute
             cfg[1].SetProperty("hibernate.search.default.directory_provider",
                                typeof (FSSlaveDirectoryProvider).AssemblyQualifiedName);
+            cfg[0].Configure();
         }
 
         protected override IList Mappings {
