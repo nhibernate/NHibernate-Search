@@ -10,7 +10,7 @@ namespace NHibernate.Search.Util {
         }
 
         public static SearchFactory GetSearchFactoryBySFI(ISessionImplementor session) {
-            IPostInsertEventListener[] listeners = session.Factory.EventListeners.PostInsertEventListeners;
+            IPostInsertEventListener[] listeners = session.Listeners.PostInsertEventListeners;
             FullTextIndexEventListener listener = null;
             //FIXME this sucks since we mandante the event listener use
             foreach (IPostInsertEventListener candidate in listeners) {
