@@ -8,6 +8,7 @@ using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
 using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
@@ -25,12 +26,12 @@ namespace NHibernate.Search.Store
         private int current;
         private FSDirectory directory;
         private String indexName;
-        private SearchFactory searchFactory;
+        private SearchFactoryImpl searchFactory;
         private Timer timer;
 
         #region IDirectoryProvider Members
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory)
+        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactoryImpl searchFactory)
         {
             //source guessing
             String source =

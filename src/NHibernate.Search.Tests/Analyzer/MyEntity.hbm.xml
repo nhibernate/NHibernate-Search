@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+				   namespace="NHibernate.Search.Tests.Analyzer"
+				   assembly="NHibernate.Search.Tests">
+	<class name="MyEntity">
+		<id name="Id">
+			<generator class="native" />
+		</id>
+		<property name="Entity"/>
+		<property name="Property"/>
+		<property name="Field"/>
+		<component name="Component">
+			<property name="ComponentProperty" />
+		</component>
+	</class>
+</hibernate-mapping>

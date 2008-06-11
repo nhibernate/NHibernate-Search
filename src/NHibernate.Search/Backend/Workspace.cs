@@ -29,7 +29,7 @@ namespace NHibernate.Search.Backend
         private readonly List<IDirectoryProvider> lockedProviders = new List<IDirectoryProvider>();
         private readonly Dictionary<IDirectoryProvider, DPStatistics> dpStatistics = new Dictionary<IDirectoryProvider, DPStatistics>();
 
-        private readonly SearchFactory searchFactory;
+        private readonly SearchFactoryImpl searchFactory;
 
         #region Nested classes : DPStatistics
 
@@ -61,7 +61,7 @@ namespace NHibernate.Search.Backend
 
         #region Constructors
 
-        public Workspace(SearchFactory searchFactory)
+        public Workspace(SearchFactoryImpl searchFactory)
         {
             this.searchFactory = searchFactory;
         }

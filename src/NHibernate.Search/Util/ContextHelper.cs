@@ -1,19 +1,24 @@
 using NHibernate.Engine;
 using NHibernate.Event;
-using NHibernate.Search.Engine;
 using NHibernate.Search.Event;
+using NHibernate.Search.Impl;
 
-namespace NHibernate.Search.Util {
-    internal static class ContextHelper {
-        public static SearchFactory GetSearchFactory(ISession session) {
+namespace NHibernate.Search.Util
+{
+    internal static class ContextHelper
+    {
+        public static SearchFactoryImpl GetSearchFactory(ISession session)
+        {
             return GetSearchFactoryBySFI((ISessionImplementor) session);
         }
 
-        public static SearchFactory GetSearchFactoryBySFI(ISessionImplementor session) {
+        public static SearchFactoryImpl GetSearchFactoryBySFI(ISessionImplementor session)
+        {
             IPostInsertEventListener[] listeners = session.Listeners.PostInsertEventListeners;
             FullTextIndexEventListener listener = null;
             //FIXME this sucks since we mandante the event listener use
-            foreach (IPostInsertEventListener candidate in listeners) {
+            foreach (IPostInsertEventListener candidate in listeners)
+            {
                 if (candidate is FullTextIndexEventListener)
                     listener = (FullTextIndexEventListener) candidate;
                 break;

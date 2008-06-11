@@ -4,6 +4,7 @@ using Iesi.Collections.Generic;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search {
@@ -30,7 +31,7 @@ namespace NHibernate.Search {
             }
         }
 
-        public static Searcher BuildSearcher(SearchFactory searchFactory, out ISet<System.Type> classesAndSubclasses,
+        public static Searcher BuildSearcher(SearchFactoryImpl searchFactory, out ISet<System.Type> classesAndSubclasses,
                                              params System.Type[] classes) {
             Dictionary<System.Type, DocumentBuilder> builders = searchFactory.DocumentBuilders;
             ISet<Directory> directories = new HashedSet<Directory>();

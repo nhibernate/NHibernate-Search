@@ -141,16 +141,18 @@ namespace NHibernate.Search.Engine
             propertiesMetadata.fieldIndex.Add(GetIndex(fieldAnn.Index));
             propertiesMetadata.fieldBridges.Add(BridgeFactory.GuessType(member));
 
-            Analyzer memberAnalyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
-            if (memberAnalyzer == null)
+            // Field > property > entity analyzer
+            Analyzer localAnalyzer = (GetAnalyzer(fieldAnn.Analyzer) ?? GetAnalyzer(member)) ?? propertiesMetadata.analyzer;
+            if (localAnalyzer == null)
                 throw new NotSupportedException("Analyzer should not be undefined");
 
-            analyzer.AddScopedAnalyzer(fieldName, memberAnalyzer);
+            analyzer.AddScopedAnalyzer(fieldName, localAnalyzer);
         }
 
         private static Analyzer GetAnalyzer(MemberInfo member)
         {
-            return null;
+            AnalyzerAttribute attrib = AttributeUtil.GetAnalyzer(member);
+            return attrib == null ? null : GetAnalyzer(attrib.Type);
         }
 
         private static Analyzer GetAnalyzer(System.Type analyzerType)
@@ -253,7 +255,7 @@ namespace NHibernate.Search.Engine
                     propertiesMetadata.fieldIndex.Add(GetIndex(Index.UnTokenized));
                     propertiesMetadata.fieldBridges.Add(BridgeFactory.GuessType(member));
 
-                    // Field > property > entity analyzer
+                    // Property > entity analyzer - no field analyzer
                     Analyzer memberAnalyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
                     if (memberAnalyzer == null)
                         throw new NotSupportedException("Analyzer should not be undefined");
@@ -274,6 +276,12 @@ namespace NHibernate.Search.Engine
             System.Type clazz, PropertiesMetadata propertiesMetadata, bool isRoot, String prefix,
             ISet<System.Type> processedClasses)
         {
+            // NB Must cast here as we want to look at the type's metadata
+            Analyzer localAnalyzer = GetAnalyzer(clazz as MemberInfo);
+            if (localAnalyzer != null)
+                propertiesMetadata.analyzer = localAnalyzer;
+
+            // Check for any ClassBridges
             List<ClassBridgeAttribute> classBridgeAnn = AttributeUtil.GetClassBridges(clazz);
             if (classBridgeAnn != null)
             {
@@ -302,7 +310,7 @@ namespace NHibernate.Search.Engine
 	    */
 
         private void ProcessContainedInValue(object value, List<LuceneWork> queue, System.Type valueClass,
-                                             DocumentBuilder builder, SearchFactory searchFactory)
+                                             DocumentBuilder builder, SearchFactoryImpl searchFactory)
         {
             object id = GetMemberValue(value, builder.idGetter);
             builder.AddToWorkQueue(value, id, WorkType.Update, queue, searchFactory);
@@ -321,7 +329,7 @@ namespace NHibernate.Search.Engine
         /// This add the new work to the queue, so it can be processed in a batch fashion later
         /// </summary>
         public void AddToWorkQueue(object entity, object id, WorkType workType, List<LuceneWork> queue,
-                                   SearchFactory searchFactory)
+                                   SearchFactoryImpl searchFactory)
         {
             System.Type entityClass = NHibernateUtil.GetClass(entity);
             foreach (LuceneWork luceneWork in queue)
@@ -481,7 +489,7 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        public static object GetDocumentId(SearchFactory searchFactory, Document document)
+        public static object GetDocumentId(SearchFactoryImpl searchFactory, Document document)
         {
             System.Type clazz = GetDocumentClass(document);
             DocumentBuilder builder = searchFactory.DocumentBuilders[clazz];

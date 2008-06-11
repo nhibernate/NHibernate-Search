@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 
 namespace NHibernate.Search.Backend
 {
@@ -12,7 +12,7 @@ namespace NHibernate.Search.Backend
     /// </summary>
     public interface IBackendQueueProcessorFactory
     {
-        void Initialize(IDictionary props, SearchFactory searchFactory);
+        void Initialize(IDictionary props, SearchFactoryImpl searchFactory);
 
         /// <summary>
         /// Return a runnable implementation responsible for processing the queue to a given backend

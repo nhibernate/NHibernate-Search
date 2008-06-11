@@ -8,7 +8,7 @@ namespace NHibernate.Search.Attributes
     /// <remarks>
     /// It allows queries involving associated objects restrictions
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
     public class IndexedEmbeddedAttribute : Attribute
     {
         private string prefix = ".";

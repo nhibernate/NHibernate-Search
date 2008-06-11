@@ -16,9 +16,9 @@ namespace NHibernate.Search.Backend.Impl {
         private readonly IBackendQueueProcessorFactory backendQueueProcessorFactory;
         private readonly bool sync;
         private int batchSize = 0;
-        private SearchFactory searchFactory;
+        private SearchFactoryImpl searchFactory;
 
-        public BatchedQueueingProcessor(SearchFactory searchFactory,
+        public BatchedQueueingProcessor(SearchFactoryImpl searchFactory,
                                         IDictionary properties) {
             this.searchFactory = searchFactory;
             //default to sync if none defined

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using NHibernate.Cfg;
 using NHibernate.Mapping;
 using NHibernate.Search.Attributes;
-using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 using NHibernate.Util;
 
 namespace NHibernate.Search.Store
@@ -20,7 +20,7 @@ namespace NHibernate.Search.Store
         public List<IDirectoryProvider> providers = new List<IDirectoryProvider>();
 
         public IDirectoryProvider CreateDirectoryProvider(System.Type entity, Configuration cfg,
-                                                          SearchFactory searchFactory)
+                                                          SearchFactoryImpl searchFactory)
         {
             //get properties
             String directoryProviderName = GetDirectoryProviderName(entity, cfg);

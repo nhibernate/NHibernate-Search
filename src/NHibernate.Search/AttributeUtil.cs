@@ -58,6 +58,11 @@ namespace NHibernate.Search
             logger.Error(string.Format(CultureInfo.InvariantCulture, message, type, name, parameter.Name, parameter.Owner));
         }
 
+        public static AnalyzerAttribute GetAnalyzer(MemberInfo member)
+        {
+            return GetAttribute<AnalyzerAttribute>(member);
+        }
+
         public static BoostAttribute GetBoost(MemberInfo member)
         {
             return GetAttribute<BoostAttribute>(member);

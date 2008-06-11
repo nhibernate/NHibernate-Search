@@ -103,6 +103,7 @@
     <Compile Include="Filter\IFilterCachingStrategy.cs" />
     <Compile Include="Filter\MruFilterCachingStrategy.cs" />
     <Compile Include="Filter\StandardFilterKey.cs" />
+    <Compile Include="Impl\SearchFactoryImpl.cs" />
     <Compile Include="ISearchFactory.cs" />
     <Compile Include="ProjectionConstants.cs" />
     <Compile Include="Query\FullTextSearchHelper.cs" />
@@ -131,7 +132,6 @@
     <Compile Include="IFullTextQuery.cs" />
     <Compile Include="Reader\IReaderProvider.cs" />
     <Compile Include="SearchException.cs" />
-    <Compile Include="Engine\SearchFactory.cs" />
     <Compile Include="Bridge\Builtin\SimpleBridge.cs" />
     <Compile Include="Bridge\TwoWayString2FieldBridgeAdaptor.cs" />
     <Compile Include="Bridge\Builtin\ValueTypeBridge.cs" />

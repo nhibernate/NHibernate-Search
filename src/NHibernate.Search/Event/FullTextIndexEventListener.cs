@@ -11,10 +11,10 @@ namespace NHibernate.Search.Event
                                               IPostUpdateEventListener,
                                               IInitializable
     {
-        protected SearchFactory searchFactory;
+        protected SearchFactoryImpl searchFactory;
         protected bool used;
 
-        public SearchFactory SearchFactory
+        public SearchFactoryImpl SearchFactory
         {
             get { return searchFactory; }
         }
@@ -23,7 +23,7 @@ namespace NHibernate.Search.Event
 
         public void Initialize(Configuration cfg)
         {
-            searchFactory = SearchFactory.GetSearchFactory(cfg);
+            searchFactory = SearchFactoryImpl.GetSearchFactory(cfg);
 
             String indexingStrategy = cfg.GetProperty(Environment.IndexingStrategy);
             if (indexingStrategy == null)

@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using NHibernate.Search.Backend;
-using NHibernate.Search.Backend;
 using NHibernate.Search.Backend.Impl.Lucene;
-using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
 using NUnit.Framework;
 
@@ -24,11 +23,10 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
         {
             using (ISession s = OpenSession())
             {
-                SearchFactory searchFactory = SearchFactory.GetSearchFactory(cfg);
+                SearchFactoryImpl searchFactory = SearchFactoryImpl.GetSearchFactory(cfg);
                 System.Type targetType = typeof(Document);
                 IDirectoryProvider Directory = searchFactory.GetDirectoryProvider(targetType);
                 Workspace workspace = new Workspace(searchFactory);
-
 
                 using (ITransaction tx = s.BeginTransaction())
                 {

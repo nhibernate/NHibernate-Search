@@ -1,22 +1,27 @@
 using System.Collections;
 using NHibernate.Engine;
-using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 using NHibernate.Util;
 
-namespace NHibernate.Search.Backend.Impl {
-    public class TransactionalWorker : IWorker {
+namespace NHibernate.Search.Backend.Impl
+{
+    public class TransactionalWorker : IWorker
+    {
         //not a synchronized map since for a given transaction, we have not concurrent access
         private IQueueingProcessor queueingProcessor;
         protected WeakHashtable synchronizationPerTransaction = new WeakHashtable();
 
         #region IWorker Members
 
-        public void PerformWork(Work work, ISessionImplementor session) {
-            if (session.TransactionInProgress) {
+        public void PerformWork(Work work, ISessionImplementor session)
+        {
+            if (session.TransactionInProgress)
+            {
                 ITransaction transaction = session.GetSession().Transaction;
                 PostTransactionWorkQueueSynchronization txSync = (PostTransactionWorkQueueSynchronization)
                                                                  synchronizationPerTransaction[transaction];
-                if (txSync == null || txSync.isConsumed()) {
+                if (txSync == null || txSync.isConsumed())
+                {
                     txSync =
                         new PostTransactionWorkQueueSynchronization(queueingProcessor, synchronizationPerTransaction);
                     transaction.RegisterSynchronization(txSync);
@@ -24,7 +29,8 @@ namespace NHibernate.Search.Backend.Impl {
                 }
                 txSync.add(work);
             }
-            else {
+            else
+            {
                 WorkQueue queue = new WorkQueue(2); //one work can be split
                 queueingProcessor.Add(work, queue);
                 queueingProcessor.PrepareWorks(queue);
@@ -32,10 +38,11 @@ namespace NHibernate.Search.Backend.Impl {
             }
         }
 
-        public void Initialize(IDictionary props, SearchFactory searchFactory) {
+        #endregion
+
+        public void Initialize(IDictionary props, SearchFactoryImpl searchFactory)
+        {
             queueingProcessor = new BatchedQueueingProcessor(searchFactory, props);
         }
-
-        #endregion
     }
 }

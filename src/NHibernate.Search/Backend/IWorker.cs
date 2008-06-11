@@ -1,12 +1,14 @@
 using System.Collections;
 using NHibernate.Engine;
-using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 
-namespace NHibernate.Search.Backend {
+namespace NHibernate.Search.Backend
+{
     /// <summary>
     /// Perform work for a given session. This implementation has to be multi threaded
     /// </summary>
-    public interface IWorker {
+    public interface IWorker
+    {
         /// <summary>
         /// 
         /// </summary>
@@ -19,6 +21,6 @@ namespace NHibernate.Search.Backend {
         /// </summary>
         /// <param name="props"></param>
         /// <param name="searchFactory"></param>
-        void Initialize(IDictionary props, SearchFactory searchFactory);
+        void Initialize(IDictionary props, SearchFactoryImpl searchFactory);
     }
 }

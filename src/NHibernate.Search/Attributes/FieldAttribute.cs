@@ -10,9 +10,9 @@ namespace NHibernate.Search.Attributes
     public class FieldAttribute : Attribute
     {
         private readonly Index index;
-        private string name = null;
+        private string name;
         private Store store = Store.No;
-        private AnalyzerAttribute analyzer;
+        private System.Type analyzer;
         private FieldBridgeAttribute fieldBridge;
 
         public FieldAttribute(Index index)
@@ -52,8 +52,7 @@ namespace NHibernate.Search.Attributes
         /// Define an analyzer for the field, default to
         /// the inherited analyzer
         /// </summary>
-        /// TODO: Not sure if this is correct
-        public AnalyzerAttribute Analyzer
+        public System.Type Analyzer
         {
             get { return analyzer; }
             set { analyzer = value; }

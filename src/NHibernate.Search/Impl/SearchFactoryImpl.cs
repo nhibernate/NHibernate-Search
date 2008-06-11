@@ -10,16 +10,16 @@ using NHibernate.Mapping;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Backend.Impl;
 using NHibernate.Search.Cfg;
+using NHibernate.Search.Engine;
 using NHibernate.Search.Filter;
-using NHibernate.Search.Impl;
 using NHibernate.Search.Reader;
 using NHibernate.Search.Store;
 using NHibernate.Search.Store.Optimization;
 using NHibernate.Util;
 
-namespace NHibernate.Search.Engine
+namespace NHibernate.Search.Impl
 {
-    public class SearchFactory : ISearchFactoryImplementor
+    public class SearchFactoryImpl : ISearchFactoryImplementor
     {
         private static readonly object searchFactoryKey = new object();
 
@@ -36,12 +36,12 @@ namespace NHibernate.Search.Engine
             new Dictionary<IDirectoryProvider, object>();
 
         private readonly IQueueingProcessor queueingProcessor;
-        private IBackendQueueProcessorFactory backendQueueProcessorFactory;
         private readonly IWorker worker;
+        private IBackendQueueProcessorFactory backendQueueProcessorFactory;
 
         #region Constructors
 
-        private SearchFactory(Configuration cfg)
+        private SearchFactoryImpl(Configuration cfg)
         {
             CfgHelper.Configure(cfg);
             System.Type analyzerClass;
@@ -123,14 +123,19 @@ namespace NHibernate.Search.Engine
 
         #region Public methods
 
-        public static SearchFactory GetSearchFactory(Configuration cfg)
+        public IDirectoryProvider GetDirectoryProvider(System.Type entity)
+        {
+            return GetDocumentBuilder(entity).DirectoryProvider;
+        }
+
+        public static SearchFactoryImpl GetSearchFactory(Configuration cfg)
         {
             if (cfg2SearchFactory == null)
                 cfg2SearchFactory = new WeakHashtable();
-            SearchFactory searchFactory = (SearchFactory) cfg2SearchFactory[cfg];
+            SearchFactoryImpl searchFactory = (SearchFactoryImpl) cfg2SearchFactory[cfg];
             if (searchFactory == null)
             {
-                searchFactory = new SearchFactory(cfg);
+                searchFactory = new SearchFactoryImpl(cfg);
                 cfg2SearchFactory[cfg] = searchFactory;
             }
             return searchFactory;
@@ -147,11 +152,6 @@ namespace NHibernate.Search.Engine
             DocumentBuilder builder;
             DocumentBuilders.TryGetValue(type, out builder);
             return builder;
-        }
-
-        public IDirectoryProvider GetDirectoryProvider(System.Type entity)
-        {
-            return GetDocumentBuilder(entity).DirectoryProvider;
         }
 
         public object GetLockObjForDirectoryProvider(IDirectoryProvider provider)
@@ -190,10 +190,6 @@ namespace NHibernate.Search.Engine
             throw new Exception("The method or operation is not implemented.");
         }
 
-        #endregion
-
-        #region ISearchFactory Members
-
         public IReaderProvider ReaderProvider
         {
             get { throw new Exception("The method or operation is not implemented."); }
@@ -213,10 +209,6 @@ namespace NHibernate.Search.Engine
         {
             throw new Exception("The method or operation is not implemented.");
         }
-
-        #endregion
-
-        #region ISearchFactoryImplementor Members
 
         public Dictionary<IDirectoryProvider, object> GetLockableDirectoryProviders()
         {

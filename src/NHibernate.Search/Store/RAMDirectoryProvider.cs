@@ -4,7 +4,7 @@ using System.IO;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
-using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
@@ -16,7 +16,7 @@ namespace NHibernate.Search.Store
 
         #region IDirectoryProvider Members
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactory searchFactory)
+        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactoryImpl searchFactory)
         {
             if (directoryProviderName == null)
                 throw new ArgumentNullException("directoryProviderName");

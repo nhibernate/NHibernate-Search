@@ -9,9 +9,9 @@ namespace NHibernate.Search.Backend.Impl.Lucene {
     /// </summary>
     public class LuceneBackendQueueProcessor {
         private readonly List<LuceneWork> queue;
-        private readonly SearchFactory searchFactory;
+        private readonly SearchFactoryImpl searchFactory;
 
-        public LuceneBackendQueueProcessor(List<LuceneWork> queue, SearchFactory searchFactory) {
+        public LuceneBackendQueueProcessor(List<LuceneWork> queue, SearchFactoryImpl searchFactory) {
             this.queue = queue;
             this.searchFactory = searchFactory;
         }

@@ -20,7 +20,7 @@ namespace NHibernate.Search {
         public override SqlString ToSqlString(ICriteria criteria, ICriteriaQuery criteriaQuery,
                                               IDictionary<string, IFilter> enabledFilters) {
             System.Type type = GetCriteriaClass(criteria);
-            SearchFactory searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
+            SearchFactoryImpl searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
             ISet<System.Type> types;
             Searcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out types, type);
             if (searcher == null)

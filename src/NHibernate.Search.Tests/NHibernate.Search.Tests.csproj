@@ -53,6 +53,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analyzer\AbstractTestAnalyzer.cs" />
+    <Compile Include="Analyzer\AnalyzerTest.cs" />
+    <Compile Include="Analyzer\MyComponent.cs" />
+    <Compile Include="Analyzer\MyEntity.cs" />
+    <Compile Include="Analyzer\Test1Analyzer.cs" />
+    <Compile Include="Analyzer\Test2Analyzer.cs" />
+    <Compile Include="Analyzer\Test3Analyzer.cs" />
+    <Compile Include="Analyzer\Test4Analyzer.cs" />
     <Compile Include="Bridge\BridgeTestCase.cs" />
     <Compile Include="Bridge\CatDeptsFieldsClassBridge.cs" />
     <Compile Include="Bridge\CatFieldsClassBridge.cs" />
@@ -158,7 +166,9 @@
     <EmbeddedResource Include="Worker\Drink.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Analyzer\" />
+    <EmbeddedResource Include="Analyzer\MyEntity.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="IndexingStrategy\" />
     <Folder Include="Optimizer\" />
     <Folder Include="Properties\" />
