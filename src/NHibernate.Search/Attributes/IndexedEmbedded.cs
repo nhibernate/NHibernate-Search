@@ -13,7 +13,7 @@ namespace NHibernate.Search.Attributes
     {
         private string prefix = ".";
         private int depth = int.MaxValue;
-        private System.Type type;
+        private System.Type targetElement;
 
         /// <summary>
         /// Field name prefix
@@ -39,10 +39,10 @@ namespace NHibernate.Search.Attributes
         /// <summary>
         /// Overrides the type of an association. If a collection, overrides the type of the collection generics
         /// </summary>
-        public System.Type Type
+        public System.Type TargetElement
         {
-            get { return type; }
-            set { type = value; }
+            get { return targetElement; }
+            set { targetElement = value; }
         }
     }
 }

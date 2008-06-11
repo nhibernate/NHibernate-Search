@@ -28,6 +28,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Iesi.Collections, Version=1.0.0.3, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\lib\net\2.0\Iesi.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\net\2.0\log4net.dll</HintPath>
@@ -77,6 +81,15 @@
     <Compile Include="DirectoryProvider\FSSlaveAndMasterDPTest.cs" />
     <Compile Include="DirectoryProvider\MultiplySessionFactoriesTestCase.cs" />
     <Compile Include="DirectoryProvider\SnowStorm.cs" />
+    <Compile Include="Embedded\Address.cs" />
+    <Compile Include="Embedded\Author.cs" />
+    <Compile Include="Embedded\Country.cs" />
+    <Compile Include="Embedded\EmbeddedTest.cs" />
+    <Compile Include="Embedded\Order.cs" />
+    <Compile Include="Embedded\Owner.cs" />
+    <Compile Include="Embedded\Person.cs" />
+    <Compile Include="Embedded\Product.cs" />
+    <Compile Include="Embedded\Tower.cs" />
     <Compile Include="FieldAccess\Document.cs" />
     <Compile Include="FieldAccess\FieldAccessTest.cs" />
     <Compile Include="FileHelperTestCase.cs" />
@@ -169,6 +182,11 @@
     <EmbeddedResource Include="Analyzer\MyEntity.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Embedded\Author.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Embedded\DoubleInsert\" />
+    <Folder Include="Filter\" />
     <Folder Include="IndexingStrategy\" />
     <Folder Include="Optimizer\" />
     <Folder Include="Properties\" />

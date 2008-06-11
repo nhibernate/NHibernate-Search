@@ -9,11 +9,15 @@ namespace NHibernate.Search.Attributes
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
     public class FieldAttribute : Attribute
     {
-        private readonly Index index;
         private string name;
+        private Index index = Attributes.Index.Tokenized;
         private Store store = Store.No;
         private System.Type analyzer;
         private FieldBridgeAttribute fieldBridge;
+
+        public FieldAttribute()
+        {
+        }
 
         public FieldAttribute(Index index)
         {
@@ -46,6 +50,7 @@ namespace NHibernate.Search.Attributes
         public Index Index
         {
             get { return index; }
+            set { index = value; }
         }
 
         /// <summary>
