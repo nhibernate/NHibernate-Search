@@ -12,7 +12,7 @@ namespace NHibernate.Search.Tests.Embedded
         private long id;
 
         [IndexedEmbedded(Depth = 1, Prefix = "ownedBy_", TargetElement = typeof(Owner))] 
-        private Person ownedBy;
+        private Owner ownedBy;
 
         [Field(Index.Tokenized)] 
         private string street;
@@ -20,31 +20,31 @@ namespace NHibernate.Search.Tests.Embedded
         [ContainedIn] 
         private ISet<Tower> towers = new HashedSet<Tower>();
 
-        public long Id
+        public virtual long Id
         {
             get { return id; }
             set { id = value; }
         }
 
-        public string Street
+        public virtual string Street
         {
             get { return street; }
             set { street = value; }
         }
 
-        public Person OwnedBy
+        public virtual Owner OwnedBy
         {
             get { return ownedBy; }
             set { ownedBy = value; }
         }
 
-        public ISet<Tower> Towers
+        public virtual ISet<Tower> Towers
         {
             get { return towers; }
             set { towers = value; }
         }
 
-        public Country Country
+        public virtual Country Country
         {
             get { return country; }
             set { country = value; }

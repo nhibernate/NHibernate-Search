@@ -10,7 +10,7 @@ namespace NHibernate.Search.Tests.Embedded
         [Field(Index.UnTokenized)]
         private string orderNumber;
 
-        public int Id
+        public virtual int Id
         {
             get { return id; }
             set { id = value; }
@@ -19,7 +19,7 @@ namespace NHibernate.Search.Tests.Embedded
         /// <summary>
         /// 
         /// </summary>
-        public string OrderNumber
+        public virtual string OrderNumber
         {
             get { return orderNumber; }
             set { orderNumber = value; }

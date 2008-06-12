@@ -185,6 +185,21 @@
     <EmbeddedResource Include="Embedded\Author.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Embedded\Tower.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Product.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Order.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Country.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Address.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Embedded\DoubleInsert\" />
     <Folder Include="Filter\" />
     <Folder Include="IndexingStrategy\" />

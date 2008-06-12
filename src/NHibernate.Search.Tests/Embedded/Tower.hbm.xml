@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+				   namespace="NHibernate.Search.Tests.Embedded"
+				   assembly="NHibernate.Search.Tests">
+	<class name="Tower">
+		<id name="Id">
+			<generator class="native" />
+		</id>
+		<property name="Name"/>
+		<many-to-one name="Address" column="AddressId" class="Address" cascade="all-delete-orphan" />
+	</class>
+</hibernate-mapping>

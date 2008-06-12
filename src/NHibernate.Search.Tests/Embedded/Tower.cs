@@ -14,19 +14,19 @@ namespace NHibernate.Search.Tests.Embedded
         [IndexedEmbedded]
         private Address address;
 
-        public long Id
+        public virtual long Id
         {
             get { return id; }
             set { id = value; }
         }
 
-        public string Name
+        public virtual string Name
         {
             get { return name; }
             set { name = value; }
         }
 
-        public Address Address
+        public virtual Address Address
         {
             get { return address; }
             set { address = value; }

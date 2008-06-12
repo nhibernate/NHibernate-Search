@@ -10,13 +10,13 @@ namespace NHibernate.Search.Tests.Embedded
         [Field(Index.Tokenized)]
         private string name;
 
-        public int Id
+        public virtual int Id
         {
             get { return id; }
             set { id = value; }
         }
 
-        public string Name
+        public virtual string Name
         {
             get { return name; }
             set { name = value; }

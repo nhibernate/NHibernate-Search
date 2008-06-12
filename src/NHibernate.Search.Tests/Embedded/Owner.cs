@@ -10,13 +10,13 @@ namespace NHibernate.Search.Tests.Embedded
         [IndexedEmbedded] // play the lunatic user
         private Address address;
 
-        public string Name
+        public virtual string Name
         {
             get { return name; }
             set { name = value; }
         }
 
-        public Address Address
+        public virtual Address Address
         {
             get { return address; }
             set { address = value; }
