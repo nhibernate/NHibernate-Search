@@ -1,19 +1,23 @@
 using System.Collections;
-using NHibernate.Cfg;
+using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Index;
+using Lucene.Net.QueryParsers;
+using Lucene.Net.Search;
+//using NHibernate.Cfg;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Embedded
 {
-    [TestFixture]
+    [TestFixture, Ignore("Not implemented yet")]
     public class EmbeddedTest : SearchTestCase
     {
         #region Helper methods
 
-        protected override void Configure(Configuration configuration)
-        {
-            base.Configure(configuration);
-            // TODO: Set up listeners!
-        }
+        //protected override void Configure(Configuration configuration)
+        //{
+        //    base.Configure(configuration);
+        //    // TODO: Set up listeners!
+        //}
 
         protected override IList Mappings
         {
@@ -35,7 +39,7 @@ namespace NHibernate.Search.Tests.Embedded
 
         #region Tests
 
-        [Test]
+        [Test, Ignore("Not implemented yet")]
         public void TestEmbeddedIndexing()
         {
             Tower tower = new Tower();
@@ -57,6 +61,44 @@ namespace NHibernate.Search.Tests.Embedded
             s.Persist(tower);
             tx.Commit();
 
+
+		    IFullTextSession session = Search.CreateFullTextSession( s );
+		    QueryParser parser = new QueryParser( "id", new StandardAnalyzer() );
+
+            Lucene.Net.Search.Query query = parser.Parse( "address.street:place" );
+		    IList result = session.CreateFullTextQuery( query ).List();
+		    Assert.AreEqual( 1, result.Count, "unable to find property in embedded" );
+
+		    query = parser.Parse( "address.ownedBy_name:renting" );
+		    result = session.CreateFullTextQuery( query).List();
+		    Assert.AreEqual(  1, result.Count, "unable to find property in embedded" );
+
+		    query = parser.Parse( "address.id:" + a.Id );
+		    result = session.CreateFullTextQuery( query ).List();
+		    Assert.AreEqual( 1, result.Count, "unable to find property by id of embedded" );
+
+		    query = parser.Parse( "address.country.name:" + a.Country.Name );
+		    result = session.CreateFullTextQuery( query ).List();
+		    Assert.AreEqual(  1, result.Count, "unable to find property with 2 levels of embedded" );
+
+		    s.Clear();
+
+		    tx = s.BeginTransaction();
+		    Address address = s.Get<Address>( a.Id );
+		    address.OwnedBy.Name = "Buckhead community" ;
+		    tx.Commit();
+
+		    s.Clear();
+
+		    session = Search.CreateFullTextSession( s );
+
+		    query = parser.Parse( "address.ownedBy_name:buckhead" );
+		    result = session.CreateFullTextQuery( query ).List();
+		    Assert.AreEqual( 1, result.Count,"change in embedded not reflected in root index" );
+
+		    s.Clear();
+
+            // Tidy up
             tx = s.BeginTransaction();
             s.Delete(tower);
             s.Delete(a);
@@ -66,7 +108,7 @@ namespace NHibernate.Search.Tests.Embedded
             s.Close();
         }
 
-        [Test]
+        [Test, Ignore("Not implemented yet")]
         public void TestContainedIn()
         {
             Tower tower = new Tower();
@@ -85,6 +127,42 @@ namespace NHibernate.Search.Tests.Embedded
             s.Persist(tower);
             tx.Commit();
 
+		    s.Clear();
+
+		    tx = s.BeginTransaction();
+		    Address address =  s.Get<Address>(a.Id );
+		    address.Street = "Peachtree Road NE" ;
+		    tx.Commit();
+
+		    s.Clear();
+
+		    IFullTextSession session = Search.CreateFullTextSession( s );
+		    QueryParser parser = new QueryParser( "id", new StandardAnalyzer() );
+
+            Lucene.Net.Search.Query query = parser.Parse( "address.street:peachtree" );
+		    IList result = session.CreateFullTextQuery( query).List();
+		    Assert.AreEqual( 1, result.Count, "change in embedded not reflected in root index" );
+
+		    s.Clear();
+
+		    tx = s.BeginTransaction();
+		    address = s.Get<Address>( a.Id );
+            IEnumerator en = address.Towers.GetEnumerator();
+            en.MoveNext();
+            Tower tower1 = (Tower) en.Current;
+		    tower1.Address = null ;
+		    address.Towers.Remove( tower1 );
+		    tx.Commit();
+
+		    s.Clear();
+
+		    session = Search.CreateFullTextSession( s );
+
+		    query = parser.Parse( "address.street:peachtree" );
+		    result = session.CreateFullTextQuery( query ).List();
+		    Assert.AreEqual( 0, result.Count,"breaking link fails" );
+
+            // Tidy up
             tx = s.BeginTransaction();
             s.Delete(tower);
             s.Delete(a);
@@ -93,7 +171,7 @@ namespace NHibernate.Search.Tests.Embedded
             s.Close();
         }
 
-        [Test]
+        [Test, Ignore("Not implemented yet")]
         public void TestIndexedEmbeddedAndCollections()
         {
             Author a = new Author();
@@ -135,9 +213,41 @@ namespace NHibernate.Search.Tests.Embedded
             s.Persist(p2);
             tx.Commit();
 
-            //s.Clear();
+            s.Clear();
 
-            tx = s.BeginTransaction();
+		    IFullTextSession session = Search.CreateFullTextSession( s );
+		    tx = session.BeginTransaction();
+
+		    QueryParser parser = new MultiFieldQueryParser( new string[] { "name", "authors.name" }, new StandardAnalyzer() );
+
+            Lucene.Net.Search.Query query = parser.Parse( "Hugo" );
+		    IList result = session.CreateFullTextQuery( query ).List();
+		    Assert.AreEqual( 1, result.Count, "collection of embedded ignored" );
+
+		    //update the collection
+		    Product p = (Product) result[0];
+		    p.Authors.Add( a4 );
+
+		    //PhraseQuery
+		    query = new TermQuery( new Term( "orders.orderNumber", "ZERTYD" ) );
+		    result = session.CreateFullTextQuery( query).List();
+		    Assert.AreEqual( 1, result.Count, "collection of untokenized ignored" );
+		    query = new TermQuery( new Term( "orders.orderNumber", "ACVBNM" ) );
+		    result = session.CreateFullTextQuery( query).List();
+		    Assert.AreEqual( 1, result.Count, "collection of untokenized ignored" );
+
+		    tx.Commit();
+
+		    s.Clear();
+
+		    tx = s.BeginTransaction();
+		    session = Search.CreateFullTextSession( s );
+		    query = parser.Parse( "Proust" );
+		    result = session.CreateFullTextQuery( query ).List();
+		    //HSEARCH-56
+		    Assert.AreEqual( 1, result.Count, "update of collection of embedded ignored" );
+
+            // Tidy up
             s.Delete(a);
             s.Delete(a2);
             s.Delete(a3);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -40,6 +41,14 @@ namespace NHibernate.Search.Engine
 
         #region Nested type: PropertiesMetadata
 
+        private enum Container
+        {
+            Object,
+            Collection,
+            Map,
+            Array
+        }
+
         private class PropertiesMetadata
         {
             public readonly List<float> classBoosts = new List<float>();
@@ -48,7 +57,7 @@ namespace NHibernate.Search.Engine
             public readonly List<string> classNames = new List<string>();
             public readonly List<Field.Store> classStores = new List<Field.Store>();
             public readonly List<MemberInfo> containedInGetters = new List<MemberInfo>();
-            public readonly List<MemberInfo> embeddedContainers = new List<MemberInfo>();
+            public readonly List<Container> embeddedContainers = new List<Container>();
             public readonly List<MemberInfo> embeddedGetters = new List<MemberInfo>();
             public readonly List<PropertiesMetadata> embeddedPropertiesMetadata = new List<PropertiesMetadata>();
             public readonly List<IFieldBridge> fieldBridges = new List<IFieldBridge>();
@@ -149,9 +158,21 @@ namespace NHibernate.Search.Engine
             analyzer.AddScopedAnalyzer(fieldName, localAnalyzer);
         }
 
+        private string BuildEmbeddedPrefix(string prefix, IndexedEmbeddedAttribute embeddedAnn, MemberInfo member)
+        {
+            string localPrefix = prefix;
+            if (embeddedAnn.Prefix == ".")
+                // Default to property name
+                localPrefix += member.Name + ".";
+            else
+                localPrefix += embeddedAnn.Prefix;
+
+            return localPrefix;
+        }
+
         private static Analyzer GetAnalyzer(MemberInfo member)
         {
-            AnalyzerAttribute attrib = AttributeUtil.GetAnalyzer(member);
+            AnalyzerAttribute attrib = AttributeUtil.GetAttribute<AnalyzerAttribute>(member);
             return attrib == null ? null : GetAnalyzer(attrib.Type);
         }
 
@@ -177,7 +198,7 @@ namespace NHibernate.Search.Engine
         private static float? GetBoost(MemberInfo element)
         {
             if (element == null) return null;
-            BoostAttribute boost = AttributeUtil.GetBoost(element);
+            BoostAttribute boost = AttributeUtil.GetAttribute<BoostAttribute>(element);
             if (boost == null)
                 return null;
             return boost.Value;
@@ -200,10 +221,16 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private static object GetMemberValue(Object instnace, MemberInfo getter)
+        private static object GetMemberValue(Object instance, MemberInfo getter)
         {
             PropertyInfo info = getter as PropertyInfo;
-            return info != null ? info.GetValue(instnace, null) : ((FieldInfo) getter).GetValue(instnace);
+            return info != null ? info.GetValue(instance, null) : ((FieldInfo) getter).GetValue(instance);
+        }
+
+        private static System.Type GetMemberType(MemberInfo member)
+        {
+            PropertyInfo info = member as PropertyInfo;
+            return info != null ? info.PropertyType : ((FieldInfo) member).FieldType;
         }
 
         private static Field.Store GetStore(Attributes.Store store)
@@ -270,46 +297,177 @@ namespace NHibernate.Search.Engine
                 foreach (FieldAttribute fieldAnn in fieldAttributes)
                     BindFieldAnnotation(member, propertiesMetadata, prefix, fieldAnn);
             }
+
+            IndexedEmbeddedAttribute embeddedAttribute = AttributeUtil.GetAttribute<IndexedEmbeddedAttribute>(member);
+            if (embeddedAttribute != null)
+            {
+                int oldMaxLevel = maxLevel;
+                int potentialLevel = embeddedAttribute.Depth + level;
+                if (potentialLevel < 0)
+                    potentialLevel = int.MaxValue;
+
+                maxLevel = potentialLevel > maxLevel ? maxLevel : potentialLevel;
+                level++;
+
+                System.Type elementType = embeddedAttribute.TargetElement ?? GetMemberType(member);
+
+                if (maxLevel == int.MaxValue && processedClasses.Contains(elementType))
+                throw new SearchException(
+                    string.Format("Circular reference, Duplicate use of {0} in root entity {1}#{2}",
+                                  elementType.FullName, beanClass.FullName,
+                                  BuildEmbeddedPrefix(prefix, embeddedAttribute, member)));
+
+                if (level <= maxLevel)
+                {
+                    processedClasses.Add(elementType); // push
+
+                    SetAccessible(member);
+                    propertiesMetadata.embeddedGetters.Add(member);
+                    PropertiesMetadata metadata = new PropertiesMetadata();
+                    propertiesMetadata.embeddedPropertiesMetadata.Add(metadata);
+                    metadata.boost = GetBoost(member);
+                    // property > entity analyzer
+                    metadata.analyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
+                    string localPrefix = BuildEmbeddedPrefix(prefix, embeddedAttribute, member);
+                    InitializeMembers(elementType, metadata, false, localPrefix, processedClasses);
+                    /**
+                     * We will only index the "expected" type but that's OK, HQL cannot do downcasting either
+                     */
+                    if (elementType.IsArray)
+                        propertiesMetadata.embeddedContainers.Add(Container.Array);
+                    else if (typeof(ICollection).IsAssignableFrom(elementType))
+                    {
+                        // TODO: Check this will cope with ISet and/or subclasses of IList/IDictionary correctly
+                        if (typeof(IDictionary).IsAssignableFrom(elementType))
+                            propertiesMetadata.embeddedContainers.Add(Container.Map);
+                        else
+                            propertiesMetadata.embeddedContainers.Add(Container.Collection);
+                    }
+                    else
+                        propertiesMetadata.embeddedContainers.Add(Container.Object);
+                }
+                else if (logger.IsDebugEnabled)
+                {
+                    string localPrefix = BuildEmbeddedPrefix(prefix, embeddedAttribute, member);
+                    logger.Debug("Depth reached, ignoring " + localPrefix);
+                }
+
+                level--;
+                maxLevel = oldMaxLevel; // set back the old max level
+            }
+
+            ContainedInAttribute containedInAttribute = AttributeUtil.GetAttribute<ContainedInAttribute>(member);
+            if (containedInAttribute != null)
+            {
+                SetAccessible(member);
+                propertiesMetadata.containedInGetters.Add(member);
+            }
         }
 
         private void InitializeMembers(
             System.Type clazz, PropertiesMetadata propertiesMetadata, bool isRoot, String prefix,
             ISet<System.Type> processedClasses)
         {
-            // NB Must cast here as we want to look at the type's metadata
-            Analyzer localAnalyzer = GetAnalyzer(clazz as MemberInfo);
-            if (localAnalyzer != null)
-                propertiesMetadata.analyzer = localAnalyzer;
-
-            // Check for any ClassBridges
-            List<ClassBridgeAttribute> classBridgeAnn = AttributeUtil.GetClassBridges(clazz);
-            if (classBridgeAnn != null)
+            IList<System.Type> hierarchy = new List<System.Type>();
+            System.Type currClass = clazz;
+            do
             {
-                // Ok, pick up the parameters as well
-                AttributeUtil.GetClassBridgeParameters(clazz, classBridgeAnn);
+                hierarchy.Add(currClass);
+                currClass = currClass.BaseType;
+            } while (currClass != typeof(object)); // NB Java stops at null we stop at object otherwise we process the class twice
 
-                // Now we can process the class bridges
-                foreach (ClassBridgeAttribute cb in classBridgeAnn)
-                    BindClassAnnotation(prefix, propertiesMetadata, cb);
+            for (int index = hierarchy.Count - 1; index >= 0; index--)
+            {
+                currClass = hierarchy[index];
+                /**
+                 * Override the default analyzer for the properties if the class hold one
+                 * That's the reason we go down the hierarchy
+                 */
+
+                // NB Must cast here as we want to look at the type's metadata
+                Analyzer localAnalyzer = GetAnalyzer(currClass as MemberInfo);
+                if (localAnalyzer != null)
+                    propertiesMetadata.analyzer = localAnalyzer;
+
+                // Check for any ClassBridges
+                List<ClassBridgeAttribute> classBridgeAnn = AttributeUtil.GetClassBridges(currClass);
+                if (classBridgeAnn != null)
+                {
+                    // Ok, pick up the parameters as well
+                    AttributeUtil.GetClassBridgeParameters(currClass, classBridgeAnn);
+
+                    // Now we can process the class bridges
+                    foreach (ClassBridgeAttribute cb in classBridgeAnn)
+                        BindClassAnnotation(prefix, propertiesMetadata, cb);
+                }
+
+                // NB As we are walking the hierarchy only retrieve items at this level
+                PropertyInfo[] propertyInfos = currClass.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                foreach (PropertyInfo propertyInfo in propertyInfos)
+                    InitializeMember(propertyInfo, propertiesMetadata, isRoot, prefix, processedClasses);
+
+                FieldInfo[] fields =
+                    clazz.GetFields(BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                foreach (FieldInfo fieldInfo in fields)
+                    InitializeMember(fieldInfo, propertiesMetadata, isRoot, prefix, processedClasses);
             }
-
-            PropertyInfo[] propertyInfos = clazz.GetProperties();
-            foreach (PropertyInfo propertyInfo in propertyInfos)
-                InitializeMember(propertyInfo, propertiesMetadata, isRoot, prefix, processedClasses);
-
-            FieldInfo[] fields = clazz.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-            foreach (FieldInfo fieldInfo in fields)
-                InitializeMember(fieldInfo, propertiesMetadata, isRoot, prefix, processedClasses);
         }
 
-        /*
-		private void processContainedIn(Object instance, List<LuceneWork> queue, PropertiesMetadata metadata, SearchFactory searchFactory)
+		private void ProcessContainedIn(Object instance, List<LuceneWork> queue, PropertiesMetadata metadata, SearchFactoryImpl searchFactory)
 		{
-			not supported
-		}
-	    */
+            for (int i = 0; i < metadata.containedInGetters.Count; i++)
+            {
+                MemberInfo member = metadata.containedInGetters[i];
+                object value = GetMemberValue(instance, member);
 
-        private void ProcessContainedInValue(object value, List<LuceneWork> queue, System.Type valueClass,
+                if (value == null) continue;
+
+                Array array = value as Array;
+                if (array != null)
+                {
+                    foreach (object arrayValue in array)
+                    {
+                        // Highly inneficient but safe wrt the actual targeted class, e.g. polymorphic items in the array
+                        System.Type valueType = NHibernateUtil.GetClass(arrayValue);
+                        if (valueType == null || !searchFactory.DocumentBuilders.ContainsKey(valueType)) 
+                            continue;
+
+                        ProcessContainedInValue(arrayValue, queue, valueType, searchFactory.DocumentBuilders[valueType], searchFactory);
+                    }
+                }
+                else if (typeof(ICollection).IsAssignableFrom(value.GetType()))
+                {
+                    ICollection collection = value as ICollection;
+                    if (typeof(IDictionary).IsAssignableFrom(value.GetType()))
+                        collection = ((IDictionary) value).Values;
+
+                    if (collection == null)
+                        continue;
+
+                    foreach (object collectionValue in collection)
+                    {
+                        // Highly inneficient but safe wrt the actual targeted class, e.g. polymorphic items in the array
+                        System.Type valueType = NHibernateUtil.GetClass(collectionValue);
+                        if (valueType == null || !searchFactory.DocumentBuilders.ContainsKey(valueType))
+                            continue;
+
+                        ProcessContainedInValue(collectionValue, queue, valueType, searchFactory.DocumentBuilders[valueType], searchFactory);
+                    }
+                }
+                else
+                {
+                    System.Type valueType = NHibernateUtil.GetClass(value);
+                    if (valueType == null || !searchFactory.DocumentBuilders.ContainsKey(valueType))
+                        continue;
+
+                    ProcessContainedInValue(value, queue, valueType, searchFactory.DocumentBuilders[valueType], searchFactory);
+                }
+            }
+            //an embedded cannot have a useful @ContainedIn (no shared reference)
+            //do not walk through them
+        }
+
+        private static void ProcessContainedInValue(object value, List<LuceneWork> queue, System.Type valueClass,
                                              DocumentBuilder builder, SearchFactoryImpl searchFactory)
         {
             object id = GetMemberValue(value, builder.idGetter);
@@ -319,6 +477,12 @@ namespace NHibernate.Search.Engine
         private static void SetAccessible(MemberInfo member)
         {
             // NB Not sure we need to do anything for C#
+        }
+
+        private static object Unproxy(object value)
+        {
+            // NB Not sure if we need to do anything for C#
+            return value;
         }
 
         #endregion
@@ -335,14 +499,14 @@ namespace NHibernate.Search.Engine
             foreach (LuceneWork luceneWork in queue)
                 if (luceneWork.EntityClass == entityClass && luceneWork.Id.Equals(id))
                     return;
-            // bool searchForContainers = false;
+            bool searchForContainers = false;
             string idString = idBridge.ObjectToString(id);
 
             switch (workType)
             {
                 case WorkType.Add:
                     queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id)));
-                    // searchForContainers = true;
+                    searchForContainers = true;
                     break;
 
                 case WorkType.Delete:
@@ -355,6 +519,7 @@ namespace NHibernate.Search.Engine
                     break;
 
                 case WorkType.Update:
+                case WorkType.Collection:
                     /**
                      * even with Lucene 2.1, use of indexWriter to update is not an option
                      * We can only delete by term, and the index doesn't have a term that
@@ -364,7 +529,7 @@ namespace NHibernate.Search.Engine
                     */
                     queue.Add(new DeleteLuceneWork(id, idString, entityClass));
                     queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id)));
-                    // searchForContainers = true;
+                    searchForContainers = true;
                     break;
 
                 case WorkType.Index:
@@ -372,7 +537,7 @@ namespace NHibernate.Search.Engine
                     LuceneWork work = new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id));
                     work.IsBatch = true;
                     queue.Add(work);
-                    // searchForContainers = true;
+                    searchForContainers = true;
                     break;
 
                 default:
@@ -384,10 +549,8 @@ namespace NHibernate.Search.Engine
 		     * have to be updated)
 		     * When the internal object is changed, we apply the {Add|Update}Work on containedIns
 		    */
-            /*
 		    if (searchForContainers)
-			    processContainedIn(entity, queue, rootPropertiesMetadata, searchFactory);
-		    */
+			    ProcessContainedIn(entity, queue, rootPropertiesMetadata, searchFactory);
         }
 
         public Document GetDocument(object instance, object id)
@@ -412,6 +575,8 @@ namespace NHibernate.Search.Engine
         {
             if (instance == null) return;
 
+            object unproxiedInstance = Unproxy(instance);
+
             for (int i = 0; i < propertiesMetadata.classBridges.Count; i++)
             {
                 IFieldBridge fb = propertiesMetadata.classBridges[i];
@@ -419,7 +584,7 @@ namespace NHibernate.Search.Engine
                 try
                 {
                     fb.Set(propertiesMetadata.classNames[i],
-                           instance,
+                           unproxiedInstance,
                            doc,
                            propertiesMetadata.classStores[i],
                            propertiesMetadata.classIndexes[i],
@@ -438,7 +603,7 @@ namespace NHibernate.Search.Engine
                 try
                 {
                     MemberInfo member = propertiesMetadata.fieldGetters[i];
-                    Object value = GetMemberValue(instance, member);
+                    Object value = GetMemberValue(unproxiedInstance, member);
                     propertiesMetadata.fieldBridges[i].Set(
                         propertiesMetadata.fieldNames[i],
                         value,
@@ -452,17 +617,52 @@ namespace NHibernate.Search.Engine
                 {
                     logger.Error(
                         string.Format(CultureInfo.InvariantCulture, "Error processing field bridge for {0}.{1}",
-                                      instance.GetType().FullName, propertiesMetadata.fieldNames[i]), e);
+                                      unproxiedInstance.GetType().FullName, propertiesMetadata.fieldNames[i]), e);
                 }
             }
 
             for (int i = 0; i < propertiesMetadata.embeddedGetters.Count; i++)
             {
                 MemberInfo member = propertiesMetadata.embeddedGetters[i];
-                Object value = GetMemberValue(instance, member);
+                Object value = GetMemberValue(unproxiedInstance, member);
                 //if ( ! Hibernate.isInitialized( value ) ) continue; //this sounds like a bad idea 
                 //TODO handle boost at embedded level: already stored in propertiesMedatada.boost
-                BuildDocumentFields(value, doc, propertiesMetadata.embeddedPropertiesMetadata[i]);
+
+                if (value == null) continue;
+                PropertiesMetadata embeddedMetadata = propertiesMetadata.embeddedPropertiesMetadata[i];
+                try
+                {
+                    switch (propertiesMetadata.embeddedContainers[i])
+                    {
+                        case Container.Array:
+                            foreach (object arrayValue in value as Array)
+                                BuildDocumentFields(arrayValue, doc, embeddedMetadata);
+                            break;
+
+                        case Container.Collection:
+                            foreach (object collectionValue in value as ICollection)
+                                BuildDocumentFields(collectionValue, doc, embeddedMetadata);
+                            break;
+
+                        case Container.Map:
+                            foreach (object collectionValue in (value as IDictionary).Values)
+                                BuildDocumentFields(collectionValue, doc, embeddedMetadata);
+                            break;
+
+                        case Container.Object:
+                            BuildDocumentFields(value, doc, embeddedMetadata);
+                            break;
+
+                        default:
+                            throw new NotSupportedException("Unknown embedded container: " +
+                                                            propertiesMetadata.embeddedContainers[i]);
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    logger.Error(string.Format("Null reference whilst processing {0}.{1}, container type {2}", instance.GetType().FullName,
+                                 member.Name, propertiesMetadata.embeddedContainers[i]));
+                }
             }
         }
 

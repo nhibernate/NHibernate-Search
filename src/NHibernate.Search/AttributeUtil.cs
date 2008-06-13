@@ -13,31 +13,6 @@ namespace NHibernate.Search
 
         #region Private methods
 
-        private static T GetAttribute<T>(ICustomAttributeProvider member)
-            where T : Attribute
-        {
-            object[] objects = member.GetCustomAttributes(typeof(T), true);
-            if (objects.Length == 0)
-                return null;
-            return (T) objects[0];
-        }
-
-        private static List<T> GetAttributes<T>(ICustomAttributeProvider member)
-        {
-            object[] objects = member.GetCustomAttributes(typeof(T), true);
-            if (objects.Length == 0)
-                return null;
-            List<T> attribs = new List<T>();
-            foreach (T attrib in objects)
-                attribs.Add(attrib);
-
-            return attribs;
-        }
-
-        #endregion
-
-        #region Public methods
-
         private static void LogParameterError(string message, ICustomAttributeProvider member, ParameterAttribute parameter)
         {
             string type = string.Empty;
@@ -58,14 +33,29 @@ namespace NHibernate.Search
             logger.Error(string.Format(CultureInfo.InvariantCulture, message, type, name, parameter.Name, parameter.Owner));
         }
 
-        public static AnalyzerAttribute GetAnalyzer(MemberInfo member)
+        #endregion
+
+        #region Public methods
+
+        public static T GetAttribute<T>(ICustomAttributeProvider member)
+            where T : Attribute
         {
-            return GetAttribute<AnalyzerAttribute>(member);
+            object[] objects = member.GetCustomAttributes(typeof(T), true);
+            if (objects.Length == 0)
+                return null;
+            return (T)objects[0];
         }
 
-        public static BoostAttribute GetBoost(MemberInfo member)
+        public static List<T> GetAttributes<T>(ICustomAttributeProvider member)
         {
-            return GetAttribute<BoostAttribute>(member);
+            object[] objects = member.GetCustomAttributes(typeof(T), true);
+            if (objects.Length == 0)
+                return null;
+            List<T> attribs = new List<T>();
+            foreach (T attrib in objects)
+                attribs.Add(attrib);
+
+            return attribs;
         }
 
         public static List<ClassBridgeAttribute> GetClassBridges(ICustomAttributeProvider member)
