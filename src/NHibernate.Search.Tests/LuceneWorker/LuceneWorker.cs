@@ -25,7 +25,7 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
             {
                 SearchFactoryImpl searchFactory = SearchFactoryImpl.GetSearchFactory(cfg);
                 System.Type targetType = typeof(Document);
-                IDirectoryProvider Directory = searchFactory.GetDirectoryProvider(targetType);
+                IDirectoryProvider provider = searchFactory.GetDirectoryProviders(targetType)[0];
                 Workspace workspace = new Workspace(searchFactory);
 
                 using (ITransaction tx = s.BeginTransaction())
@@ -36,14 +36,14 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
                     searchFactory.PerformWork(doc, 2, s, WorkType.Add);
                     tx.Commit();
                 }
-                Assert.AreEqual(2, workspace.GetIndexReader(targetType).NumDocs(), "Documents created");
+                Assert.AreEqual(2, workspace.GetIndexReader(provider, targetType).NumDocs(), "Documents created");
 
                 using (ITransaction tx = s.BeginTransaction())
                 {
                     LuceneWorker luceneWorker = new LuceneWorker(workspace);
-                    luceneWorker.PerformWork(new PurgeAllLuceneWork(targetType), Directory);
+                    luceneWorker.PerformWork(new PurgeAllLuceneWork(targetType), provider);
                 }
-                Assert.AreEqual(0, workspace.GetIndexReader(targetType).NumDocs(), "Document purgation");
+                Assert.AreEqual(0, workspace.GetIndexReader(provider, targetType).NumDocs(), "Document purgation");
             }
         }
     }

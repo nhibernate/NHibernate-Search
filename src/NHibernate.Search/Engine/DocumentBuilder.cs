@@ -29,7 +29,8 @@ namespace NHibernate.Search.Engine
 
         private readonly PropertiesMetadata rootPropertiesMetadata;
         private readonly System.Type beanClass;
-        private readonly IDirectoryProvider directoryProvider;
+        private readonly IDirectoryProvider[] directoryProviders;
+        private readonly IIndexShardingStrategy shardingStrategy;
         private String idKeywordName;
         private MemberInfo idGetter;
         private float? idBoost;
@@ -73,11 +74,12 @@ namespace NHibernate.Search.Engine
 
         #region Constructors
 
-        public DocumentBuilder(System.Type clazz, Analyzer defaultAnalyzer, IDirectoryProvider directory)
+        public DocumentBuilder(System.Type clazz, Analyzer defaultAnalyzer, IDirectoryProvider[] directoryProviders, IIndexShardingStrategy shardingStrategy)
         {
             analyzer = new ScopedAnalyzer();
             beanClass = clazz;
-            directoryProvider = directory;
+            this.directoryProviders = directoryProviders;
+            this.shardingStrategy = shardingStrategy;
 
             if (clazz == null) throw new AssertionFailure("Unable to build a DocumemntBuilder with a null class");
 
@@ -103,9 +105,14 @@ namespace NHibernate.Search.Engine
             get { return analyzer; }
         }
 
-        public IDirectoryProvider DirectoryProvider
+        public IDirectoryProvider[] DirectoryProviders
         {
-            get { return directoryProvider; }
+            get { return directoryProviders; }
+        }
+
+        public IIndexShardingStrategy DirectoryProvidersSelectionStrategy
+        {
+            get { return shardingStrategy; }
         }
 
         public ITwoWayFieldBridge IdBridge
@@ -158,7 +165,7 @@ namespace NHibernate.Search.Engine
             analyzer.AddScopedAnalyzer(fieldName, localAnalyzer);
         }
 
-        private string BuildEmbeddedPrefix(string prefix, IndexedEmbeddedAttribute embeddedAnn, MemberInfo member)
+        private static string BuildEmbeddedPrefix(string prefix, IndexedEmbeddedAttribute embeddedAnn, MemberInfo member)
         {
             string localPrefix = prefix;
             if (embeddedAnn.Prefix == ".")
@@ -170,7 +177,7 @@ namespace NHibernate.Search.Engine
             return localPrefix;
         }
 
-        private static Analyzer GetAnalyzer(MemberInfo member)
+        private static Analyzer GetAnalyzer(ICustomAttributeProvider member)
         {
             AnalyzerAttribute attrib = AttributeUtil.GetAttribute<AnalyzerAttribute>(member);
             return attrib == null ? null : GetAnalyzer(attrib.Type);
@@ -195,7 +202,7 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private static float? GetBoost(MemberInfo element)
+        private static float? GetBoost(ICustomAttributeProvider element)
         {
             if (element == null) return null;
             BoostAttribute boost = AttributeUtil.GetAttribute<BoostAttribute>(element);
@@ -374,7 +381,9 @@ namespace NHibernate.Search.Engine
             {
                 hierarchy.Add(currClass);
                 currClass = currClass.BaseType;
-            } while (currClass != typeof(object)); // NB Java stops at null we stop at object otherwise we process the class twice
+            // NB Java stops at null we stop at object otherwise we process the class twice
+            // We also need a null test for things like ISet which have no base class/interface
+            } while (currClass != null && currClass != typeof(object)); 
 
             for (int index = hierarchy.Count - 1; index >= 0; index--)
             {
@@ -413,7 +422,7 @@ namespace NHibernate.Search.Engine
             }
         }
 
-		private void ProcessContainedIn(Object instance, List<LuceneWork> queue, PropertiesMetadata metadata, SearchFactoryImpl searchFactory)
+		private static void ProcessContainedIn(Object instance, List<LuceneWork> queue, PropertiesMetadata metadata, SearchFactoryImpl searchFactory)
 		{
             for (int i = 0; i < metadata.containedInGetters.Count; i++)
             {
@@ -471,7 +480,7 @@ namespace NHibernate.Search.Engine
                                              DocumentBuilder builder, SearchFactoryImpl searchFactory)
         {
             object id = GetMemberValue(value, builder.idGetter);
-            builder.AddToWorkQueue(value, id, WorkType.Update, queue, searchFactory);
+            builder.AddToWorkQueue(valueClass, value, id, WorkType.Update, queue, searchFactory);
         }
 
         private static void SetAccessible(MemberInfo member)
@@ -492,10 +501,10 @@ namespace NHibernate.Search.Engine
         /// <summary>
         /// This add the new work to the queue, so it can be processed in a batch fashion later
         /// </summary>
-        public void AddToWorkQueue(object entity, object id, WorkType workType, List<LuceneWork> queue,
+        public void AddToWorkQueue(System.Type entityClass, object entity, object id, WorkType workType, List<LuceneWork> queue,
                                    SearchFactoryImpl searchFactory)
         {
-            System.Type entityClass = NHibernateUtil.GetClass(entity);
+            //TODO with the caller loop we are in a n^2: optimize it using a HashMap for work recognition
             foreach (LuceneWork luceneWork in queue)
                 if (luceneWork.EntityClass == entityClass && luceneWork.Id.Equals(id))
                     return;
@@ -610,8 +619,7 @@ namespace NHibernate.Search.Engine
                         doc,
                         propertiesMetadata.fieldStore[i],
                         propertiesMetadata.fieldIndex[i],
-                        GetBoost(member)
-                        );
+                        GetBoost(member));
                 }
                 catch (Exception e)
                 {
@@ -689,9 +697,8 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        public static object GetDocumentId(SearchFactoryImpl searchFactory, Document document)
+        public static object GetDocumentId(ISearchFactoryImplementor searchFactory, System.Type clazz, Document document)
         {
-            System.Type clazz = GetDocumentClass(document);
             DocumentBuilder builder = searchFactory.DocumentBuilders[clazz];
             if (builder == null) throw new SearchException("No Lucene configuration set up for: " + clazz.Name);
             return builder.IdBridge.Get(builder.GetIdKeywordName(), document);

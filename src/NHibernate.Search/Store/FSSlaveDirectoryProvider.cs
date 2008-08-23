@@ -7,6 +7,7 @@ using log4net;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
@@ -30,9 +31,20 @@ namespace NHibernate.Search.Store
         private String indexName;
         private Timer timer;
 
-        #region IDirectoryProvider Members
+        public Directory Directory
+        {
+            get
+            {
+                if (current == 1)
+                    return directory1;
+                else if (current == 2)
+                    return directory2;
+                else
+                    throw new AssertionFailure("Illegal current directory: " + current);
+            }
+        }
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactoryImpl searchFactory)
+        public void Initialize(String directoryProviderName, IDictionary properties, ISearchFactoryImplementor searchFactory)
         {
             //source guessing
             String source =
@@ -46,10 +58,10 @@ namespace NHibernate.Search.Store
             log.Debug("Source directory: " + source);
             DirectoryInfo indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, properties);
             log.Debug("Index directory: " + indexDir.FullName);
-            string refreshPeriod = (string) (properties[Environment.Refresh] ?? "3600");
-            long period = long.Parse(refreshPeriod);
-            log.Debug("Refresh period " + period + " seconds");
-            period *= 1000; //per second
+            //string refreshPeriod = (string) (properties[Environment.Refresh] ?? "3600");
+            //long period = long.Parse(refreshPeriod);
+            //log.Debug("Refresh period " + period + " seconds");
+            //period *= 1000; //per second
             try
             {
                 bool create = !indexDir.Exists;
@@ -125,27 +137,15 @@ namespace NHibernate.Search.Store
             {
                 throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
             }
-            searchFactory.RegisterDirectoryProviderForLocks(this);
-            timer = new Timer(
-                new CopyDirectory(this, source, indexName).Run
-                );
-            timer.Change(period, period);
+            //searchFactory.RegisterDirectoryProviderForLocks(this);
+            //timer = new Timer(new CopyDirectory(this, source, indexName).Run);
+            //timer.Change(period, period);
         }
 
-        public Directory Directory
+        public void Start()
         {
-            get
-            {
-                if (current == 1)
-                    return directory1;
-                else if (current == 2)
-                    return directory2;
-                else
-                    throw new AssertionFailure("Illegal current directory: " + current);
-            }
+            
         }
-
-        #endregion
 
         public override bool Equals(Object obj)
         {
@@ -162,7 +162,7 @@ namespace NHibernate.Search.Store
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call
-            int hash = 11;
+            const int hash = 11;
             return 37*hash + indexName.GetHashCode();
         }
 

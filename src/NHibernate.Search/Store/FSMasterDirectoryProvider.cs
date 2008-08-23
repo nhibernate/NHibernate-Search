@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -8,7 +9,6 @@ using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
 using NHibernate.Search.Engine;
-using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
@@ -26,39 +26,46 @@ namespace NHibernate.Search.Store
         private int current;
         private FSDirectory directory;
         private String indexName;
-        private SearchFactoryImpl searchFactory;
+        private ISearchFactoryImplementor searchFactory;
         private Timer timer;
 
-        #region IDirectoryProvider Members
+        // Variables needed between initialize and start
+        private string source;
+        private DirectoryInfo indexDir;
+        private string directoryProviderName;
+        private IDictionary properties;
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactoryImpl searchFactory)
+        public Directory Directory
         {
+            get { return directory; }
+        }
+
+        public void Initialize(String directoryProviderName, IDictionary properties, ISearchFactoryImplementor searchFactory)
+        {
+            this.properties = properties;
+            this.directoryProviderName = directoryProviderName;
             //source guessing
-            String source =
-                DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source,
-                                                           directoryProviderName, properties);
+            source = DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source, directoryProviderName, properties);
             if (source == null)
                 throw new ArgumentException("FSMasterDirectoryProvider requires a viable source directory");
             log.Debug("Source directory: " + source);
-            DirectoryInfo indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, properties);
+            indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, properties);
             log.Debug("Index directory: " + indexDir);
-            String refreshPeriod = (string) (properties[Environment.Refresh] ?? "3600");
-            long period = int.Parse(refreshPeriod);
-            log.Debug("Refresh period " + period + " seconds");
-            period *= 1000; //per second
             try
             {
                 bool create = !File.Exists(Path.Combine(indexDir.FullName, "segments"));
-                indexName = indexDir.FullName;
+                create = !indexDir.Exists;
                 if (create)
                 {
                     log.Debug("Index directory '" + indexName + "' will be initialized");
                     indexDir.Create();
                 }
+                indexName = indexDir.FullName;
                 directory = FSDirectory.GetDirectory(indexName, create);
 
                 if (create)
                 {
+                    indexName = indexDir.FullName;
                     IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), create);
                     iw.Close();
                 }
@@ -84,20 +91,16 @@ namespace NHibernate.Search.Store
             {
                 throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
             }
-            searchFactory.RegisterDirectoryProviderForLocks(this);
-            timer = new Timer(
-                new CopyDirectory(this, indexName, source).Run
-                );
-            timer.Change(period, period);
+            //searchFactory.RegisterDirectoryProviderForLocks(this);
+            //timer = new Timer(new CopyDirectory(this, indexName, source).Run);
+            //timer.Change(period, period);
             this.searchFactory = searchFactory;
         }
 
-        public Directory Directory
+        public void Start()
         {
-            get { return directory; }
+            
         }
-
-        #endregion
 
         public override bool Equals(Object obj)
         {
@@ -122,16 +125,19 @@ namespace NHibernate.Search.Store
 
         private class CopyDirectory
         {
+            private readonly string source;
             private readonly string destination;
             private readonly FSMasterDirectoryProvider parent;
-            private readonly string source;
+            private IDirectoryProvider directoryProvider;
+            private bool inProgress;
             private object directoryProviderLock;
 
-            public CopyDirectory(FSMasterDirectoryProvider parent, string source, string destination)
+            public CopyDirectory(FSMasterDirectoryProvider parent, string source, string destination, IDirectoryProvider directoryProvider)
             {
                 this.parent = parent;
                 this.source = source;
                 this.destination = destination;
+                this.directoryProvider = directoryProvider;
             }
 
             [MethodImpl(MethodImplOptions.Synchronized)]
@@ -139,44 +145,56 @@ namespace NHibernate.Search.Store
             {
                 //TODO get rid of current and use the marker file instead?
                 DateTime start = DateTime.Now;
+                inProgress = true;
                 if (directoryProviderLock == null)
-                    directoryProviderLock = parent.searchFactory.GetLockObjForDirectoryProvider(parent);
-                lock (directoryProviderLock)
                 {
-                    int oldIndex = parent.current;
-                    int index = parent.current == 1 ? 2 : 1;
-                    DirectoryInfo sourceFile = new DirectoryInfo(source);
+                    directoryProviderLock = parent.searchFactory.GetLockableDirectoryProviders()[directoryProvider];
+                    directoryProvider = null;
+                }
 
-                    DirectoryInfo destinationFile = new DirectoryInfo(Path.Combine(destination, index.ToString()));
-                    //TODO make smart a parameter
-                    try
+                try
+                {
+                    lock (directoryProviderLock)
                     {
-                        log.Info("Copying " + sourceFile + " into " + destinationFile);
-                        FileHelper.Synchronize(sourceFile, destinationFile, true);
-                        parent.current = index;
+                        int oldIndex = parent.current;
+                        int index = parent.current == 1 ? 2 : 1;
+                        DirectoryInfo sourceFile = new DirectoryInfo(source);
+
+                        DirectoryInfo destinationFile = new DirectoryInfo(Path.Combine(destination, index.ToString()));
+                        //TODO make smart a parameter
+                        try
+                        {
+                            log.Info("Copying " + sourceFile + " into " + destinationFile);
+                            FileHelper.Synchronize(sourceFile, destinationFile, true);
+                            parent.current = index;
+                        }
+                        catch (IOException e)
+                        {
+                            //don't change current
+                            log.Error("Unable to synchronize source of " + parent.indexName, e);
+                            return;
+                        }
+                        try
+                        {
+                            File.Delete(Path.Combine(destination, "current" + oldIndex));
+                        }
+                        catch (IOException e)
+                        {
+                            log.Warn("Unable to remove previous marker file from source of " + parent.indexName, e);
+                        }
+                        try
+                        {
+                            File.Create(Path.Combine(destination, "current" + index)).Dispose();
+                        }
+                        catch (IOException e)
+                        {
+                            log.Warn("Unable to create current marker in source of " + parent.indexName, e);
+                        }
                     }
-                    catch (IOException e)
-                    {
-                        //don't change current
-                        log.Error("Unable to synchronize source of " + parent.indexName, e);
-                        return;
-                    }
-                    try
-                    {
-                        File.Delete(Path.Combine(destination, "current" + oldIndex));
-                    }
-                    catch (IOException e)
-                    {
-                        log.Warn("Unable to remove previous marker file from source of " + parent.indexName, e);
-                    }
-                    try
-                    {
-                        File.Create(Path.Combine(destination, "current" + index)).Dispose();
-                    }
-                    catch (IOException e)
-                    {
-                        log.Warn("Unable to create current marker in source of " + parent.indexName, e);
-                    }
+                }
+                finally
+                {
+                    inProgress = false;
                 }
                 log.Info("Copy for " + parent.indexName + " took " + (DateTime.Now - start) + ".");
             }

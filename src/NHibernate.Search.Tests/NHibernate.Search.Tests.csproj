@@ -155,12 +155,6 @@
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NHibernate.Search\NHibernate.Search.csproj">
-      <Project>{CC25D767-990D-4CE0-9F64-3426E244403B}</Project>
-      <Name>NHibernate.Search</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="LuceneWorker\Document.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +192,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Embedded\Address.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NHibernate.Search\NHibernate.Search.csproj">
+      <Project>{CC25D767-990D-4CE0-9F64-3426E244403B}</Project>
+      <Name>NHibernate.Search</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Embedded\DoubleInsert\" />

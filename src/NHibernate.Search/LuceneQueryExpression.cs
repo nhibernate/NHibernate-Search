@@ -8,19 +8,23 @@ using NHibernate.Search.Impl;
 using NHibernate.Search.Util;
 using NHibernate.SqlCommand;
 
-namespace NHibernate.Search {
-    public class LuceneQueryExpression : InExpression {
+namespace NHibernate.Search
+{
+    public class LuceneQueryExpression : InExpression
+    {
         private readonly Lucene.Net.Search.Query luceneQuery;
 
         public LuceneQueryExpression(Lucene.Net.Search.Query luceneQuery)
-            : base("id", new object[0]) {
+            : base("id", new object[0])
+        {
             this.luceneQuery = luceneQuery;
         }
 
         public override SqlString ToSqlString(ICriteria criteria, ICriteriaQuery criteriaQuery,
-                                              IDictionary<string, IFilter> enabledFilters) {
+                                              IDictionary<string, IFilter> enabledFilters)
+        {
             System.Type type = GetCriteriaClass(criteria);
-            SearchFactoryImpl searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
+            ISearchFactoryImplementor searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
             ISet<System.Type> types;
             Searcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out types, type);
             if (searcher == null)
@@ -28,22 +32,25 @@ namespace NHibernate.Search {
             Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(types, luceneQuery);
             Hits hits = searcher.Search(query);
             List<object> ids = new List<object>();
-            for (int i = 0; i < hits.Length(); i++) {
-                object id = DocumentBuilder.GetDocumentId(searchFactory, hits.Doc(i));
+            for (int i = 0; i < hits.Length(); i++)
+            {
+                object id = DocumentBuilder.GetDocumentId(searchFactory, type, hits.Doc(i));
                 ids.Add(id);
             }
             base.Values = ids.ToArray();
             return base.ToSqlString(criteria, criteriaQuery, enabledFilters);
         }
 
-        private static System.Type GetCriteriaClass(ICriteria criteria) {
+        private static System.Type GetCriteriaClass(ICriteria criteria)
+        {
             CriteriaImpl impl = criteria as CriteriaImpl;
             if (impl != null)
                 return impl.CriteriaClass;
             return GetCriteriaClass(((CriteriaImpl.Subcriteria) criteria).Parent);
         }
 
-        public ISession GetSession(ICriteria criteria) {
+        public ISession GetSession(ICriteria criteria)
+        {
             CriteriaImpl impl = criteria as CriteriaImpl;
             if (impl != null)
                 return impl.Session.GetSession();

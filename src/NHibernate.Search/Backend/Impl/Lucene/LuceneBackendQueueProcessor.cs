@@ -1,20 +1,24 @@
 using System.Collections.Generic;
-using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
-using NHibernate.Search.Impl;
+using NHibernate.Search.Store;
 
-namespace NHibernate.Search.Backend.Impl.Lucene {
+namespace NHibernate.Search.Backend.Impl.Lucene
+{
     /// <summary>
     /// Apply the operations to Lucene directories avoiding deadlocks
     /// </summary>
-    public class LuceneBackendQueueProcessor {
+    public class LuceneBackendQueueProcessor
+    {
         private readonly List<LuceneWork> queue;
-        private readonly SearchFactoryImpl searchFactory;
+        private readonly ISearchFactoryImplementor searchFactoryImplementor;
 
-        public LuceneBackendQueueProcessor(List<LuceneWork> queue, SearchFactoryImpl searchFactory) {
+        public LuceneBackendQueueProcessor(List<LuceneWork> queue, ISearchFactoryImplementor searchFactoryImplementor)
+        {
             this.queue = queue;
-            this.searchFactory = searchFactory;
+            this.searchFactoryImplementor = searchFactoryImplementor;
         }
+
+        #region Private methods
 
         /// <summary>
         /// one must lock the directory providers in the exact same order to avoid
@@ -23,42 +27,110 @@ namespace NHibernate.Search.Backend.Impl.Lucene {
         /// We rely on the both the DocumentBuilder.GetHashCode() and the GetWorkHashCode() to 
         /// sort them by predictive order at all times, and to put deletes before adds
         /// </summary>
-        private static void SortQueueToAvoidDeadLocks(List<LuceneWork> queue, Workspace luceneWorkspace) {
-            queue.Sort(delegate(LuceneWork x, LuceneWork y)
+        private static void DeadLockFreeQueue(List<LuceneWorker.WorkWithPayload> queue,
+                                              ISearchFactoryImplementor searchFactoryImplementor)
+        {
+            queue.Sort(delegate(LuceneWorker.WorkWithPayload x, LuceneWorker.WorkWithPayload y)
                            {
-                               long h1 = GetWorkHashCode(x, luceneWorkspace);
-                               long h2 = GetWorkHashCode(y, luceneWorkspace);
-                               if (h1 < h2)
-                                   return -1;
-                               else if (h1 == h2)
-                                   return 0;
-                               else return 1;
+                               long h1 = GetWorkHashCode(x, searchFactoryImplementor);
+                               long h2 = GetWorkHashCode(y, searchFactoryImplementor);
+                               return h1 < h2 ? -1 : h1 == h2 ? 0 : 1;
                            });
         }
 
-        private static long GetWorkHashCode(LuceneWork luceneWork, Workspace luceneWorkspace) {
-            long h = luceneWorkspace.GetDocumentBuilder(luceneWork.EntityClass).GetHashCode()*2;
-            if (luceneWork is AddLuceneWork)
-                h += 1; //addwork after deleteWork
-            return h;
+        private static long GetWorkHashCode(LuceneWorker.WorkWithPayload luceneWork,
+                                            ISearchFactoryImplementor searchFactoryImplementor)
+        {
+            IDirectoryProvider provider = luceneWork.Provider;
+            int h = provider.GetHashCode();
+            h = 31*h + provider.GetHashCode();
+            long extendedHash = h; //to be sure extendedHash + 1 < extendedHash + 2 is always true
+            if (typeof(AddLuceneWork).IsAssignableFrom(luceneWork.Work.GetType()))
+                extendedHash += 1; //addwork after deleteWork
+            if (typeof(OptimizeLuceneWork).IsAssignableFrom(luceneWork.Work.GetType()))
+                extendedHash += 2; //optimize after everything
+
+            return extendedHash;
         }
+
+        private void CheckForBatchIndexing(Workspace workspace)
+        {
+            foreach (LuceneWork luceneWork in queue)
+            {
+                // if there is at least a single batch index job we put the work space into batch indexing mode.
+                if (luceneWork.IsBatch)
+                {
+                    //log.trace("Setting batch indexing mode.");
+                    workspace.IsBatch = true;
+                    break;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Public methods
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ignore">Ignored, used to keep the delegate signature that WaitCallback requires</param>
-        public void Run(object ignore) {
-            Workspace workspace = new Workspace(searchFactory);
+        public void Run(object ignore)
+        {
+            Workspace workspace = new Workspace(searchFactoryImplementor);
             LuceneWorker worker = new LuceneWorker(workspace);
-            try {
-                SortQueueToAvoidDeadLocks(queue, workspace);
-                foreach (LuceneWork luceneWork in queue)
-                    worker.PerformWork(new LuceneWorker.WorkWithPayload(luceneWork, null));
+            try
+            {
+                List<LuceneWorker.WorkWithPayload> queueWithFlatDPs =
+                    new List<LuceneWorker.WorkWithPayload>(queue.Count*2);
+                foreach (LuceneWork work in queue)
+                {
+                    DocumentBuilder documentBuilder = searchFactoryImplementor.DocumentBuilders[work.EntityClass];
+                    IIndexShardingStrategy shardingStrategy = documentBuilder.DirectoryProvidersSelectionStrategy;
+                    if (typeof(PurgeAllLuceneWork).IsAssignableFrom(work.GetType()))
+                    {
+                        IDirectoryProvider[] providers =
+                            shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
+                        foreach (IDirectoryProvider provider in providers)
+                            queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
+                    }
+                    else if (typeof(AddLuceneWork).IsAssignableFrom(work.GetType()))
+                    {
+                        IDirectoryProvider provider =
+                            shardingStrategy.GetDirectoryProviderForAddition(work.EntityClass, work.Id, work.IdInString,
+                                                                             work.Document);
+                        queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
+                    }
+                    else if (typeof(DeleteLuceneWork).IsAssignableFrom(work.GetType()))
+                    {
+                        IDirectoryProvider[] providers =
+                            shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
+                        foreach (IDirectoryProvider provider in providers)
+                            queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
+                    }
+                    else if (typeof(OptimizeLuceneWork).IsAssignableFrom(work.GetType()))
+                    {
+                        IDirectoryProvider[] providers = shardingStrategy.GetDirectoryProvidersForAllShards();
+                        foreach (IDirectoryProvider provider in providers)
+                            queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
+                    }
+                    else
+                    {
+                        throw new AssertionFailure("Unknown work type: " + work.GetType());
+                    }
+                }
+                DeadLockFreeQueue(queueWithFlatDPs, searchFactoryImplementor);
+                CheckForBatchIndexing(workspace);
+                foreach (LuceneWorker.WorkWithPayload luceneWork in queueWithFlatDPs)
+                    worker.PerformWork(luceneWork);
             }
-            finally {
+            finally
+            {
                 workspace.Dispose();
                 queue.Clear();
             }
         }
+
+        #endregion
     }
 }

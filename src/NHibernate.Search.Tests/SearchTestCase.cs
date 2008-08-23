@@ -2,6 +2,7 @@ using Lucene.Net.Analysis;
 using Lucene.Net.Store;
 using NHibernate.Cfg;
 using NHibernate.Event;
+using NHibernate.Impl;
 using NHibernate.Search.Event;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
@@ -13,9 +14,28 @@ namespace NHibernate.Search.Tests
     [TestFixture]
     public abstract class SearchTestCase : TestCase
     {
+        private FullTextIndexEventListener GetLuceneEventListener()
+        {
+            IPostInsertEventListener[] listeners = ((SessionFactoryImpl) sessions).EventListeners.PostInsertEventListeners;
+            FullTextIndexEventListener listener = null;
+            //HACK: this sucks since we mandante the event listener use
+            foreach (IPostInsertEventListener candidate in listeners)
+            {
+                if (typeof(FullTextIndexEventListener).IsAssignableFrom(candidate.GetType()))
+                {
+                    listener = (FullTextIndexEventListener) candidate;
+                    break;
+                }
+            }
+            if (listener == null)
+                throw new HibernateException("Lucene event listener not initialized");
+
+            return listener;
+        }
+
         protected Directory GetDirectory(System.Type clazz)
         {
-            return SearchFactoryImpl.GetSearchFactory(cfg).GetDirectoryProvider(clazz).Directory;
+            return GetLuceneEventListener().SearchFactory.GetDirectoryProviders(clazz)[0].Directory;
         }
 
         protected override void Configure(Configuration configuration)

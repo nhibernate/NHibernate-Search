@@ -11,15 +11,50 @@ namespace NHibernate.Search.Event
                                               IPostUpdateEventListener,
                                               IInitializable
     {
-        protected SearchFactoryImpl searchFactory;
         protected bool used;
+        protected ISearchFactoryImplementor searchFactory;
 
-        public SearchFactoryImpl SearchFactory
+        #region Property methods
+
+        public ISearchFactoryImplementor SearchFactory
         {
             get { return searchFactory; }
         }
 
-        #region IInitializable Members
+        #endregion
+
+        #region Private methods
+
+        private bool EntityIsIndexed(object entity)
+        {
+            DocumentBuilder builder;
+            searchFactory.DocumentBuilders.TryGetValue(entity.GetType(), out builder);
+            return builder != null;
+        }
+
+        #endregion
+
+        #region Protected methods
+
+        /// <summary>
+        /// Does the work, after checking that the entity type is indeed indexed.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="id"></param>
+        /// <param name="workType"></param>
+        /// <param name="e"></param>
+        protected void ProcessWork(Object entity, object id, WorkType workType, AbstractEvent e)
+        {
+            if (EntityIsIndexed(entity))
+            {
+                Work work = new Work(entity, id, workType);
+                searchFactory.Worker.PerformWork(work, e.Session);
+            }
+        }
+
+        #endregion
+
+        #region Public methods
 
         public void Initialize(Configuration cfg)
         {
@@ -33,56 +68,24 @@ namespace NHibernate.Search.Event
             else throw new SearchException(Environment.IndexBase + " unknown: " + indexingStrategy);
         }
 
-        #endregion
-
-        #region IPostDeleteEventListener Members
-
         public void OnPostDelete(PostDeleteEvent e)
         {
-            if (used && EntityIsIndexed(e.Entity))
-                processWork(e.Entity, e.Id, WorkType.Delete, e);
+            if (used)
+                ProcessWork(e.Entity, e.Id, WorkType.Delete, e);
         }
-
-        #endregion
-
-        #region IPostInsertEventListener Members
 
         public void OnPostInsert(PostInsertEvent e)
         {
             if (used)
-            {
-                Object entity = e.Entity;
-                //not strictly necessary but a smal optimization
-                if (EntityIsIndexed(entity)) processWork(entity, e.Id, WorkType.Add, e);
-            }
+                ProcessWork(e.Entity, e.Id, WorkType.Add, e);
         }
-
-        #endregion
-
-        #region IPostUpdateEventListener Members
 
         public void OnPostUpdate(PostUpdateEvent e)
         {
             if (used)
-            {
-                Object entity = e.Entity;
-                //not strictly necessary but a smal optimization
-
-                if (EntityIsIndexed(entity))
-                    processWork(entity, e.Id, WorkType.Update, e);
-            }
+                ProcessWork(e.Entity, e.Id, WorkType.Update, e);
         }
 
         #endregion
-
-        private bool EntityIsIndexed(object entity)
-        {
-            return searchFactory.GetDocumentBuilder(entity) != null;
-        }
-
-        protected void processWork(Object entity, object id, WorkType workType, AbstractEvent e)
-        {
-            searchFactory.PerformWork(entity, id, e.Session, workType);
-        }
     }
 }

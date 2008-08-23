@@ -31,7 +31,6 @@ namespace NHibernate.Search.Tests.Analyzer
 
             tx = s.BeginTransaction();
 
-            // TODO: Can't find StandardAnalyzer()
             QueryParser parser = new QueryParser("id", new StandardAnalyzer());
             Lucene.Net.Search.Query luceneQuery = parser.Parse("entity:alarm");
             IFullTextQuery query = s.CreateFullTextQuery(luceneQuery);

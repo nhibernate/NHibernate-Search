@@ -15,7 +15,7 @@ namespace NHibernate.Search.Store.Optimization
         /// <param name="directoryProvider"></param>
         /// <param name="indexProperties"></param>
         /// <param name="searchFactoryImplementor"></param>
-        void Initialize(IDirectoryProvider directoryProvider, ICollection indexProperties,
+        void Initialize(IDirectoryProvider directoryProvider, IDictionary indexProperties,
                         ISearchFactoryImplementor searchFactoryImplementor);
 
         /// <summary>

@@ -1,41 +1,50 @@
 using System;
 using System.Reflection;
 
-namespace NHibernate.Search.Backend {
+namespace NHibernate.Search.Backend
+{
     /// <summary>
     /// work unit. Only make sense inside the same session since it uses the scope principle
     /// </summary>
-    public class Work {
-        private readonly Object entity;
-        private readonly Object id;
+    public class Work
+    {
+        private readonly object entity;
+        private readonly System.Type clazz;
+        private readonly object id;
         private readonly MemberInfo idGetter;
         private readonly WorkType workType;
 
-        public Work(Object entity, Object id, WorkType type) {
+        public Work(object entity, Object id, WorkType type)
+        {
             this.entity = entity;
             this.id = id;
             workType = type;
         }
 
-        public Work(Object entity, MemberInfo idGetter, WorkType type) {
+        public Work(object entity, MemberInfo idGetter, WorkType type)
+        {
             this.entity = entity;
             this.idGetter = idGetter;
             workType = type;
         }
 
-        public object Entity {
+        public object Entity
+        {
             get { return entity; }
         }
 
-        public object Id {
+        public object Id
+        {
             get { return id; }
         }
 
-        public MemberInfo IdGetter {
+        public MemberInfo IdGetter
+        {
             get { return idGetter; }
         }
 
-        public WorkType WorkType {
+        public WorkType WorkType
+        {
             get { return workType; }
         }
     }

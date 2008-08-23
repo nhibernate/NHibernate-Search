@@ -4,7 +4,9 @@ using System.Data;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using NHibernate.Engine;
+using NHibernate.Event;
 using NHibernate.Search.Backend;
+using NHibernate.Search.Engine;
 using NHibernate.Search.Query;
 using NHibernate.Search.Util;
 using NHibernate.Stat;
@@ -15,14 +17,28 @@ namespace NHibernate.Search.Impl
     public class FullTextSessionImpl : IFullTextSession
     {
         private readonly ISession session;
-        private SearchFactoryImpl searchFactory;
+        private readonly IEventSource eventSource;
+        private readonly ISessionImplementor sessionImplementor;
+        private ISearchFactoryImplementor searchFactory;
 
         public FullTextSessionImpl(ISession session)
         {
             this.session = session;
+            this.eventSource = (IEventSource) session;
+            this.sessionImplementor = (ISessionImplementor) session;
         }
 
-        private SearchFactoryImpl SearchFactory
+        private ISearchFactory SearchFactory
+        {
+            get
+            {
+                if (searchFactory == null)
+                    searchFactory = ContextHelper.GetSearchFactory(session);
+                return searchFactory;
+            }
+        }
+
+        private ISearchFactoryImplementor SearchFactoryImplementor
         {
             get
             {
@@ -469,10 +485,28 @@ namespace NHibernate.Search.Impl
             return new FullTextQueryImpl(luceneQuery, entities, session, null);
         }
 
+        /// <summary>
+        /// (re)index an entity.
+        /// Non indexable entities are ignored
+        /// The entity must be associated with the session
+        /// </summary>
+        /// <param name="entity">he neity to index - must not be null</param>
+        /// <returns></returns>
         public IFullTextSession Index(object entity)
         {
-            object id = session.GetIdentifier(entity);
-            SearchFactory.PerformWork(entity, id, session, WorkType.Update);
+            if (entity == null) return this;
+
+            System.Type clazz = NHibernateUtil.GetClass(entity);
+            // TODO: Cache that at the FTSession level
+            ISearchFactoryImplementor searchFactoryImplementor = SearchFactoryImplementor;
+            // not strictly necesary but a small optmization
+            DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[clazz];
+            if (builder != null)
+            {
+                object id = session.GetIdentifier(entity);
+                Work work = new Work(entity, id, WorkType.Index);
+                searchFactoryImplementor.Worker.PerformWork(work, eventSource);
+            }
             return this;
         }
 
@@ -484,11 +518,19 @@ namespace NHibernate.Search.Impl
         public void Purge(System.Type entity, object id)
         {
             if (entity == null) return;
+            System.Type clazz = NHibernateUtil.GetClass(entity);
 
-            // TODO: Check to see this entity type is indexed
-            WorkType workType = id == null ? WorkType.PurgeAll : WorkType.Purge;
-
-            SearchFactory.PerformWork(entity, id, session, workType);
+            ISearchFactoryImplementor searchFactoryImplementor = SearchFactoryImplementor;
+            // TODO: Cache that at the FTSession level
+            // not strictly necesary but a small optmization
+            DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[clazz];
+            if (builder != null)
+            {
+                // TODO: Check to see this entity type is indexed
+                WorkType workType = id == null ? WorkType.PurgeAll : WorkType.Purge;
+                Work work = new Work(entity, id, WorkType.Index);
+                searchFactoryImplementor.Worker.PerformWork(work, eventSource);
+            }
         }
 
         public void Dispose()

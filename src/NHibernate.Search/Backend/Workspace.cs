@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using log4net;
+using Lucene.Net.Analysis;
 using Lucene.Net.Index;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
+using NHibernate.Search.Store.Optimization;
 
 namespace NHibernate.Search.Backend
 {
@@ -28,8 +30,8 @@ namespace NHibernate.Search.Backend
         private readonly Dictionary<IDirectoryProvider, IndexWriter> writers = new Dictionary<IDirectoryProvider, IndexWriter>();
         private readonly List<IDirectoryProvider> lockedProviders = new List<IDirectoryProvider>();
         private readonly Dictionary<IDirectoryProvider, DPStatistics> dpStatistics = new Dictionary<IDirectoryProvider, DPStatistics>();
-
-        private readonly SearchFactoryImpl searchFactory;
+        private readonly ISearchFactoryImplementor searchFactoryImplementor;
+        private bool isBatch;
 
         #region Nested classes : DPStatistics
 
@@ -61,9 +63,9 @@ namespace NHibernate.Search.Backend
 
         #region Constructors
 
-        public Workspace(SearchFactoryImpl searchFactory)
+        public Workspace(ISearchFactoryImplementor searchFactoryImplementor)
         {
-            this.searchFactory = searchFactory;
+            this.searchFactoryImplementor = searchFactoryImplementor;
         }
 
         #endregion
@@ -80,79 +82,31 @@ namespace NHibernate.Search.Backend
 
         #endregion
 
-        public DocumentBuilder GetDocumentBuilder(System.Type entity)
+        #region Property methods
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsBatch
         {
-            return searchFactory.GetDocumentBuilder(entity);
+            get { return isBatch; }
+            set { isBatch = value; }
         }
 
-        public IndexReader GetIndexReader(System.Type entity)
-        {
-            //TODO NPEs
-            IDirectoryProvider provider = searchFactory.GetDirectoryProvider(entity);
-            //one cannot access a reader for update after a writer has been accessed
-            if (writers.ContainsKey(provider))
-                throw new AssertionFailure("Tries to read for update a index while a writer is accessed" + entity);
-            IndexReader reader = null;
-            readers.TryGetValue(provider, out reader);
+        #endregion
 
-            if (reader != null) return reader;
-            LockProvider(provider);
-            try
-            {
-                reader = IndexReader.Open(provider.Directory);
-                readers.Add(provider, reader);
-            }
-            catch (IOException e)
-            {
-                CleanUp(new SearchException("Unable to open IndexReader for " + entity, e));
-            }
-            return reader;
-        }
-
-        public IndexWriter GetIndexWriter(System.Type entity)
-        {
-            IDirectoryProvider provider = searchFactory.GetDirectoryProvider(entity);
-            //one has to close a reader for update before a writer is accessed
-            IndexReader reader = null;
-            readers.TryGetValue(provider, out reader);
-
-            if (reader != null)
-            {
-                try
-                {
-                    reader.Close();
-                }
-                catch (IOException e)
-                {
-                    throw new SearchException("Exception while closing IndexReader", e);
-                }
-                readers.Remove(provider);
-            }
-            IndexWriter writer;
-            writers.TryGetValue(provider, out writer);
-
-            if (writer != null) return writer;
-            LockProvider(provider);
-            try
-            {
-                writer = new IndexWriter(
-                    provider.Directory, searchFactory.GetDocumentBuilder(entity).Analyzer, false
-                    ); //have been created at init time
-                writers.Add(provider, writer);
-            }
-            catch (IOException e)
-            {
-                CleanUp(new SearchException("Unable to open IndexWriter for " + entity, e));
-            }
-            return writer;
-        }
+        #region Private methods
 
         private void LockProvider(IDirectoryProvider provider)
         {
             //make sure to use a semaphore
-            object syncLock = searchFactory.GetLockObjForDirectoryProvider(provider);
+            object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
             Monitor.Enter(syncLock);
-            lockedProviders.Add(provider);
+            if (!lockedProviders.Contains(provider))
+            {
+                lockedProviders.Add(provider);
+                dpStatistics.Add(provider, new DPStatistics());
+            }
         }
 
         private void CleanUp(SearchException originalException)
@@ -193,12 +147,126 @@ namespace NHibernate.Search.Backend
 
             foreach (IDirectoryProvider provider in lockedProviders)
             {
-                object syncLock = searchFactory.GetLockObjForDirectoryProvider(provider);
+                object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
                 Monitor.Exit(syncLock);
             }
             lockedProviders.Clear();
 
             if (raisedException != null) throw raisedException;
         }
+
+        #endregion
+
+        #region Public methods
+
+        public DocumentBuilder GetDocumentBuilder(System.Type entity)
+        {
+            DocumentBuilder builder;
+            searchFactoryImplementor.DocumentBuilders.TryGetValue(entity, out builder);
+            return builder;
+        }
+
+        public IndexReader GetIndexReader(IDirectoryProvider provider, System.Type entity)
+        {
+            //one cannot access a reader for update after a writer has been accessed
+            if (writers.ContainsKey(provider))
+                throw new AssertionFailure("Tries to read for update a index while a writer is accessed" + entity);
+            IndexReader reader;
+            readers.TryGetValue(provider, out reader);
+
+            if (reader != null) return reader;
+            LockProvider(provider);
+            dpStatistics[provider].Operations++;
+            try
+            {
+                reader = IndexReader.Open(provider.Directory);
+                readers.Add(provider, reader);
+            }
+            catch (IOException e)
+            {
+                CleanUp(new SearchException("Unable to open IndexReader for " + entity, e));
+            }
+
+            return reader;
+        }
+
+        public IndexWriter GetIndexWriter(IDirectoryProvider provider)
+        {
+            return GetIndexWriter(provider, null, false);
+        }
+
+        /// <summary>
+        /// Retrieve a read/write <see cref="IndexWriter" />
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="entity"></param>
+        /// <param name="modificationOperation"></param>
+        /// <returns></returns>
+        public IndexWriter GetIndexWriter(IDirectoryProvider provider, System.Type entity, bool modificationOperation)
+        {
+            // Have to close the reader before the writer is accessed.
+            IndexReader reader;
+            readers.TryGetValue(provider, out reader);
+            if (reader != null)
+            {
+                try
+                {
+                    reader.Close();
+                }
+                catch (IOException ex)
+                {
+                    throw new SearchException("Exception while closing IndexReader", ex);
+                }
+                readers.Remove(provider);
+            }
+
+            if (writers.ContainsKey(provider))
+                return writers[provider];
+
+            LockProvider(provider);
+
+            if (modificationOperation) dpStatistics[provider].Operations++;
+
+            try
+            {
+                Analyzer analyzer = entity != null
+                                        ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
+                                        : new SimpleAnalyzer();
+                IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false);
+
+                LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
+                if (IsBatch)
+                {
+                    writer.SetMergeFactor(indexingParams.BatchMergeFactor);
+                    writer.SetMaxMergeDocs(indexingParams.BatchMaxMergeDocs);
+                    writer.SetMaxBufferedDocs(indexingParams.BatchMaxBufferedDocs);
+                }
+                else
+                {
+                    writer.SetMergeFactor(indexingParams.TransactionMergeFactor);
+                    writer.SetMaxMergeDocs(indexingParams.TransactionMaxMergeDocs);
+                    writer.SetMaxBufferedDocs(indexingParams.TransactionMaxBufferedDocs);
+                }
+
+                writers.Add(provider, writer);
+
+                return writer;
+            }
+            catch (IOException ex)
+            {
+                CleanUp(new SearchException("Unable to open IndexWriter" + (entity != null ? " for " + entity : ""), ex));
+            }
+
+            return null;
+        }
+
+        public void Optimize(IDirectoryProvider provider)
+        {
+            IOptimizerStrategy optimizerStrategy = searchFactoryImplementor.GetOptimizerStrategy(provider);
+            dpStatistics[provider].OptimizationForced = true;
+            optimizerStrategy.OptimizationForced();
+        }
+
+        #endregion
     }
 }

@@ -1,14 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
 using Iesi.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using NHibernate.Cfg;
 using NHibernate.Engine;
 using NHibernate.Mapping;
+using NHibernate.Search.Attributes;
 using NHibernate.Search.Backend;
-using NHibernate.Search.Backend.Impl;
 using NHibernate.Search.Cfg;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Filter;
@@ -23,27 +24,90 @@ namespace NHibernate.Search.Impl
     {
         private static readonly object searchFactoryKey = new object();
 
-        [ThreadStatic] private static WeakHashtable cfg2SearchFactory = new WeakHashtable();
         //it's now a <Configuration, SearchFactory> map
+        [ThreadStatic] private static WeakHashtable contexts;
 
         private readonly Dictionary<System.Type, DocumentBuilder> documentBuilders =
             new Dictionary<System.Type, DocumentBuilder>();
 
-        /// <summary>
-        /// Note that we will lock on the values in this dictionary
-        /// </summary>
+        // Keep track of the index modifiers per DirectoryProvider since multiple entity can use the same directory provider
         private readonly Dictionary<IDirectoryProvider, object> lockableDirectoryProviders =
             new Dictionary<IDirectoryProvider, object>();
 
-        private readonly IQueueingProcessor queueingProcessor;
+        private readonly Dictionary<IDirectoryProvider, IOptimizerStrategy> dirProviderOptimizerStrategy =
+            new Dictionary<IDirectoryProvider, IOptimizerStrategy>();
+
         private readonly IWorker worker;
+        private readonly IReaderProvider readerProvider;
         private IBackendQueueProcessorFactory backendQueueProcessorFactory;
+        private readonly Dictionary<string, FilterDef> filterDefinitions = new Dictionary<string, FilterDef>();
+        private IFilterCachingStrategy filterCachingStrategy;
+
+        /*
+         * Each directory provider (index) can have its own performance settings
+         */
+
+        private readonly Dictionary<IDirectoryProvider, LuceneIndexingParameters> dirProviderIndexingParams =
+            new Dictionary<IDirectoryProvider, LuceneIndexingParameters>();
 
         #region Constructors
 
         private SearchFactoryImpl(Configuration cfg)
         {
             CfgHelper.Configure(cfg);
+
+            Analyzer analyzer = InitAnalyzer(cfg);
+            InitDocumentBuilders(cfg, analyzer);
+
+            ISet<System.Type> classes = new HashedSet<System.Type>(documentBuilders.Keys);
+            foreach (DocumentBuilder documentBuilder in documentBuilders.Values)
+                documentBuilder.PostInitialize(classes);
+            worker = WorkerFactory.CreateWorker(cfg, this);
+            readerProvider = ReaderProviderFactory.CreateReaderProvider(cfg, this);
+            BuildFilterCachingStrategy(cfg.Properties);
+        }
+
+        #endregion
+
+        #region Property methods
+
+        public IBackendQueueProcessorFactory BackendQueueProcessorFactory
+        {
+            get { return backendQueueProcessorFactory; }
+            set { backendQueueProcessorFactory = value; }
+        }
+
+        public Dictionary<System.Type, DocumentBuilder> DocumentBuilders
+        {
+            get { return documentBuilders; }
+        }
+
+        public IFilterCachingStrategy FilterCachingStrategy
+        {
+            get { return filterCachingStrategy; }
+        }
+
+        public IReaderProvider ReaderProvider
+        {
+            get { return readerProvider; }
+        }
+
+        public IWorker Worker
+        {
+            get { return worker; }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private string GetProperty(IDictionary<string, string> props, string key)
+        {
+            return props.ContainsKey(key) ? props[key] : string.Empty;
+        }
+
+        private static Analyzer InitAnalyzer(Configuration cfg)
+        {
             System.Type analyzerClass;
 
             String analyzerClassName = cfg.GetProperty(Environment.AnalyzerClass);
@@ -56,17 +120,15 @@ namespace NHibernate.Search.Impl
                 {
                     throw new SearchException(
                         string.Format("Lucene analyzer class '{0}' defined in property '{1}' could not be found.",
-                                      analyzerClassName, Environment.AnalyzerClass),
-                        e
-                        );
+                                      analyzerClassName, Environment.AnalyzerClass), e);
                 }
             else
                 analyzerClass = typeof(StandardAnalyzer);
             // Initialize analyzer
-            Analyzer analyzer;
+            Analyzer defaultAnalyzer;
             try
             {
-                analyzer = (Analyzer) Activator.CreateInstance((System.Type) analyzerClass);
+                defaultAnalyzer = (Analyzer) Activator.CreateInstance(analyzerClass);
             }
             catch (InvalidCastException)
             {
@@ -79,64 +141,98 @@ namespace NHibernate.Search.Impl
             {
                 throw new SearchException("Failed to instantiate lucene analyzer with type " + analyzerClassName);
             }
-            queueingProcessor = new BatchedQueueingProcessor(this, (IDictionary) cfg.Properties);
+            return defaultAnalyzer;
+        }
 
+        private void BindFilterDef(FullTextFilterDefAttribute defAnn, System.Type mappedClass)
+        {
+            if (filterDefinitions.ContainsKey(defAnn.Name))
+                throw new SearchException("Multiple definitions of FullTextFilterDef.Name = " + defAnn.Name + ":" +
+                                          mappedClass.FullName);
+
+            FilterDef filterDef = new FilterDef();
+            filterDef.Impl = defAnn.Impl;
+            filterDef.Cache = defAnn.Cache;
+            try
+            {
+                Activator.CreateInstance(filterDef.Impl);
+            }
+            catch (Exception e)
+            {
+                throw new SearchException("Unable to create Filter class: " + filterDef.Impl.FullName, e);
+            }
+
+            foreach (MethodInfo method in filterDef.Impl.GetMethods())
+            {
+                if (AttributeUtil.HasAttribute<FactoryAttribute>(method))
+                {
+                    if (filterDef.FactoryMethod != null)
+                        throw new SearchException("Multiple Factory methods found " + defAnn.Name + ":" +
+                                                  filterDef.Impl.FullName + "." + method.Name);
+                    filterDef.FactoryMethod = method;
+                }
+                if (AttributeUtil.HasAttribute<KeyAttribute>(method))
+                {
+                    if (filterDef.KeyMethod != null)
+                        throw new SearchException("Multiple Key methods found " + defAnn.Name + ":" +
+                                                  filterDef.Impl.FullName + "." + method.Name);
+                    filterDef.KeyMethod = method;
+                }
+                // NB Don't need the setter logic that Java has
+            }
+            filterDefinitions[defAnn.Name] = filterDef;
+        }
+
+        private void BindFilterDefs(System.Type mappedClass)
+        {
+            // We only need one test here as we just support multiple FullTextFilter attributes rather than a collection
+            foreach (
+                FullTextFilterDefAttribute defAnn in
+                    AttributeUtil.GetAttributes<FullTextFilterDefAttribute>(mappedClass))
+                BindFilterDef(defAnn, mappedClass);
+        }
+
+        private void BuildFilterCachingStrategy(IDictionary<string, string> properties)
+        {
+            string impl = GetProperty(properties, Environment.FilterCachingStrategy);
+        }
+
+        private void InitDocumentBuilders(Configuration cfg, Analyzer analyzer)
+        {
             DirectoryProviderFactory factory = new DirectoryProviderFactory();
-
             foreach (PersistentClass clazz in cfg.ClassMappings)
             {
                 System.Type mappedClass = clazz.MappedClass;
-                if (mappedClass != null && AttributeUtil.IsIndexed(mappedClass))
+                if (mappedClass != null)
                 {
-                    IDirectoryProvider provider = factory.CreateDirectoryProvider(mappedClass, cfg, this);
+                    if (AttributeUtil.HasAttribute<IndexedAttribute>(mappedClass))
+                    {
+                        DirectoryProviderFactory.DirectoryProviders providers =
+                            factory.CreateDirectoryProviders(mappedClass, cfg, this);
 
-                    DocumentBuilder documentBuilder = new DocumentBuilder(mappedClass, analyzer, provider);
+                        DocumentBuilder documentBuilder = new DocumentBuilder(mappedClass, analyzer, providers.Providers, providers.SelectionStrategy);
 
-                    documentBuilders.Add(mappedClass, documentBuilder);
+                        documentBuilders[mappedClass] = documentBuilder;
+                    }
+                    BindFilterDefs(mappedClass);
                 }
             }
-            ISet<System.Type> classes = new HashedSet<System.Type>(documentBuilders.Keys);
-            foreach (DocumentBuilder documentBuilder in documentBuilders.Values)
-                documentBuilder.PostInitialize(classes);
-            worker = WorkerFactory.CreateWorker(cfg, this);
-        }
-
-        #endregion
-
-        #region Property methods
-
-        public Dictionary<System.Type, DocumentBuilder> DocumentBuilders
-        {
-            get { return documentBuilders; }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IBackendQueueProcessorFactory BackendQueueProcessorFactory
-        {
-            get { return backendQueueProcessorFactory; }
-            set { backendQueueProcessorFactory = value; }
+            factory.StartDirectoryProviders();
         }
 
         #endregion
 
         #region Public methods
 
-        public IDirectoryProvider GetDirectoryProvider(System.Type entity)
-        {
-            return GetDocumentBuilder(entity).DirectoryProvider;
-        }
-
         public static SearchFactoryImpl GetSearchFactory(Configuration cfg)
         {
-            if (cfg2SearchFactory == null)
-                cfg2SearchFactory = new WeakHashtable();
-            SearchFactoryImpl searchFactory = (SearchFactoryImpl) cfg2SearchFactory[cfg];
+            if (contexts == null)
+                contexts = new WeakHashtable();
+            SearchFactoryImpl searchFactory = (SearchFactoryImpl) contexts[cfg];
             if (searchFactory == null)
             {
                 searchFactory = new SearchFactoryImpl(cfg);
-                cfg2SearchFactory[cfg] = searchFactory;
+                contexts[cfg] = searchFactory;
             }
             return searchFactory;
         }
@@ -171,15 +267,6 @@ namespace NHibernate.Search.Impl
                 lockableDirectoryProviders.Add(provider, new object());
         }
 
-        #endregion
-
-        #region ISearchFactoryImplementor Members
-
-        public IWorker Worker
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
-
         public FilterDef GetFilterDefinition(string name)
         {
             throw new Exception("The method or operation is not implemented.");
@@ -190,49 +277,54 @@ namespace NHibernate.Search.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public IReaderProvider ReaderProvider
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
-
         public IDirectoryProvider[] GetDirectoryProviders(System.Type entity)
         {
-            throw new Exception("The method or operation is not implemented.");
+            if (!documentBuilders.ContainsKey(entity))
+                return null;
+            DocumentBuilder documentBuilder = documentBuilders[entity];
+            return documentBuilder.DirectoryProviders;
         }
 
         public void Optimize()
         {
-            throw new Exception("The method or operation is not implemented.");
+            Dictionary<System.Type, DocumentBuilder>.KeyCollection clazzes = DocumentBuilders.Keys;
+            foreach (System.Type clazz in clazzes)
+                Optimize(clazz);
         }
 
         public void Optimize(System.Type entityType)
         {
-            throw new Exception("The method or operation is not implemented.");
+            if (!DocumentBuilders.ContainsKey(entityType))
+                throw new SearchException("Entity not indexed " + entityType);
+
+            List<LuceneWork> queue = new List<LuceneWork>();
+            queue.Add(new OptimizeLuceneWork(entityType));
+            WaitCallback cb = BackendQueueProcessorFactory.GetProcessor(queue);
         }
 
         public Dictionary<IDirectoryProvider, object> GetLockableDirectoryProviders()
         {
-            throw new Exception("The method or operation is not implemented.");
+            return lockableDirectoryProviders;
         }
 
         public void AddOptimizerStrategy(IDirectoryProvider provider, IOptimizerStrategy optimizerStrategy)
         {
-            throw new Exception("The method or operation is not implemented.");
+            dirProviderOptimizerStrategy[provider] = optimizerStrategy;
         }
 
         public IFilterCachingStrategy GetFilterCachingStrategy()
         {
-            throw new Exception("The method or operation is not implemented.");
+            return filterCachingStrategy;
         }
 
         public LuceneIndexingParameters GetIndexingParameters(IDirectoryProvider provider)
         {
-            throw new Exception("The method or operation is not implemented.");
+            return dirProviderIndexingParams[provider];
         }
 
         public void AddIndexingParameters(IDirectoryProvider provider, LuceneIndexingParameters indexingParameters)
         {
-            throw new Exception("The method or operation is not implemented.");
+            dirProviderIndexingParams[provider] = indexingParameters;
         }
 
         #endregion

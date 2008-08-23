@@ -13,11 +13,11 @@ namespace NHibernate.Search.Engine
     {
         IBackendQueueProcessorFactory BackendQueueProcessorFactory { get; set; }
 
-        IWorker Worker { get; }
-
         Dictionary<System.Type, DocumentBuilder> DocumentBuilders { get; }
 
         Dictionary<IDirectoryProvider, object> GetLockableDirectoryProviders();
+
+        IWorker Worker { get; }
 
         void AddOptimizerStrategy(IDirectoryProvider provider, IOptimizerStrategy optimizerStrategy);
 
@@ -26,8 +26,6 @@ namespace NHibernate.Search.Engine
         IFilterCachingStrategy GetFilterCachingStrategy();
 
         FilterDef GetFilterDefinition(string name);
-
-        IDirectoryProvider GetDirectoryProvider(System.Type entity);
 
         LuceneIndexingParameters GetIndexingParameters(IDirectoryProvider provider);
 

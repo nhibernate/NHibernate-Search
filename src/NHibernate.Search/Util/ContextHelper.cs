@@ -1,18 +1,18 @@
 using NHibernate.Engine;
 using NHibernate.Event;
+using NHibernate.Search.Engine;
 using NHibernate.Search.Event;
-using NHibernate.Search.Impl;
 
 namespace NHibernate.Search.Util
 {
     internal static class ContextHelper
     {
-        public static SearchFactoryImpl GetSearchFactory(ISession session)
+        public static ISearchFactoryImplementor GetSearchFactory(ISession session)
         {
             return GetSearchFactoryBySFI((ISessionImplementor) session);
         }
 
-        public static SearchFactoryImpl GetSearchFactoryBySFI(ISessionImplementor session)
+        public static ISearchFactoryImplementor GetSearchFactoryBySFI(ISessionImplementor session)
         {
             IPostInsertEventListener[] listeners = session.Listeners.PostInsertEventListeners;
             FullTextIndexEventListener listener = null;
@@ -28,6 +28,7 @@ namespace NHibernate.Search.Util
                 throw new HibernateException(
                     "Hibernate Search Event listeners not configured, please check the reference documentation and the " +
                     "application's hibernate.cfg.xml");
+
             return listener.SearchFactory;
         }
     }

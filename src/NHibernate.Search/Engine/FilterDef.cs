@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 
 namespace NHibernate.Search.Engine
 {
@@ -9,10 +10,10 @@ namespace NHibernate.Search.Engine
     public class FilterDef
     {
         private System.Type impl;
-        private Method factoryMethod;
-        private Method keyMethod;
+        private MethodInfo factoryMethod;
+        private MethodInfo keyMethod;
         private Dictionary<string, Method> setters;
-        private bool isCache;
+        private bool cache;
 
         public FilterDef()
         {
@@ -24,7 +25,7 @@ namespace NHibernate.Search.Engine
         /// <summary>
         /// 
         /// </summary>
-        public Method KeyMethod
+        public MethodInfo KeyMethod
         {
             get { return keyMethod; }
             set { keyMethod = value; }
@@ -33,7 +34,7 @@ namespace NHibernate.Search.Engine
         /// <summary>
         /// 
         /// </summary>
-        public Method FactoryMethod
+        public MethodInfo FactoryMethod
         {
             get { return factoryMethod; }
             set { factoryMethod = value; }
@@ -51,10 +52,10 @@ namespace NHibernate.Search.Engine
         /// <summary>
         /// 
         /// </summary>
-        public bool IsCache
+        public bool Cache
         {
-            get { return isCache; }
-            set { isCache = value; }
+            get { return cache; }
+            set { cache = value; }
         }
 
         #endregion

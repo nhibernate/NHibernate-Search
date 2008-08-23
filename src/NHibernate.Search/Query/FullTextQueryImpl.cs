@@ -18,13 +18,15 @@ namespace NHibernate.Search.Query
     public class FullTextQueryImpl : AbstractQueryImpl, IFullTextQuery
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(FullTextQueryImpl));
-        private readonly System.Type[] classes;
         private readonly Lucene.Net.Search.Query luceneQuery;
-        private int batchSize = 1;
+        private readonly System.Type[] classes;
         private ISet<System.Type> classesAndSubclasses;
+        private int firstResult;
+        private int maxResult;
         private int resultSize = -1;
-        private SearchFactoryImpl searchFactory;
         private Sort sort;
+        private ISearchFactoryImplementor searchFactoryImplementor;
+        private int fetchSize = 1;
 
         /// <summary>
         /// classes must be immutable
@@ -42,13 +44,13 @@ namespace NHibernate.Search.Query
             get { throw new NotImplementedException("Full Text Query doesn't support lock modes"); }
         }
 
-        private SearchFactoryImpl SearchFactory
+        private ISearchFactoryImplementor SearchFactory
         {
             get
             {
-                if (searchFactory == null)
-                    searchFactory = ContextHelper.GetSearchFactoryBySFI(Session);
-                return searchFactory;
+                if (searchFactoryImplementor == null)
+                    searchFactoryImplementor = ContextHelper.GetSearchFactoryBySFI(Session);
+                return searchFactoryImplementor;
             }
         }
 
@@ -115,7 +117,7 @@ namespace NHibernate.Search.Query
                     Document document = hits.Doc(index);
                     EntityInfo entityInfo = new EntityInfo();
                     entityInfo.clazz = DocumentBuilder.GetDocumentClass(document);
-                    entityInfo.id = DocumentBuilder.GetDocumentId(searchFactory, document);
+                    entityInfo.id = DocumentBuilder.GetDocumentId(searchFactoryImplementor, entityInfo.clazz, document);
                     entityInfos.Add(entityInfo);
                 }
                 return new IteratorImpl<T>(entityInfos, Session.GetSession()).Iterate();
@@ -160,7 +162,7 @@ namespace NHibernate.Search.Query
                 {
                     Document document = hits.Doc(index);
                     System.Type clazz = DocumentBuilder.GetDocumentClass(document);
-                    object id = DocumentBuilder.GetDocumentId(SearchFactory, document);
+                    object id = DocumentBuilder.GetDocumentId(SearchFactory, clazz, document);
                     list.Add(Session.GetSession().Load(clazz, id));
                     //use load to benefit from the batch-size
                     //we don't face proxy casting issues since the exact class is extracted from the index

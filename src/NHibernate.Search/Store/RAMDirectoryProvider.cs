@@ -4,6 +4,7 @@ using System.IO;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
@@ -14,9 +15,12 @@ namespace NHibernate.Search.Store
         private RAMDirectory directory;
         private string indexName;
 
-        #region IDirectoryProvider Members
+        public Directory Directory
+        {
+            get { return directory; }
+        }
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactoryImpl searchFactory)
+        public void Initialize(String directoryProviderName, IDictionary properties, ISearchFactoryImplementor searchFactory)
         {
             if (directoryProviderName == null)
                 throw new ArgumentNullException("directoryProviderName");
@@ -27,7 +31,7 @@ namespace NHibernate.Search.Store
             {
                 IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), true);
                 iw.Close();
-                searchFactory.RegisterDirectoryProviderForLocks(this);
+                //searchFactory.RegisterDirectoryProviderForLocks(this);
             }
             catch (IOException e)
             {
@@ -35,12 +39,10 @@ namespace NHibernate.Search.Store
             }
         }
 
-        public Directory Directory
+        public void Start()
         {
-            get { return directory; }
+            
         }
-
-        #endregion
 
         public override bool Equals(Object obj)
         {

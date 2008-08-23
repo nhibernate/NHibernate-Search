@@ -5,6 +5,7 @@ using log4net;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
@@ -16,9 +17,12 @@ namespace NHibernate.Search.Store
         private FSDirectory directory;
         private String indexName;
 
-        #region IDirectoryProvider Members
+        public Directory Directory
+        {
+            get { return directory; }
+        }
 
-        public void Initialize(String directoryProviderName, IDictionary properties, SearchFactoryImpl searchFactory)
+        public void Initialize(String directoryProviderName, IDictionary properties, ISearchFactoryImplementor searchFactory)
         {
             DirectoryInfo indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, properties);
             try
@@ -31,7 +35,7 @@ namespace NHibernate.Search.Store
                     IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), create);
                     iw.Close();
                 }
-                searchFactory.RegisterDirectoryProviderForLocks(this);
+                //searchFactory.RegisterDirectoryProviderForLocks(this);
             }
             catch (IOException e)
             {
@@ -39,12 +43,10 @@ namespace NHibernate.Search.Store
             }
         }
 
-        public Directory Directory
+        public void Start()
         {
-            get { return directory; }
+            // All the work is done in initialize
         }
-
-        #endregion
 
         public override bool Equals(Object obj)
         {
@@ -61,7 +63,7 @@ namespace NHibernate.Search.Store
             // this code is actually broken since the value change after initialize call
             // but from a practical POV this is fine since we only call this method
             // after initialize call
-            int hash = 11;
+            const int hash = 11;
             return 37*hash + indexName.GetHashCode();
         }
     }

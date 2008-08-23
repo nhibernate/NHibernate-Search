@@ -1,7 +1,9 @@
 using System;
 
-namespace NHibernate.Search {
-    public interface IFullTextSession : ISession {
+namespace NHibernate.Search
+{
+    public interface IFullTextSession : ISession
+    {
         IQuery CreateFullTextQuery<TEntity>(string defaultField, string query);
 
         IQuery CreateFullTextQuery<TEntity>(string query);

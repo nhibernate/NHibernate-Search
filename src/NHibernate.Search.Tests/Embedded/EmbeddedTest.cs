@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Embedded
 {
-    [TestFixture, Ignore("Not implemented yet")]
+    [TestFixture]
     public class EmbeddedTest : SearchTestCase
     {
         #region Helper methods
@@ -39,7 +39,7 @@ namespace NHibernate.Search.Tests.Embedded
 
         #region Tests
 
-        [Test, Ignore("Not implemented yet")]
+        [Test]
         public void TestEmbeddedIndexing()
         {
             Tower tower = new Tower();
@@ -60,7 +60,6 @@ namespace NHibernate.Search.Tests.Embedded
             ITransaction tx = s.BeginTransaction();
             s.Persist(tower);
             tx.Commit();
-
 
 		    IFullTextSession session = Search.CreateFullTextSession( s );
 		    QueryParser parser = new QueryParser( "id", new StandardAnalyzer() );
@@ -86,6 +85,8 @@ namespace NHibernate.Search.Tests.Embedded
 		    tx = s.BeginTransaction();
 		    Address address = s.Get<Address>( a.Id );
 		    address.OwnedBy.Name = "Buckhead community" ;
+            // NB Not in the Java?
+            s.Persist(address);
 		    tx.Commit();
 
 		    s.Clear();

@@ -50,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Attributes\AnalyzerAttribute.cs" />
     <Compile Include="Attributes\BoostAttribute.cs" />
     <Compile Include="Attributes\BridgeParameterAttribute.cs" />
@@ -95,6 +94,7 @@
     <Compile Include="Engine\ObjectLoader.cs" />
     <Compile Include="Engine\ProjectionLoader.cs" />
     <Compile Include="Engine\QueryLoader.cs" />
+    <Compile Include="Event\FullTextIndexCollectionEventListener.cs" />
     <Compile Include="Event\FullTextIndexEventListener.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -130,7 +130,12 @@
     <Compile Include="Impl\FullTextSessionImpl.cs" />
     <Compile Include="Backend\LuceneWork.cs" />
     <Compile Include="IFullTextQuery.cs" />
+    <Compile Include="Reader\CacheableMultiReader.cs" />
     <Compile Include="Reader\IReaderProvider.cs" />
+    <Compile Include="Reader\NotSharedReaderProvider.cs" />
+    <Compile Include="Reader\ReaderProviderFactory.cs" />
+    <Compile Include="Reader\ReaderProviderHelper.cs" />
+    <Compile Include="Reader\SharedReaderProvider.cs" />
     <Compile Include="SearchException.cs" />
     <Compile Include="Bridge\Builtin\SimpleBridge.cs" />
     <Compile Include="Bridge\TwoWayString2FieldBridgeAdaptor.cs" />
@@ -148,7 +153,11 @@
     <Compile Include="Store\FSMasterDirectoryProvider.cs" />
     <Compile Include="Store\FSSlaveDirectoryProvider.cs" />
     <Compile Include="Store\IDirectoryProvider.cs" />
+    <Compile Include="Store\IIndexShardingStrategy.cs" />
+    <Compile Include="Store\NotShardedStrategy.cs" />
+    <Compile Include="Store\Optimization\IncrementalOptimizerStrategy.cs" />
     <Compile Include="Store\Optimization\IOptimizerStrategy.cs" />
+    <Compile Include="Store\Optimization\NoOpOptimizerStrategy.cs" />
     <Compile Include="Store\RAMDirectoryProvider.cs" />
     <Compile Include="Bridge\String2FieldBridgeAdaptor.cs" />
     <Compile Include="Util\BinderHelper.cs" />
