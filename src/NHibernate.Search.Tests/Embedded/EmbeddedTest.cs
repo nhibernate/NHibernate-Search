@@ -172,7 +172,7 @@ namespace NHibernate.Search.Tests.Embedded
             s.Close();
         }
 
-        [Test]
+        [Test, Ignore]
         public void TestIndexedEmbeddedAndCollections()
         {
             Author a = new Author();

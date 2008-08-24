@@ -3,6 +3,7 @@ using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Embedded
 {
+    [Indexed]
     public class Address
     {
         [IndexedEmbedded] 
