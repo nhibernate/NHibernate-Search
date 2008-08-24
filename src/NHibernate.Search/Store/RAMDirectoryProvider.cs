@@ -1,11 +1,10 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
 using NHibernate.Search.Engine;
-using NHibernate.Search.Impl;
 using Directory=Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
@@ -20,7 +19,7 @@ namespace NHibernate.Search.Store
             get { return directory; }
         }
 
-        public void Initialize(String directoryProviderName, IDictionary properties, ISearchFactoryImplementor searchFactory)
+        public void Initialize(String directoryProviderName, IDictionary<string, string> properties, ISearchFactoryImplementor searchFactory)
         {
             if (directoryProviderName == null)
                 throw new ArgumentNullException("directoryProviderName");

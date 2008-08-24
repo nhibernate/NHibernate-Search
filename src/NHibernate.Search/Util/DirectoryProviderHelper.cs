@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using log4net;
 using NHibernate.Search.Impl;
@@ -16,12 +17,12 @@ namespace NHibernate.Search
         /// and checking for the file availability
         /// </summary>
         public static String GetSourceDirectory(
-            String rootPropertyName, String relativePropertyName,
-            String directoryProviderName, IDictionary properties)
+            string rootPropertyName, string relativePropertyName,
+            string directoryProviderName, IDictionary properties)
         {
             //TODO check that it's a directory
-            String root = (string) properties[rootPropertyName];
-            String relative = (string) properties[relativePropertyName];
+            string root = (string) properties[rootPropertyName];
+            string relative = (string) properties[relativePropertyName];
             if (log.IsDebugEnabled)
                 log.Debug(
                     "Guess source directory from " + rootPropertyName + " " + root != null

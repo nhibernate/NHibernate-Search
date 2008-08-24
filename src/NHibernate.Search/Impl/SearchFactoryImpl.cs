@@ -186,9 +186,7 @@ namespace NHibernate.Search.Impl
         private void BindFilterDefs(System.Type mappedClass)
         {
             // We only need one test here as we just support multiple FullTextFilter attributes rather than a collection
-            foreach (
-                FullTextFilterDefAttribute defAnn in
-                    AttributeUtil.GetAttributes<FullTextFilterDefAttribute>(mappedClass))
+            foreach (FullTextFilterDefAttribute defAnn in AttributeUtil.GetAttributes<FullTextFilterDefAttribute>(mappedClass))
                 BindFilterDef(defAnn, mappedClass);
         }
 

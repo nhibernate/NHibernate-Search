@@ -65,7 +65,7 @@
     <Compile Include="Analyzer\Test2Analyzer.cs" />
     <Compile Include="Analyzer\Test3Analyzer.cs" />
     <Compile Include="Analyzer\Test4Analyzer.cs" />
-    <Compile Include="Bridge\BridgeTestCase.cs" />
+    <Compile Include="Bridge\BridgeTest.cs" />
     <Compile Include="Bridge\CatDeptsFieldsClassBridge.cs" />
     <Compile Include="Bridge\CatFieldsClassBridge.cs" />
     <Compile Include="Bridge\ClassBridgeTest.cs" />
@@ -77,6 +77,7 @@
     <Compile Include="Bridge\Gangster.cs" />
     <Compile Include="Bridge\TruncateFieldBridge.cs" />
     <Compile Include="Bridge\TruncateStringBridge.cs" />
+    <Compile Include="Bridge\UnresolvedBridgeTest.cs" />
     <Compile Include="Cfg\ConfigurationFixture.cs" />
     <Compile Include="DirectoryProvider\FSSlaveAndMasterDPTest.cs" />
     <Compile Include="DirectoryProvider\MultiplySessionFactoriesTestCase.cs" />
@@ -200,14 +201,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Embedded\DoubleInsert\" />
-    <Folder Include="Filter\" />
-    <Folder Include="IndexingStrategy\" />
-    <Folder Include="Optimizer\" />
     <Folder Include="Properties\" />
     <Folder Include="Reader\" />
-    <Folder Include="Shards\" />
-    <Folder Include="Util\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

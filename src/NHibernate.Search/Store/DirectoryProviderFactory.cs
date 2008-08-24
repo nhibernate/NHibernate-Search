@@ -6,6 +6,7 @@ using NHibernate.Mapping;
 using NHibernate.Search.Attributes;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
+using NHibernate.Search.Impl;
 using NHibernate.Search.Store.Optimization;
 using NHibernate.Util;
 
@@ -57,10 +58,10 @@ namespace NHibernate.Search.Store
 
         #region Private methods
 
-        private void ConfigureOptimizerStrategy(ISearchFactoryImplementor searchFactoryImplementor, IDictionary indexProps, IDirectoryProvider provider)
+        private void ConfigureOptimizerStrategy(ISearchFactoryImplementor searchFactoryImplementor, IDictionary<string, string> indexProps, IDirectoryProvider provider)
         {
-            bool incremental = indexProps.Contains("optimizer.operation_limit.max") ||
-                               indexProps.Contains("optimizer.transaction_limit.max");
+            bool incremental = indexProps.ContainsKey("optimizer.operation_limit.max") ||
+                               indexProps.ContainsKey("optimizer.transaction_limit.max");
 
             IOptimizerStrategy optimizerStrategy;
             if (incremental)
@@ -74,7 +75,7 @@ namespace NHibernate.Search.Store
             searchFactoryImplementor.AddOptimizerStrategy(provider, optimizerStrategy);
         }
 
-        private void ConfigureIndexingParameters(ISearchFactoryImplementor searchFactoryImplementor, IDictionary indexProps, IDirectoryProvider provider)
+        private void ConfigureIndexingParameters(ISearchFactoryImplementor searchFactoryImplementor, IDictionary<string, string> indexProps, IDirectoryProvider provider)
         {
             LuceneIndexingParameters indexingParams = new LuceneIndexingParameters();
             // TODO: Parse the parameters
@@ -82,7 +83,7 @@ namespace NHibernate.Search.Store
             searchFactoryImplementor.AddIndexingParameters(provider, indexingParams);
         }
 
-        private IDirectoryProvider CreateDirectoryProvider(string directoryProviderName, IDictionary indexProps,
+        private IDirectoryProvider CreateDirectoryProvider(string directoryProviderName, IDictionary<string, string> indexProps,
                                                           ISearchFactoryImplementor searchFactoryImplementor)
         {
             String className = (string)indexProps["directory_provider"];
@@ -122,21 +123,21 @@ namespace NHibernate.Search.Store
             }
         }
 
-        private static IDictionary GetDirectoryProperties(Configuration cfg, String directoryProviderName)
+        private static IDictionary<string, string> GetDirectoryProperties(Configuration cfg, String directoryProviderName)
         {
-            IDictionary props = (IDictionary)cfg.Properties;
+            IDictionary<string, string> props = cfg.Properties;
             String indexName = LUCENE_PREFIX + directoryProviderName;
-            IDictionary indexProps = new Hashtable();
-            IDictionary indexSpecificProps = new Hashtable();
-            foreach (DictionaryEntry entry in props)
+            IDictionary<string, string> indexProps = new Dictionary<string, string>();
+            IDictionary<string, string> indexSpecificProps = new Dictionary<string, string>();
+            foreach (KeyValuePair<string, string> entry in props)
             {
-                String key = (String)entry.Key;
+                String key = entry.Key;
                 if (key.StartsWith(LUCENE_DEFAULT))
                     indexProps[key.Substring(LUCENE_DEFAULT.Length)] = entry.Value;
                 else if (key.StartsWith(indexName))
                     indexSpecificProps[key.Substring(indexName.Length)] = entry.Value;
             }
-            foreach (DictionaryEntry indexSpecificProp in indexSpecificProps)
+            foreach (KeyValuePair<string, string> indexSpecificProp in indexSpecificProps)
                 indexProps[indexSpecificProp.Key] = indexSpecificProp.Value;
             return indexProps;
         }
@@ -173,7 +174,7 @@ namespace NHibernate.Search.Store
         {
             // Get properties
             String directoryProviderName = GetDirectoryProviderName(entity, cfg);
-            IDictionary indexProps = GetDirectoryProperties(cfg, directoryProviderName);
+            IDictionary<string, string> indexProps = GetDirectoryProperties(cfg, directoryProviderName);
 
             // Set up the directories
             int nbrOfProviders = indexProps.Count;
@@ -189,10 +190,37 @@ namespace NHibernate.Search.Store
 
             // Define sharding strategy
             IIndexShardingStrategy shardingStrategy;
-            IDictionary shardingProperties = new Dictionary<string, string>();
+            IDictionary<string, string> shardingProperties = new Dictionary<string, string>();
+            foreach (KeyValuePair<string, string> entry in shardingProperties)
+            {
+                if (entry.Key.StartsWith(SHARDING_STRATEGY))
+                {
+                    shardingProperties.Add(entry);
+                }
+            }
 
-            // TODO: Proper sharding strategy selection
-            shardingStrategy = new NotShardedStrategy();
+            string shardingStrategyName;
+            shardingProperties.TryGetValue(SHARDING_STRATEGY, out shardingStrategyName);
+            if (string.IsNullOrEmpty(shardingStrategyName))
+            {
+                if (shardingProperties.Count == 1)
+                    shardingStrategy = new NotShardedStrategy();
+                else
+                    shardingStrategy = new IdHashShardingStrategy();
+            }
+            else
+            {
+                try
+                {
+                    System.Type shardingStrategyClass = ReflectHelper.ClassForName(shardingStrategyName);
+                    shardingStrategy = (IIndexShardingStrategy) Activator.CreateInstance(shardingStrategyClass);
+                }
+                catch
+                {
+                    // TODO: See if we can get a tigher exception trap here
+                    throw new SearchException("Failed to instantiate lucene analyzer with type  " + shardingStrategyName);
+                }
+            }
 
             shardingStrategy.Initialize(shardingProperties, providers);
 

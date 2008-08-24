@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
 
@@ -15,7 +15,7 @@ namespace NHibernate.Search.Store.Optimization
         /// <param name="directoryProvider"></param>
         /// <param name="indexProperties"></param>
         /// <param name="searchFactoryImplementor"></param>
-        void Initialize(IDirectoryProvider directoryProvider, IDictionary indexProperties,
+        void Initialize(IDirectoryProvider directoryProvider, IDictionary<string, string> indexProperties,
                         ISearchFactoryImplementor searchFactoryImplementor);
 
         /// <summary>

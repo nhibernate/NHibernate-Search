@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using Lucene.Net.Store;
 using NHibernate.Search.Engine;
 
@@ -17,7 +17,7 @@ namespace NHibernate.Search.Store
         /// <param name="directoryProviderName"></param>
         /// <param name="indexProps"></param>
         /// <param name="searchFactory"></param>
-        void Initialize(string directoryProviderName, IDictionary indexProps, ISearchFactoryImplementor searchFactory);
+        void Initialize(string directoryProviderName, IDictionary<string, string> indexProps, ISearchFactoryImplementor searchFactory);
 
         /// <summary>
         /// Executed after initialize, this method set up the heavy process of starting up the DirectoryProvider

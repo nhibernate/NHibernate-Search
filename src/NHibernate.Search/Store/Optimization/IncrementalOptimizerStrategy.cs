@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using log4net;
 using Lucene.Net.Index;
+using NHibernate.Search.Backend;
+using NHibernate.Search.Engine;
 
 namespace NHibernate.Search.Store.Optimization
 {
@@ -9,21 +12,24 @@ namespace NHibernate.Search.Store.Optimization
     /// </summary>
     public class IncrementalOptimizerStrategy : IOptimizerStrategy
     {
-    	private int operationMax = -1;
+        private int operationMax = -1;
         private int transactionMax = -1;
-        private long operations = 0;
-        private long transactions = 0;
+        private long operations;
+        private long transactions;
         private IDirectoryProvider directoryProvider;
         private static readonly ILog log = LogManager.GetLogger(typeof(IncrementalOptimizerStrategy));
 
-        public void Initialize(IDirectoryProvider directoryProvider, System.Collections.IDictionary indexProperties, NHibernate.Search.Engine.ISearchFactoryImplementor searchFactoryImplementor)
+        public void Initialize(IDirectoryProvider directoryProvider, IDictionary<string, string> indexProperties,
+                               ISearchFactoryImplementor searchFactoryImplementor)
         {
             this.directoryProvider = directoryProvider;
-            string maxString = (string) indexProperties["optimizer.operation_limit.max"];
+            string maxString;
+            indexProperties.TryGetValue("optimizer.operation_limit.max", out maxString);
+
             if (!string.IsNullOrEmpty(maxString))
                 int.TryParse(maxString, out operationMax);
 
-            maxString = indexProperties["optimizer.transaction_limit.max"].ToString();
+            indexProperties.TryGetValue("optimizer.transaction_limit.max", out maxString);
             if (!string.IsNullOrEmpty(maxString))
                 int.TryParse(maxString, out transactionMax);
         }
@@ -36,7 +42,8 @@ namespace NHibernate.Search.Store.Optimization
 
         public bool NeedOptimization()
         {
-            return (operationMax != -1 && operations >= operationMax) || (transactionMax != -1 && transactions >= transactionMax);
+            return (operationMax != -1 && operations >= operationMax) ||
+                   (transactionMax != -1 && transactions >= transactionMax);
         }
 
         public void AddTransaction(long operations)
@@ -45,7 +52,7 @@ namespace NHibernate.Search.Store.Optimization
             transactions++;
         }
 
-        public void Optimize(NHibernate.Search.Backend.Workspace workspace)
+        public void Optimize(Workspace workspace)
         {
             if (NeedOptimization())
             {

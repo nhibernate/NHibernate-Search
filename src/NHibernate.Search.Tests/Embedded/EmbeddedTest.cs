@@ -109,7 +109,7 @@ namespace NHibernate.Search.Tests.Embedded
             s.Close();
         }
 
-        [Test, Ignore("Not implemented yet")]
+        [Test]
         public void TestContainedIn()
         {
             Tower tower = new Tower();
@@ -172,7 +172,7 @@ namespace NHibernate.Search.Tests.Embedded
             s.Close();
         }
 
-        [Test, Ignore("Not implemented yet")]
+        [Test]
         public void TestIndexedEmbeddedAndCollections()
         {
             Author a = new Author();
