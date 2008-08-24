@@ -571,7 +571,7 @@ namespace NHibernate.Search.Engine
             // TODO: Check if that should be an else?
             {
                 Field classField =
-                    new Field(CLASS_FIELDNAME, instanceClass.AssemblyQualifiedName, Field.Store.YES,
+                    new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(instanceClass), Field.Store.YES,
                               Field.Index.UN_TOKENIZED);
                 doc.Add(classField);
                 idBridge.Set(idKeywordName, id, doc, Field.Store.YES, Field.Index.UN_TOKENIZED, idBoost);

@@ -6,6 +6,7 @@ using Lucene.Net.Index;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
+using NHibernate.Search.Util;
 
 namespace NHibernate.Search.Backend.Impl.Lucene
 {
@@ -80,7 +81,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                 //TODO is there a faster way?
                 //TODO include TermDocs into the workspace?
                 termDocs = reader.TermDocs(term);
-                String entityName = entity.AssemblyQualifiedName;
+                string entityName = TypeHelper.LuceneTypeName(entity);
                 while (termDocs.Next())
                 {
                     int docIndex = termDocs.Doc();
@@ -161,7 +162,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             IndexReader reader = workspace.GetIndexReader(provider, entity);
             try
             {
-                Term term = new Term(DocumentBuilder.CLASS_FIELDNAME, entity.AssemblyQualifiedName);
+                Term term = new Term(DocumentBuilder.CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entity));
                 reader.DeleteDocuments(term);
             }
             catch (Exception e)

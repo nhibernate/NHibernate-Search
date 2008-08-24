@@ -5,6 +5,7 @@ using Lucene.Net.Index;
 using Lucene.Net.Search;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Store;
+using NHibernate.Search.Util;
 using Directory=Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search
@@ -25,7 +26,7 @@ namespace NHibernate.Search
                 classFilter.SetBoost(0);
                 foreach (System.Type clazz in classesAndSubclasses)
                 {
-                    Term t = new Term(DocumentBuilder.CLASS_FIELDNAME, clazz.AssemblyQualifiedName);
+                    Term t = new Term(DocumentBuilder.CLASS_FIELDNAME, TypeHelper.LuceneTypeName(clazz));
                     TermQuery termQuery = new TermQuery(t);
                     classFilter.Add(termQuery, BooleanClause.Occur.SHOULD);
                 }

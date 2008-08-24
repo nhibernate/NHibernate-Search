@@ -168,6 +168,7 @@
     <Compile Include="Util\BinderHelper.cs" />
     <Compile Include="Util\ContextHelper.cs" />
     <Compile Include="Util\ScopedAnalyzer.cs" />
+    <Compile Include="Util\TypeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
