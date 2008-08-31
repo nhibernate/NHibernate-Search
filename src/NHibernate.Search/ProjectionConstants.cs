@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace NHibernate.Search
 {
     public static class ProjectionConstants
@@ -38,6 +34,6 @@ namespace NHibernate.Search
         /// Experimental: If you use this feature, please speak up in the forum
         /// Expert: Lucene document id can change overtime between 2 different IndexReader opening.
         /// </remarks>
-        public const string DOCUMENT_ID = "__HSearch_DocumentId";        
+        public const string DOCUMENT_ID = "__HSearch_DocumentId";
     }
 }

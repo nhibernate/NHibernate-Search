@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Lucene.Net.Documents;
 
 namespace NHibernate.Search.Store
 {
@@ -31,7 +29,8 @@ namespace NHibernate.Search.Store
         /// <param name="idInString"></param>
         /// <param name="document"></param>
         /// <returns></returns>
-        IDirectoryProvider GetDirectoryProviderForAddition(System.Type entity, object id, string idInString, Lucene.Net.Documents.Document document);
+        IDirectoryProvider GetDirectoryProviderForAddition(System.Type entity, object id, string idInString,
+                                                           Document document);
 
         /// <summary>
         /// Return the <see cref="IDirectoryProvider"/>(s) where the given entity is stored and where the deletion operation needs to be applied

@@ -240,17 +240,16 @@ namespace NHibernate.Search.Query
         {
             if (Selection.MaxRows == RowSelection.NoValue)
                 return hits.Length() - 1;
-            else if (Selection.MaxRows + first < hits.Length())
+
+            if (Selection.MaxRows + first < hits.Length())
                 return first + Selection.MaxRows - 1;
-            else return hits.Length() - 1;
+
+            return hits.Length() - 1;
         }
 
         private int First()
         {
-            if (Selection.FirstRow != RowSelection.NoValue)
-                return Selection.FirstRow;
-            else
-                return 0;
+            return Selection.FirstRow != RowSelection.NoValue ? Selection.FirstRow : 0;
         }
 
         //TODO change classesAndSubclasses by side effect, which is a mismatch with the Searcher return, fix that.

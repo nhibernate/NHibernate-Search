@@ -14,7 +14,7 @@ namespace NHibernate.Search.Engine
 
         #region Private methods
 
-        private void initThisProjectionFlag(EntityInfo entityInfo)
+        private void InitThisProjectionFlag(EntityInfo entityInfo)
         {
             if (projectThis == null)
             {
@@ -48,7 +48,7 @@ namespace NHibernate.Search.Engine
 
         public object Load(EntityInfo entityInfo)
         {
-            initThisProjectionFlag(entityInfo);
+            InitThisProjectionFlag(entityInfo);
             if (projectThis == true)
             {
                 foreach (int index in entityInfo.IndexesOfThis)
@@ -67,7 +67,7 @@ namespace NHibernate.Search.Engine
             IList results = new ArrayList(entityInfos.Length);
             if (entityInfos.Length == 0) return results;
 
-            initThisProjectionFlag(entityInfos[0]);
+            InitThisProjectionFlag(entityInfos[0]);
             if (projectThis == true)
             {
                 objectLoader.Load(entityInfos); // Load by batch

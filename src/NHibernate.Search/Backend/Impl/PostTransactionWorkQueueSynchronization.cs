@@ -1,8 +1,10 @@
 using NHibernate.Transaction;
 using NHibernate.Util;
 
-namespace NHibernate.Search.Backend.Impl {
-    internal class PostTransactionWorkQueueSynchronization : ISynchronization {
+namespace NHibernate.Search.Backend.Impl
+{
+    internal class PostTransactionWorkQueueSynchronization : ISynchronization
+    {
         private bool consumed;
         private WorkQueue queue = new WorkQueue();
         private IQueueingProcessor queueingProcessor;
@@ -12,25 +14,30 @@ namespace NHibernate.Search.Backend.Impl {
 		 */
 
         public PostTransactionWorkQueueSynchronization(IQueueingProcessor queueingProcessor,
-                                                       WeakHashtable queuePerTransaction) {
+                                                       WeakHashtable queuePerTransaction)
+        {
             this.queueingProcessor = queueingProcessor;
             this.queuePerTransaction = queuePerTransaction;
         }
 
         #region ISynchronization Members
 
-        public void BeforeCompletion() {
+        public void BeforeCompletion()
+        {
             queueingProcessor.PrepareWorks(queue);
         }
 
-        public void AfterCompletion(bool success) {
-            try {
+        public void AfterCompletion(bool success)
+        {
+            try
+            {
                 if (success)
                     queueingProcessor.PerformWorks(queue);
                 else
                     queueingProcessor.CancelWorks(queue);
             }
-            finally {
+            finally
+            {
                 consumed = true;
                 //clean the Synchronization per Transaction
                 //not needed stricto sensus but a cleaner approach and faster than the GC
@@ -40,11 +47,13 @@ namespace NHibernate.Search.Backend.Impl {
 
         #endregion
 
-        public void add(Work work) {
+        public void add(Work work)
+        {
             queueingProcessor.Add(work, queue);
         }
 
-        public bool isConsumed() {
+        public bool isConsumed()
+        {
             return consumed;
         }
     }
