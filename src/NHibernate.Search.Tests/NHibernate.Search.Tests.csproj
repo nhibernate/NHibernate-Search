@@ -44,10 +44,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\net\2.0\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.Test, Version=2.0.0.1001, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\lib\net\2.0\NHibernate.Test.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=2.2.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\lib\net\2.0\nunit.framework.dll</HintPath>
@@ -79,6 +75,7 @@
     <Compile Include="Bridge\TruncateStringBridge.cs" />
     <Compile Include="Bridge\UnresolvedBridgeTest.cs" />
     <Compile Include="Cfg\ConfigurationFixture.cs" />
+    <Compile Include="DebugConnectionProvider.cs" />
     <Compile Include="DirectoryProvider\FSSlaveAndMasterDPTest.cs" />
     <Compile Include="DirectoryProvider\MultiplySessionFactoriesTestCase.cs" />
     <Compile Include="DirectoryProvider\SnowStorm.cs" />
@@ -107,6 +104,8 @@
     <Compile Include="SearchTestCase.cs" />
     <Compile Include="Session\Email.cs" />
     <Compile Include="Session\MassIndexTest.cs" />
+    <Compile Include="TestCase.cs" />
+    <Compile Include="TestConfigurationHelper.cs" />
     <Compile Include="Worker\AsyncWorkerTest.cs" />
     <Compile Include="Worker\ConcurrencyTest.cs" />
     <Compile Include="Worker\Drink.cs" />
