@@ -40,32 +40,34 @@ namespace NHibernate.Search.Store.Optimization
             transactions = 0;
         }
 
-        public bool NeedOptimization()
+        public bool NeedOptimization
         {
-            return (operationMax != -1 && operations >= operationMax) ||
-                   (transactionMax != -1 && transactions >= transactionMax);
+            get
+            {
+                return (operationMax != -1 && operations >= operationMax) ||
+                       (transactionMax != -1 && transactions >= transactionMax);
+            }
         }
 
-        public void AddTransaction(long operations)
+        public void AddTransaction(long theOperations)
         {
-            this.operations += operations;
+            this.operations += theOperations;
             transactions++;
         }
 
         public void Optimize(Workspace workspace)
         {
-            if (NeedOptimization())
+            if (!NeedOptimization) 
+                return;
+            IndexWriter writer = workspace.GetIndexWriter(directoryProvider);
+            try
             {
-                IndexWriter writer = workspace.GetIndexWriter(directoryProvider);
-                try
-                {
-                    writer.Optimize();
-                }
-                catch (Exception e)
-                {
-                }
-                OptimizationForced();
+                writer.Optimize();
             }
+            catch (Exception)
+            {
+            }
+            OptimizationForced();
         }
     }
 }

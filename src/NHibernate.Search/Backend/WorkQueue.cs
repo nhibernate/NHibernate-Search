@@ -26,45 +26,46 @@ namespace NHibernate.Search.Backend
         {
         }
 
-        public void add(Work work)
+        public void Add(Work work)
         {
             queue.Add(work);
         }
 
-        public List<Work> getQueue()
+        public List<Work> GetQueue()
         {
             return queue;
         }
 
-        public WorkQueue splitQueue()
+        public WorkQueue SplitQueue()
         {
             WorkQueue subQueue = new WorkQueue(queue);
             queue = new List<Work>(queue.Count);
             return subQueue;
         }
 
-        public List<LuceneWork> getSealedQueue()
+        public List<LuceneWork> GetSealedQueue()
         {
-            if (sealedQueue == null) throw new AssertionFailure("Access a Sealed WorkQueue whcih has not been sealed");
+            if (sealedQueue == null) 
+                throw new AssertionFailure("Access a Sealed WorkQueue which has not been sealed");
             return sealedQueue;
         }
 
-        public void setSealedQueue(List<LuceneWork> sealedQueue)
+        public void SetSealedQueue(List<LuceneWork> sealedQueue)
         {
             //invalidate the working queue for serializability
             queue = null;
             this.sealedQueue = sealedQueue;
         }
 
-        public void clear()
+        public void Clear()
         {
             queue.Clear();
             if (sealedQueue != null) sealedQueue.Clear();
         }
 
-        public int size()
+        public int Count
         {
-            return queue.Count;
+            get { return queue.Count; }
         }
     }
 }

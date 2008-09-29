@@ -264,47 +264,65 @@ namespace NHibernate.Search.Impl
 
         public IList Find(string query)
         {
+#pragma warning disable 618,612
             return session.Find(query);
+#pragma warning restore 618,612
         }
 
         public IList Find(string query, object value, IType type)
         {
+#pragma warning disable 618,612
             return session.Find(query, value, type);
+#pragma warning restore 618,612
         }
 
         public IList Find(string query, object[] values, IType[] types)
         {
+#pragma warning disable 618,612
             return session.Find(query, values, types);
+#pragma warning restore 618,612
         }
 
         public IEnumerable Enumerable(string query)
         {
+#pragma warning disable 618,612
             return session.Enumerable(query);
+#pragma warning restore 618,612
         }
 
         public IEnumerable Enumerable(string query, object value, IType type)
         {
+#pragma warning disable 618,612
             return session.Enumerable(query, value, type);
+#pragma warning restore 618,612
         }
 
         public IEnumerable Enumerable(string query, object[] values, IType[] types)
         {
+#pragma warning disable 618,612
             return session.Enumerable(query, values, types);
+#pragma warning restore 618,612
         }
 
         public ICollection Filter(object collection, string filter)
         {
+#pragma warning disable 618,612
             return session.Filter(collection, filter);
+#pragma warning restore 618,612
         }
 
         public ICollection Filter(object collection, string filter, object value, IType type)
         {
+#pragma warning disable 618,612
             return session.Filter(collection, filter, value, type);
+#pragma warning restore 618,612
         }
 
         public ICollection Filter(object collection, string filter, object[] values, IType[] types)
         {
+#pragma warning disable 618,612
             return session.Filter(collection, filter, values, types);
+#pragma warning restore 618,612
         }
 
         public int Delete(string query)
@@ -384,12 +402,16 @@ namespace NHibernate.Search.Impl
 
         public IQuery CreateSQLQuery(string sql, string returnAlias, System.Type returnClass)
         {
+#pragma warning disable 618,612
             return session.CreateSQLQuery(sql, returnAlias, returnClass);
+#pragma warning restore 618,612
         }
 
         public IQuery CreateSQLQuery(string sql, string[] returnAliases, System.Type[] returnClasses)
         {
+#pragma warning disable 618,612
             return session.CreateSQLQuery(sql, returnAliases, returnClasses);
+#pragma warning restore 618,612
         }
 
         public ISQLQuery CreateSQLQuery(string queryString)

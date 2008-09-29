@@ -9,7 +9,6 @@ namespace NHibernate.Search.Backend
     public class Work
     {
         private readonly object entity;
-        private readonly System.Type clazz;
         private readonly object id;
         private readonly MemberInfo idGetter;
         private readonly WorkType workType;

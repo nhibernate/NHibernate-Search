@@ -29,14 +29,14 @@ namespace NHibernate.Search.Store.Optimization
         /// </summary>
         /// <remarks>Has to be called in a thread safe way</remarks>
         /// <returns></returns>
-        bool NeedOptimization();
+        bool NeedOptimization { get; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <remarks>Has to be called in a thread safe way</remarks>
-        /// <param name="operations"></param>
-        void AddTransaction(long operations);
+        /// <param name="theOperations"></param>
+        void AddTransaction(long theOperations);
 
         /// <summary>
         /// 

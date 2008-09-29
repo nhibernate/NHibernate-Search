@@ -111,6 +111,7 @@
     <Compile Include="Query\FullTextSearchHelper.cs" />
     <Compile Include="LuceneQueryExpression.cs" />
     <Compile Include="Backend\Impl\Lucene\LuceneWorker.cs" />
+    <Compile Include="SearchRestrictions.cs" />
     <Compile Include="Util\DirectoryProviderHelper.cs" />
     <Compile Include="Bridge\IFieldBridge.cs" />
     <Compile Include="IFullTextSession.cs" />

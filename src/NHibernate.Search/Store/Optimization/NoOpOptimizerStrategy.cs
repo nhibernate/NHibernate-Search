@@ -14,12 +14,12 @@ namespace NHibernate.Search.Store.Optimization
         {
         }
 
-        public bool NeedOptimization()
+        public bool NeedOptimization
         {
-            return false;
+            get { return false; }
         }
 
-        public void AddTransaction(long operations)
+        public void AddTransaction(long theOperations)
         {
         }
 

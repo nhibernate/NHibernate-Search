@@ -5,7 +5,7 @@ namespace NHibernate.Search.Backend.Impl
 {
     internal class PostTransactionWorkQueueSynchronization : ISynchronization
     {
-        private bool consumed;
+        private bool isConsumed;
         private WorkQueue queue = new WorkQueue();
         private IQueueingProcessor queueingProcessor;
         private WeakHashtable queuePerTransaction;
@@ -38,23 +38,23 @@ namespace NHibernate.Search.Backend.Impl
             }
             finally
             {
-                consumed = true;
+                isConsumed = true;
                 //clean the Synchronization per Transaction
-                //not needed stricto sensus but a cleaner approach and faster than the GC
+                //not needed in a strict sensus but a cleaner approach and faster than the GC
                 if (queuePerTransaction != null) queuePerTransaction.Remove(this);
             }
         }
 
         #endregion
 
-        public void add(Work work)
+        public void Add(Work work)
         {
             queueingProcessor.Add(work, queue);
         }
 
-        public bool isConsumed()
+        public bool IsConsumed
         {
-            return consumed;
+            get { return isConsumed; }
         }
     }
 }

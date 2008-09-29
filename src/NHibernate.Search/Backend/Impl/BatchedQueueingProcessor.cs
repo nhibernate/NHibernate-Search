@@ -10,7 +10,7 @@ using NHibernate.Util;
 namespace NHibernate.Search.Backend.Impl
 {
     /// <summary>
-    ///  Batch work until #ExecuteQueue is called.
+    ///  Batch work until <c>ExecuteQueue</c> is called.
     ///  The work is then executed synchronously or asynchronously
     /// </summary>
     public class BatchedQueueingProcessor : IQueueingProcessor
@@ -29,8 +29,11 @@ namespace NHibernate.Search.Backend.Impl
             string backend = (string) properties[Environment.WorkerBackend];
             batchSize = 0; //(int)properties[Environment.WorkerBatchSize];
             if (StringHelper.IsEmpty(backend) || "lucene".Equals(backend, StringComparison.InvariantCultureIgnoreCase))
+            {
                 backendQueueProcessorFactory = new LuceneBackendQueueProcessorFactory();
+            }
             else
+            {
                 try
                 {
                     System.Type processorFactoryClass = ReflectHelper.ClassForName(backend);
@@ -41,6 +44,7 @@ namespace NHibernate.Search.Backend.Impl
                 {
                     throw new SearchException("Unable to find/create processor class: " + backend, e);
                 }
+            }
             backendQueueProcessorFactory.Initialize(properties, searchFactory);
             searchFactory.BackendQueueProcessorFactory = backendQueueProcessorFactory;
         }
@@ -51,10 +55,10 @@ namespace NHibernate.Search.Backend.Impl
 
         public void Add(Work work, WorkQueue workQueue)
         {
-            workQueue.add(work);
-            if (batchSize > 0 && workQueue.size() >= batchSize)
+            workQueue.Add(work);
+            if (batchSize > 0 && workQueue.Count >= batchSize)
             {
-                WorkQueue subQueue = workQueue.splitQueue();
+                WorkQueue subQueue = workQueue.SplitQueue();
                 PrepareWorks(subQueue);
                 PerformWorks(subQueue);
             }
@@ -62,7 +66,7 @@ namespace NHibernate.Search.Backend.Impl
 
         public void PerformWorks(WorkQueue workQueue)
         {
-            WaitCallback processor = backendQueueProcessorFactory.GetProcessor(workQueue.getSealedQueue());
+            WaitCallback processor = backendQueueProcessorFactory.GetProcessor(workQueue.GetSealedQueue());
             if (sync)
                 processor(null);
             else
@@ -71,16 +75,16 @@ namespace NHibernate.Search.Backend.Impl
 
         public void CancelWorks(WorkQueue workQueue)
         {
-            workQueue.clear();
+            workQueue.Clear();
         }
 
         public void PrepareWorks(WorkQueue workQueue)
         {
-            List<Work> queue = workQueue.getQueue();
+            List<Work> queue = workQueue.GetQueue();
             int initialSize = queue.Count;
             List<LuceneWork> luceneQueue = new List<LuceneWork>(initialSize); //TODO load factor for containedIn
             /**
-			 * Collection work type are process second, so if the owner entity has already been processed for whatever reason
+			 * Collection work type are processed second, so if the owner entity has already been processed for whatever reason
 			 * the work will be ignored.
 			 * However if the owner entity has not been processed, an "UPDATE" work is executed
 			 *
@@ -88,7 +92,7 @@ namespace NHibernate.Search.Backend.Impl
 			 */
             ProcessWorkByLayer(queue, initialSize, luceneQueue, Layer.FIRST);
             ProcessWorkByLayer(queue, initialSize, luceneQueue, Layer.SECOND);
-            workQueue.setSealedQueue(luceneQueue);
+            workQueue.SetSealedQueue(luceneQueue);
         }
 
         #endregion
@@ -108,15 +112,13 @@ namespace NHibernate.Search.Backend.Impl
             for (int i = initialSize - 1; i >= 0; i--)
             {
                 Work work = queue[i];
-                if (work != null)
-                    if (layer.isRightLayer(work.WorkType))
-                    {
-                        queue[i] = null; // help GC and avoid 2 loaded queues in memory
-                        System.Type entityClass = NHibernateUtil.GetClass(work.Entity);
-                        DocumentBuilder builder = searchFactory.DocumentBuilders[entityClass];
-                        if (builder == null) continue; //or exception?
-                        builder.AddToWorkQueue(entityClass, work.Entity, work.Id, work.WorkType, luceneQueue, searchFactory);
-                    }
+                if (work == null || !layer.IsRightLayer(work.WorkType)) 
+                    continue;
+                queue[i] = null; // help GC and avoid 2 loaded queues in memory
+                System.Type entityClass = NHibernateUtil.GetClass(work.Entity);
+                DocumentBuilder builder = searchFactory.DocumentBuilders[entityClass];
+                if (builder == null) continue; //or exception?
+                builder.AddToWorkQueue(entityClass, work.Entity, work.Id, work.WorkType, luceneQueue, searchFactory);
             }
         }
 
@@ -126,13 +128,13 @@ namespace NHibernate.Search.Backend.Impl
         {
             public static readonly Layer FIRST = new First();
             public static readonly Layer SECOND = new Second();
-            public abstract bool isRightLayer(WorkType type);
+            public abstract bool IsRightLayer(WorkType type);
 
             #region Nested type: First
 
             private class First : Layer
             {
-                public override bool isRightLayer(WorkType type)
+                public override bool IsRightLayer(WorkType type)
                 {
                     //return  type != WorkType.COLLECTION ;
                     return true;
@@ -145,7 +147,7 @@ namespace NHibernate.Search.Backend.Impl
 
             private class Second : Layer
             {
-                public override bool isRightLayer(WorkType type)
+                public override bool IsRightLayer(WorkType type)
                 {
                     //return type == WorkType.COLLECTION;
                     return false;

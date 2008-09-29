@@ -12,13 +12,13 @@ namespace NHibernate.Search.Backend
     /// </summary>
     public interface IBackendQueueProcessorFactory
     {
-        void Initialize(IDictionary props, SearchFactoryImpl searchFactory);
+        void Initialize(IDictionary props, SearchFactoryImpl aSearchFactory);
 
         /// <summary>
         /// Return a runnable implementation responsible for processing the queue to a given backend
         /// </summary>
         /// <param name="queue"></param>
         /// <returns></returns>
-        WaitCallback GetProcessor(List<LuceneWork> queue);
+        WaitCallback GetProcessor(IList<LuceneWork> queue);
     }
 }

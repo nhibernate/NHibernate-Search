@@ -18,7 +18,7 @@ namespace NHibernate.Search.Backend
     /// This is not intended to be used in a multithreaded environment
     /// <p/>
     /// One cannot execute modification through an IndexReader when an IndexWriter has been acquired on the same underlying directory
-    /// One cannot get an IndexWriter when an IndexReader have been acquired and modificed on the same underlying directory
+    /// One cannot get an IndexWriter when an IndexReader have been acquired and modified the same underlying directory
     /// The recommended approach is to execute all the modifications on the IndexReaders, {@link #Dispose()} }, and acquire the
     /// index writers
     /// </summary>

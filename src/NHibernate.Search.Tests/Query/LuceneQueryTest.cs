@@ -270,7 +270,7 @@ namespace NHibernate.Search.Tests.Queries {
             tx.Commit();
 
             IList list = s.CreateCriteria(typeof (Clock))
-                .Add(Search.Query("Brand:seiko"))
+                .Add(SearchRestrictions.Query("Brand:seiko"))
                 .List();
             Assert.AreEqual(1, list.Count, "should get result back from query");
 

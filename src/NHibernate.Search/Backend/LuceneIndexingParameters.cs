@@ -5,7 +5,7 @@ namespace NHibernate.Search.Backend
     /// <i>maxBufferedDocs</i>.
     /// <p>
     /// There are two sets of these parameters. One is for regular indexing the other is for batch indexing
-    /// triggered by <code>FullTextSessoin.index(Object entity)</code>
+    /// triggered by <code>FullTextSessoin.Index(Object entity)</code>
     /// </summary>
     public class LuceneIndexingParameters
     {

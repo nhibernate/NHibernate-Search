@@ -21,12 +21,9 @@ namespace NHibernate.Search.Query
         private readonly Lucene.Net.Search.Query luceneQuery;
         private readonly System.Type[] classes;
         private ISet<System.Type> classesAndSubclasses;
-        private int firstResult;
-        private int maxResult;
         private int resultSize = -1;
         private Sort sort;
         private ISearchFactoryImplementor searchFactoryImplementor;
-        private int fetchSize = 1;
 
         /// <summary>
         /// classes must be immutable

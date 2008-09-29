@@ -31,10 +31,10 @@ namespace NHibernate.Search.Store
                          */
                         file.Delete(); 
                     }
-                    catch (System.IO.IOException e)
+                    catch (IOException e)
                     {
                         if (log.IsWarnEnabled)
-                            log.Warn("Unable to delete file " + file.Name + ", maybe in use per another reader");
+                            log.Warn("Unable to delete file " + file.Name + ", maybe in use per another reader",e);
                     }
                    
             //copy each file from source

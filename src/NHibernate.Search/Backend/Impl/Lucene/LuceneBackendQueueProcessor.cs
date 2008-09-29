@@ -9,10 +9,10 @@ namespace NHibernate.Search.Backend.Impl.Lucene
     /// </summary>
     public class LuceneBackendQueueProcessor
     {
-        private readonly List<LuceneWork> queue;
+        private readonly IList<LuceneWork> queue;
         private readonly ISearchFactoryImplementor searchFactoryImplementor;
 
-        public LuceneBackendQueueProcessor(List<LuceneWork> queue, ISearchFactoryImplementor searchFactoryImplementor)
+        public LuceneBackendQueueProcessor(IList<LuceneWork> queue, ISearchFactoryImplementor searchFactoryImplementor)
         {
             this.queue = queue;
             this.searchFactoryImplementor = searchFactoryImplementor;
@@ -45,9 +45,9 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             int h = provider.GetHashCode();
             h = 31*h + provider.GetHashCode();
             long extendedHash = h; //to be sure extendedHash + 1 < extendedHash + 2 is always true
-            if (typeof(AddLuceneWork).IsAssignableFrom(luceneWork.Work.GetType()))
+            if (luceneWork.Work is AddLuceneWork)
                 extendedHash += 1; //addwork after deleteWork
-            if (typeof(OptimizeLuceneWork).IsAssignableFrom(luceneWork.Work.GetType()))
+            if (luceneWork.Work is OptimizeLuceneWork)
                 extendedHash += 2; //optimize after everything
 
             return extendedHash;
@@ -58,12 +58,10 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             foreach (LuceneWork luceneWork in queue)
             {
                 // if there is at least a single batch index job we put the work space into batch indexing mode.
-                if (luceneWork.IsBatch)
-                {
-                    //log.trace("Setting batch indexing mode.");
-                    workspace.IsBatch = true;
-                    break;
-                }
+                if (!luceneWork.IsBatch) 
+                    continue;
+                workspace.IsBatch = true;
+                break;
             }
         }
 
@@ -87,28 +85,28 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                 {
                     DocumentBuilder documentBuilder = searchFactoryImplementor.DocumentBuilders[work.EntityClass];
                     IIndexShardingStrategy shardingStrategy = documentBuilder.DirectoryProvidersSelectionStrategy;
-                    if (typeof(PurgeAllLuceneWork).IsAssignableFrom(work.GetType()))
+                    if (work is PurgeAllLuceneWork)
                     {
                         IDirectoryProvider[] providers =
                             shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
                         foreach (IDirectoryProvider provider in providers)
                             queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
                     }
-                    else if (typeof(AddLuceneWork).IsAssignableFrom(work.GetType()))
+                    else if (work is AddLuceneWork)
                     {
                         IDirectoryProvider provider =
                             shardingStrategy.GetDirectoryProviderForAddition(work.EntityClass, work.Id, work.IdInString,
                                                                              work.Document);
                         queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
                     }
-                    else if (typeof(DeleteLuceneWork).IsAssignableFrom(work.GetType()))
+                    else if (work is DeleteLuceneWork)
                     {
                         IDirectoryProvider[] providers =
                             shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
                         foreach (IDirectoryProvider provider in providers)
                             queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
                     }
-                    else if (typeof(OptimizeLuceneWork).IsAssignableFrom(work.GetType()))
+                    else if (work is OptimizeLuceneWork)
                     {
                         IDirectoryProvider[] providers = shardingStrategy.GetDirectoryProvidersForAllShards();
                         foreach (IDirectoryProvider provider in providers)

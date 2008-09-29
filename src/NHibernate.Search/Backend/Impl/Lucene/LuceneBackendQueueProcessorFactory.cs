@@ -11,12 +11,12 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 
         #region IBackendQueueProcessorFactory Members
 
-        public void Initialize(IDictionary props, SearchFactoryImpl searchFactory)
+        public void Initialize(IDictionary props, SearchFactoryImpl aSearchFactory)
         {
-            this.searchFactory = searchFactory;
+            this.searchFactory = aSearchFactory;
         }
 
-        public WaitCallback GetProcessor(List<LuceneWork> queue)
+        public WaitCallback GetProcessor(IList<LuceneWork> queue)
         {
             return new LuceneBackendQueueProcessor(queue, searchFactory).Run;
         }

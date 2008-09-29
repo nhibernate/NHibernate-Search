@@ -34,7 +34,7 @@ namespace NHibernate.Search.Reader
                 {
                     reader.Close();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // Swallow
                 }
