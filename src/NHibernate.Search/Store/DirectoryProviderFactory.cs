@@ -123,12 +123,32 @@ namespace NHibernate.Search.Store
             }
         }
 
-        private static IDictionary<string, string> GetDirectoryProperties(Configuration cfg, String directoryProviderName)
+        private static IDictionary<string, string>[] GetDirectoryProperties(Configuration cfg, String directoryProviderName)
         {
-            IDictionary<string, string> props = cfg.Properties;
-            String indexName = LUCENE_PREFIX + directoryProviderName;
+
+
+            string shardsCountValue = null;
+            bool hasShards = cfg.Properties.TryGetValue(NBR_OF_SHARDS, out shardsCountValue);
+            if(!hasShards || string.IsNullOrEmpty(shardsCountValue))
+                return new IDictionary<string, string>[] { GetIndexProps(directoryProviderName, cfg) };
+            else
+            {
+                int shardsCount = Int32.Parse(shardsCountValue);
+                IDictionary<string, string>[] shardLocalProperties = new IDictionary<string, string>[shardsCount];
+  	                        for (int i = 0; i < shardsCount; i++) {
+  	                            shardLocalProperties[i] = CreateMaskedIndexProps( i.ToString(), directoryProviderName, cfg);
+
+  	                        }
+  	                        return shardLocalProperties;
+            }
+        }
+
+        private static IDictionary<string, string> GetIndexProps(string directoryProviderName, Configuration cfg)
+        {
             IDictionary<string, string> indexProps = new Dictionary<string, string>();
+            String indexName = LUCENE_PREFIX + directoryProviderName;
             IDictionary<string, string> indexSpecificProps = new Dictionary<string, string>();
+            IDictionary<string, string> props = cfg.Properties;
             foreach (KeyValuePair<string, string> entry in props)
             {
                 String key = entry.Key;
@@ -140,6 +160,13 @@ namespace NHibernate.Search.Store
             foreach (KeyValuePair<string, string> indexSpecificProp in indexSpecificProps)
                 indexProps[indexSpecificProp.Key] = indexSpecificProp.Value;
             return indexProps;
+        }
+
+        private static IDictionary<string, string> CreateMaskedIndexProps( string mask, string directoryProviderName, Configuration cfg)
+        {
+            ///this is a seudo implementation, it does not really take into account different NbrOfShard
+            //todo: fix this
+            return GetIndexProps(directoryProviderName, cfg);
         }
 
         private static string GetDirectoryProviderName(System.Type clazz, Configuration cfg)
@@ -174,10 +201,10 @@ namespace NHibernate.Search.Store
         {
             // Get properties
             String directoryProviderName = GetDirectoryProviderName(entity, cfg);
-            IDictionary<string, string> indexProps = GetDirectoryProperties(cfg, directoryProviderName);
+            IDictionary<string, string>[] indexProps = GetDirectoryProperties(cfg, directoryProviderName);
 
             // Set up the directories
-            int nbrOfProviders = indexProps.Count;
+            int nbrOfProviders = indexProps.Length;
             IDirectoryProvider[] providers = new IDirectoryProvider[nbrOfProviders];
             for (int index = 0; index < nbrOfProviders; index++)
             {
@@ -185,13 +212,14 @@ namespace NHibernate.Search.Store
                                           ? directoryProviderName + "." + index
                                           : directoryProviderName;
                 // NB Are the properties nested??
-                providers[index] = CreateDirectoryProvider(providerName, indexProps, searchFactoryImplementor);
+                providers[index] = CreateDirectoryProvider(providerName, indexProps[index], searchFactoryImplementor);
             }
 
             // Define sharding strategy
             IIndexShardingStrategy shardingStrategy;
             IDictionary<string, string> shardingProperties = new Dictionary<string, string>();
-            foreach (KeyValuePair<string, string> entry in shardingProperties)
+            //any indexProperty will do, the indexProps[0] surely exists.
+            foreach (KeyValuePair<string, string> entry in indexProps[0])
             {
                 if (entry.Key.StartsWith(SHARDING_STRATEGY))
                 {
@@ -203,7 +231,7 @@ namespace NHibernate.Search.Store
             shardingProperties.TryGetValue(SHARDING_STRATEGY, out shardingStrategyName);
             if (string.IsNullOrEmpty(shardingStrategyName))
             {
-                if (shardingProperties.Count == 1)
+                if (indexProps.Length == 1)
                     shardingStrategy = new NotShardedStrategy();
                 else
                     shardingStrategy = new IdHashShardingStrategy();
