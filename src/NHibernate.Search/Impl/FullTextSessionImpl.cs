@@ -532,15 +532,17 @@ namespace NHibernate.Search.Impl
             return this;
         }
 
-        public void PurgeAll(System.Type entity)
+        public void PurgeAll(System.Type clazz)
         {
-            Purge(entity, null);
+            Purge(clazz, null);
         }
 
-        public void Purge(System.Type entity, object id)
+        public void Purge(System.Type clazz, object id)
         {
-            if (entity == null) return;
-            System.Type clazz = NHibernateUtil.GetClass(entity);
+            if (clazz == null)
+            {
+                return;
+            }
 
             ISearchFactoryImplementor searchFactoryImplementor = SearchFactoryImplementor;
             // TODO: Cache that at the FTSession level
@@ -550,7 +552,7 @@ namespace NHibernate.Search.Impl
             {
                 // TODO: Check to see this entity type is indexed
                 WorkType workType = id == null ? WorkType.PurgeAll : WorkType.Purge;
-                Work work = new Work(entity, id, WorkType.Index);
+                Work work = new Work(clazz, id, workType);
                 searchFactoryImplementor.Worker.PerformWork(work, eventSource);
             }
         }

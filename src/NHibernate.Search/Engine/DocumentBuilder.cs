@@ -695,7 +695,7 @@ namespace NHibernate.Search.Engine
                     break;
 
                 case WorkType.PurgeAll:
-                    queue.Add(new PurgeAllLuceneWork(entityClass));
+                    queue.Add(new PurgeAllLuceneWork((System.Type)entity));
                     break;
 
                 case WorkType.Update:

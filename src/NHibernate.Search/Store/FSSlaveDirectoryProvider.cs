@@ -177,6 +177,7 @@ namespace NHibernate.Search.Store
         }
 
         #endregion
+
         #region Property methods
 
         public Directory Directory

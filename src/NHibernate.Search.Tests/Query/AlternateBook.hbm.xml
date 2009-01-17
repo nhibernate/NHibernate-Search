@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
-				   namespace="NHibernate.Search.Tests.Queries"
+				   namespace="NHibernate.Search.Tests.Query"
 				   assembly="NHibernate.Search.Tests">
 	<class name="AlternateBook">
 		<id name="Id">

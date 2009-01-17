@@ -1,10 +1,12 @@
 using Lucene.Net.Search;
 
-namespace NHibernate.Search {
+namespace NHibernate.Search
+{
     /// <summary>
     /// The base interface for lucene powered searches.
     /// </summary>
-    public interface IFullTextQuery : IQuery {
+    public interface IFullTextQuery : IQuery
+    {
         /// <summary>
         /// Returns the number of hits for this search
         /// </summary>
@@ -18,7 +20,7 @@ namespace NHibernate.Search {
 
         /// <summary>
         /// Allows to let lucene sort the results. This is useful when you have
-        ///additional sort requirements on top of the default lucene ranking.
+        /// additional sort requirements on top of the default lucene ranking.
         /// Without lucene sorting you would have to retrieve the full result set and
         /// order the hibernate objects.
         /// </summary>

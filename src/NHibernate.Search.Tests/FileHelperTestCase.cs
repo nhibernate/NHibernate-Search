@@ -4,9 +4,11 @@ using System.Threading;
 using NHibernate.Search.Store;
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests {
+namespace NHibernate.Search.Tests 
+{
     [TestFixture]
-    public class FileHelperTestCase {
+    public class FileHelperTestCase 
+    {
         #region Setup/Teardown
 
         [SetUp]
@@ -30,7 +32,8 @@ namespace NHibernate.Search.Tests {
 
         #endregion
 
-        private void WriteFile(DirectoryInfo dir, String name) {
+        private void WriteFile(DirectoryInfo dir, String name) 
+        {
             FileInfo a = new FileInfo(Path.Combine(dir.FullName, name));
             StreamWriter os = a.CreateText();
             os.WriteLine(1);
@@ -41,7 +44,8 @@ namespace NHibernate.Search.Tests {
         }
 
         [Test]
-        public void Synchronize() {
+        public void Synchronize() 
+        {
             DirectoryInfo src = new DirectoryInfo("./filehelpersrc");
             DirectoryInfo dest = new DirectoryInfo("./filehelperdest");
             FileHelper.Synchronize(src, dest, true);

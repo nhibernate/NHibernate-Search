@@ -212,21 +212,26 @@ namespace NHibernate.Search.Backend
                 try
                 {
                     reader.Close();
-                    readers.Remove(provider);
-                    //Exit Lock added by Kailuo Wang, because the lock needs to be obtained immediately afterwards
-                    object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
-                    Monitor.Exit(syncLock);
                 }
                 catch (IOException ex)
                 {
                     throw new SearchException("Exception while closing IndexReader", ex);
                 }
-               
+                finally
+                {
+                    readers.Remove(provider);
 
+                    // PH - Moved the exit lock out of the try otherwise it won't take place when we have an error closing the reader.
+                    // Exit Lock added by Kailuo Wang, because the lock needs to be obtained immediately afterwards
+                    object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
+                    Monitor.Exit(syncLock);
+                }
             }
 
             if (writers.ContainsKey(provider))
+            {
                 return writers[provider];
+            }
 
             LockProvider(provider);
 

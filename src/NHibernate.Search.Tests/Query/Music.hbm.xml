@@ -1,15 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
 				   namespace="NHibernate.Search.Tests.Query"
-				   assembly="NHibernate.Search.Tests">
-	<class name="Book">
+				   assembly="NHibernate.Search.Tests"
+				   default-access="field.camelcase">
+	<class name="Music">
 		<id name="Id">
-			<generator class="assigned" />
+			<generator class="identity" />
 		</id>
-		<property name="Summary"/>
-		<property name="Body"/>
-		<property name="PublicationDate"/>
-		<many-to-one name="MainAuthor" column="AddressId" class="Author" />
 		<set name="Authors" cascade="all" >
 			<key column="MusicId" />
 			<many-to-many column="AuthorId" class="Author"  />

@@ -97,10 +97,15 @@
     <Compile Include="ListenerCfg\ListenerRegistrationTests.cs" />
     <Compile Include="LuceneWorker\Document.cs" />
     <Compile Include="LuceneWorker\LuceneWorker.cs" />
+    <Compile Include="PurgeTest.cs" />
     <Compile Include="Query\AlternateBook.cs" />
+    <Compile Include="Query\Author.cs" />
     <Compile Include="Query\Book.cs" />
     <Compile Include="Query\Clock.cs" />
+    <Compile Include="Query\LuceneQuerySortTest.cs" />
     <Compile Include="Query\LuceneQueryTest.cs" />
+    <Compile Include="Query\Music.cs" />
+    <Compile Include="Query\ObjectLoaderTest.cs" />
     <Compile Include="SearchTestCase.cs" />
     <Compile Include="Session\Email.cs" />
     <Compile Include="Session\MassIndexTest.cs" />
@@ -198,6 +203,12 @@
       <Project>{CC25D767-990D-4CE0-9F64-3426E244403B}</Project>
       <Name>NHibernate.Search</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Author.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Music.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

@@ -2,10 +2,10 @@
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
 				   namespace="NHibernate.Search.Tests.Query"
 				   assembly="NHibernate.Search.Tests">
-	<class name="Clock">
+	<class name="Author">
 		<id name="Id">
-			<generator class="assigned" />
+			<generator class="identity" />
 		</id>
-		<property name="Brand"/>
+		<property name="Name"/>
 	</class>
 </hibernate-mapping>

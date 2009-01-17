@@ -4,24 +4,30 @@ using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests.Queries {
+namespace NHibernate.Search.Tests.Query
+{
     [TestFixture]
-    public class LuceneQueryTest : SearchTestCase {
-        protected override IList Mappings {
-            get {
+    public class LuceneQueryTest : SearchTestCase
+    {
+        protected override IList Mappings
+        {
+            get
+            {
                 return new string[]
-                    {
-                        "Query.Book.hbm.xml",
-                        "Query.AlternateBook.hbm.xml",
-                        "Query.Clock.hbm.xml"
-                    };
+                           {
+                               "Query.Author.hbm.xml",
+                               "Query.Book.hbm.xml",
+                               "Query.AlternateBook.hbm.xml",
+                               "Query.Clock.hbm.xml"
+                           };
             }
         }
 
         [Test]
-        public void FirstMax() {
+        public void FirstMax()
+        {
             ISession sess = OpenSession();
-            Assert.AreEqual(0, sess.CreateCriteria(typeof (Clock)).List().Count);
+            Assert.AreEqual(0, sess.CreateCriteria(typeof(Clock)).List().Count);
 
             IFullTextSession s = Search.CreateFullTextSession(sess);
             ITransaction tx = s.BeginTransaction();
@@ -41,7 +47,7 @@ namespace NHibernate.Search.Tests.Queries {
             QueryParser parser = new QueryParser("title", new StopAnalyzer());
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:Festina Or Brand:Seiko");
-            IQuery hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             hibQuery.SetFirstResult(1);
             IList result = hibQuery.List();
             Assert.AreEqual(1, result.Count, "first result no max result");
@@ -67,7 +73,8 @@ namespace NHibernate.Search.Tests.Queries {
         }
 
         [Test]
-        public void Iterator() {
+        public void Iterator()
+        {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             ITransaction tx = s.BeginTransaction();
             Clock clock = new Clock(1, "Seiko");
@@ -86,15 +93,16 @@ namespace NHibernate.Search.Tests.Queries {
             QueryParser parser = new QueryParser("title", new StopAnalyzer());
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:noword");
-            IQuery hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             IEnumerator result = hibQuery.Enumerable().GetEnumerator();
             Assert.IsFalse(result.MoveNext());
 
             query = parser.Parse("Summary:Festina Or Brand:Seiko");
-            hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             result = hibQuery.Enumerable().GetEnumerator();
             int index = 0;
-            while (result.MoveNext()) {
+            while (result.MoveNext())
+            {
                 index++;
                 s.Delete(result.Current);
             }
@@ -104,7 +112,7 @@ namespace NHibernate.Search.Tests.Queries {
 
             tx = s.BeginTransaction();
             query = parser.Parse("Summary:Festina Or Brand:Seiko");
-            hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             result = hibQuery.Enumerable().GetEnumerator();
 
             Assert.IsFalse(result.MoveNext());
@@ -114,7 +122,8 @@ namespace NHibernate.Search.Tests.Queries {
         }
 
         [Test]
-        public void List() {
+        public void List()
+        {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             ITransaction tx = s.BeginTransaction();
             Clock clock = new Clock(1, "Seiko");
@@ -133,12 +142,12 @@ namespace NHibernate.Search.Tests.Queries {
             QueryParser parser = new QueryParser("title", new StopAnalyzer());
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:noword");
-            IQuery hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             IList result = hibQuery.List();
             Assert.AreEqual(0, result.Count);
 
             query = parser.Parse("Summary:Festina Or Brand:Seiko");
-            hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             result = hibQuery.List();
             Assert.AreEqual(2, result.Count, "Query with explicit class filter");
 
@@ -146,7 +155,8 @@ namespace NHibernate.Search.Tests.Queries {
             hibQuery = s.CreateFullTextQuery(query);
             result = hibQuery.List();
             Assert.AreEqual(2, result.Count, "Query with no class filter");
-            foreach (Object element in result) {
+            foreach (Object element in result)
+            {
                 Assert.IsTrue(NHibernateUtil.IsInitialized(element));
                 s.Delete(element);
             }
@@ -165,7 +175,8 @@ namespace NHibernate.Search.Tests.Queries {
         }
 
         [Test]
-        public void MultipleEntityPerIndex() {
+        public void MultipleEntityPerIndex()
+        {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             ITransaction tx = s.BeginTransaction();
             Clock clock = new Clock(1, "Seiko");
@@ -183,20 +194,20 @@ namespace NHibernate.Search.Tests.Queries {
             QueryParser parser = new QueryParser("Title", new StopAnalyzer());
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:Festina");
-            IQuery hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             IList result = hibQuery.List();
 
             Assert.AreEqual(1, result.Count, "Query with explicit class filter");
 
             query = parser.Parse("Summary:Festina");
-            hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             IEnumerator it = hibQuery.Enumerable().GetEnumerator();
             Assert.IsTrue(it.MoveNext());
             Assert.IsNotNull(it.Current);
             Assert.IsFalse(it.MoveNext());
 
             query = parser.Parse("Summary:Festina OR Brand:seiko");
-            hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             hibQuery.SetMaxResults(2);
             result = hibQuery.List();
             Assert.AreEqual(2, result.Count, "Query with explicit class filter and limit");
@@ -205,7 +216,8 @@ namespace NHibernate.Search.Tests.Queries {
             hibQuery = s.CreateFullTextQuery(query);
             result = hibQuery.List();
             Assert.AreEqual(2, result.Count, "Query with no class filter");
-            foreach (Object element in result) {
+            foreach (Object element in result)
+            {
                 Assert.IsTrue(NHibernateUtil.IsInitialized(element));
                 s.Delete(element);
             }
@@ -215,7 +227,8 @@ namespace NHibernate.Search.Tests.Queries {
         }
 
         [Test]
-        public void ResultSize() {
+        public void ResultSize()
+        {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             ITransaction tx = s.BeginTransaction();
             Clock clock = new Clock(1, "Seiko");
@@ -234,17 +247,18 @@ namespace NHibernate.Search.Tests.Queries {
             QueryParser parser = new QueryParser("title", new StopAnalyzer());
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:noword");
-            IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             Assert.AreEqual(0, hibQuery.ResultSize);
 
             query = parser.Parse("Summary:Festina Or Brand:Seiko");
-            hibQuery = s.CreateFullTextQuery(query, typeof (Clock), typeof (Book));
+            hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
             Assert.AreEqual(2, hibQuery.ResultSize, "Query with explicit class filter");
 
             query = parser.Parse("Summary:Festina Or Brand:Seiko");
             hibQuery = s.CreateFullTextQuery(query);
             Assert.AreEqual(2, hibQuery.ResultSize, "Query with no class filter");
-            foreach (Object element in hibQuery.List()) {
+            foreach (Object element in hibQuery.List())
+            {
                 Assert.IsTrue(NHibernateUtil.IsInitialized(element));
                 s.Delete(element);
             }
@@ -262,14 +276,15 @@ namespace NHibernate.Search.Tests.Queries {
         }
 
         [Test]
-        public void UsingCriteriaApi() {
+        public void UsingCriteriaApi()
+        {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             ITransaction tx = s.BeginTransaction();
             Clock clock = new Clock(1, "Seiko");
             s.Save(clock);
             tx.Commit();
 
-            IList list = s.CreateCriteria(typeof (Clock))
+            IList list = s.CreateCriteria(typeof(Clock))
                 .Add(SearchRestrictions.Query("Brand:seiko"))
                 .List();
             Assert.AreEqual(1, list.Count, "should get result back from query");
