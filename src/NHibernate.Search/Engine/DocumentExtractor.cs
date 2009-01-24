@@ -20,7 +20,7 @@ namespace NHibernate.Search.Engine
             EntityInfo entityInfo = new EntityInfo();
             entityInfo.Clazz = DocumentBuilder.GetDocumentClass(document);
             entityInfo.Id = DocumentBuilder.GetDocumentId(searchFactoryImplementor, entityInfo.Clazz, document);
-            if (projection != null && projection.GetUpperBound(0) > 0)
+            if (projection != null && projection.Length > 0)
             {
                 entityInfo.Projection = DocumentBuilder.GetDocumentFields(searchFactoryImplementor, entityInfo.Clazz,
                                                                           document, projection);
@@ -35,39 +35,41 @@ namespace NHibernate.Search.Engine
             EntityInfo entityInfo = Extract(doc);
             object[] eip = entityInfo.Projection;
 
-            if (eip != null && eip.GetUpperBound(0) > 0)
+            if (eip != null && eip.Length > 0)
             {
-                for (int x = 0; x < projection.GetUpperBound(0); x++)
+                for (int x = 0; x < projection.Length; x++)
                 {
-                    if (ProjectionConstants.SCORE.Equals(projection[x]))
+                    switch (projection[x])
                     {
-                        eip[x] = hits.Score(index);
-                    }
-                    else if (ProjectionConstants.ID.Equals(projection[x]))
-                    {
-                        eip[x] = entityInfo.Id;
-                    }
-                    else if (ProjectionConstants.DOCUMENT.Equals(projection[x]))
-                    {
-                        eip[x] = doc;
-                    }
-                    else if (ProjectionConstants.DOCUMENT_ID.Equals(projection[x]))
-                    {
-                        eip[x] = hits.Id(index);
-                    }
-                    else if (ProjectionConstants.BOOST.Equals(projection[x]))
-                    {
-                        eip[x] = doc.GetBoost();
-                    }
-                    else if (ProjectionConstants.THIS.Equals(projection[x]))
-                    {
-                        //THIS could be projected more than once
-                        //THIS loading delayed to the Loader phase
-                        if (entityInfo.IndexesOfThis == null)
-                        {
-                            entityInfo.IndexesOfThis = new List<int>(1);
-                        }
-                        entityInfo.IndexesOfThis.Add(x);
+                        case ProjectionConstants.SCORE:
+                            eip[x] = hits.Score(index);
+                            break;
+
+                        case ProjectionConstants.ID:
+                            eip[x] = entityInfo.Id;
+                            break;
+
+                        case ProjectionConstants.DOCUMENT:
+                            eip[x] = doc;
+                            break;
+
+                        case ProjectionConstants.DOCUMENT_ID:
+                            eip[x] = hits.Id(index);
+                            break;
+
+                        case ProjectionConstants.BOOST:
+                            eip[x] = doc.GetBoost();
+                            break;
+
+                        case ProjectionConstants.THIS:
+                            //THIS could be projected more than once
+                            //THIS loading delayed to the Loader phase
+                            if (entityInfo.IndexesOfThis == null)
+                            {
+                                entityInfo.IndexesOfThis = new List<int>(1);
+                            }
+                            entityInfo.IndexesOfThis.Add(x);
+                            break;
                     }
                 }
             }

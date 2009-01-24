@@ -787,8 +787,7 @@ namespace NHibernate.Search.Engine
             DocumentBuilder builder;
             if (!searchFactoryImplementor.DocumentBuilders.TryGetValue(clazz, out builder))
                 throw new SearchException("No Lucene configuration set up for: " + clazz.Name);
-            int fieldNbr = fields.GetUpperBound(0);
-            object[] result = new Object[fieldNbr];
+            object[] result = new object[fields.Length];
 
             if (builder.idKeywordName != null)
             {
