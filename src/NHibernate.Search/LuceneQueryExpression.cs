@@ -10,6 +10,8 @@ using NHibernate.SqlCommand;
 
 namespace NHibernate.Search
 {
+    using Query;
+
     public class LuceneQueryExpression : InExpression
     {
         private readonly Lucene.Net.Search.Query luceneQuery;
@@ -26,7 +28,7 @@ namespace NHibernate.Search
             System.Type type = GetCriteriaClass(criteria);
             ISearchFactoryImplementor searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
             ISet<System.Type> types;
-            Searcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out types, type);
+            IndexSearcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out types, type);
             if (searcher == null)
                 throw new SearchException("Could not find a searcher for class: " + type.FullName);
             Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(types, luceneQuery);
@@ -44,17 +46,13 @@ namespace NHibernate.Search
         private static System.Type GetCriteriaClass(ICriteria criteria)
         {
             CriteriaImpl impl = criteria as CriteriaImpl;
-            if (impl != null)
-                return impl.CriteriaClass;
-            return GetCriteriaClass(((CriteriaImpl.Subcriteria) criteria).Parent);
+            return impl != null ? impl.CriteriaClass : GetCriteriaClass(((CriteriaImpl.Subcriteria) criteria).Parent);
         }
 
         public ISession GetSession(ICriteria criteria)
         {
             CriteriaImpl impl = criteria as CriteriaImpl;
-            if (impl != null)
-                return impl.Session.GetSession();
-            return GetSession(((CriteriaImpl.Subcriteria) criteria).Parent);
+            return impl != null ? impl.Session.GetSession() : this.GetSession(((CriteriaImpl.Subcriteria) criteria).Parent);
         }
     }
 }

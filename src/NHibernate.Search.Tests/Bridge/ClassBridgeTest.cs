@@ -1,11 +1,16 @@
-using System.Collections;
-using Lucene.Net.Analysis;
-using Lucene.Net.QueryParsers;
-using NHibernate.Cfg;
-using NUnit.Framework;
-
 namespace NHibernate.Search.Tests.Bridge
 {
+    using System.Collections;
+
+    using Lucene.Net.Analysis;
+    using Lucene.Net.Documents;
+    using Lucene.Net.QueryParsers;
+    using Lucene.Net.Search;
+
+    using NHibernate.Cfg;
+
+    using NUnit.Framework;
+
     /// <summary>
     /// This tests that a field created by a user-supplied
     /// EquipmentType class has been created and is a translation
@@ -17,7 +22,8 @@ namespace NHibernate.Search.Tests.Bridge
         protected override void Configure(Configuration configuration)
         {
             base.Configure(configuration);
-            configuration.SetProperty(Environment.AnalyzerClass, typeof(SimpleAnalyzer).AssemblyQualifiedName);
+            configuration.SetProperty(
+                    NHibernate.Search.Environment.AnalyzerClass, typeof(SimpleAnalyzer).AssemblyQualifiedName);
         }
 
         protected override IList Mappings
@@ -119,11 +125,11 @@ namespace NHibernate.Search.Tests.Bridge
         [Test]
         public void ClassBridge()
         {
-            ISession s = OpenSession();
+            ISession s = this.OpenSession();
             ITransaction tx = s.BeginTransaction();
-            s.Save(getDept1());
-            s.Save(getDept2());
-            s.Save(getDept3());
+            s.Save(this.getDept1());
+            s.Save(this.getDept2());
+            s.Save(this.getDept3());
             s.Flush();
             tx.Commit();
 
@@ -136,12 +142,12 @@ namespace NHibernate.Search.Tests.Bridge
             // Department entity itself.
             QueryParser parser = new QueryParser("branchnetwork", new SimpleAnalyzer());
 
-            Lucene.Net.Search.Query query = parser.Parse("branchnetwork:layton 2B");
+            Query query = parser.Parse("branchnetwork:layton 2B");
             IFullTextQuery hibQuery = session.CreateFullTextQuery(query);
             IList result = hibQuery.List();
             Assert.IsNotNull(result);
-            Assert.AreEqual("2B", ((Department) result[0]).Network, "incorrect entity returned, wrong network");
-            Assert.AreEqual("Layton", ((Department) result[0]).Branch, "incorrect entity returned, wrong branch");
+            Assert.AreEqual("2B", ((Department)result[0]).Network, "incorrect entity returned, wrong network");
+            Assert.AreEqual("Layton", ((Department)result[0]).Branch, "incorrect entity returned, wrong branch");
             Assert.AreEqual(1, result.Count, "incorrect number of results returned");
 
             // Partial match.
@@ -149,8 +155,8 @@ namespace NHibernate.Search.Tests.Bridge
             hibQuery = session.CreateFullTextQuery(query);
             result = hibQuery.List();
             Assert.IsNotNull(result);
-            Assert.AreEqual("3C", ((Department) result[0]).Network, "incorrect entity returned, wrong network");
-            Assert.AreEqual("West Valley", ((Department) result[0]).Branch, "incorrect entity returned, wrong branch");
+            Assert.AreEqual("3C", ((Department)result[0]).Network, "incorrect entity returned, wrong network");
+            Assert.AreEqual("West Valley", ((Department)result[0]).Branch, "incorrect entity returned, wrong branch");
             Assert.AreEqual(1, result.Count, "incorrect number of results returned");
 
             // No data cross-ups .
@@ -167,11 +173,13 @@ namespace NHibernate.Search.Tests.Bridge
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count == 1, "incorrect entity returned, wrong branch head");
-            Assert.AreEqual("Kent Lewin", ((Department) result[0]).BranchHead, "incorrect entity returned");
+            Assert.AreEqual("Kent Lewin", ((Department)result[0]).BranchHead, "incorrect entity returned");
 
             // Cleanup
             foreach (object element in s.CreateQuery("from " + typeof(Department).FullName).List())
+            {
                 s.Delete(element);
+            }
             tx.Commit();
             s.Close();
         }
@@ -179,12 +187,12 @@ namespace NHibernate.Search.Tests.Bridge
         [Test]
         public void ClassBridges()
         {
-            ISession s = OpenSession();
+            ISession s = this.OpenSession();
             ITransaction tx = s.BeginTransaction();
-            s.Save(getDepts1());
-            s.Save(getDepts2());
-            s.Save(getDepts3());
-            s.Save(getDepts4());
+            s.Save(this.getDepts1());
+            s.Save(this.getDepts2());
+            s.Save(this.getDepts3());
+            s.Save(this.getDepts4());
             s.Flush();
             tx.Commit();
 
@@ -198,7 +206,7 @@ namespace NHibernate.Search.Tests.Bridge
             QueryParser parser = new QueryParser("equipment", new SimpleAnalyzer());
 
             // Check the second ClassBridge annotation
-            Lucene.Net.Search.Query query = parser.Parse("equiptype:Cisco");
+            Query query = parser.Parse("equiptype:Cisco");
             IFullTextQuery hibQuery = session.CreateFullTextQuery(query);
             IList result = hibQuery.List();
             Assert.IsNotNull(result);
@@ -222,7 +230,7 @@ namespace NHibernate.Search.Tests.Bridge
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count == 1, "incorrect entity returned, wrong branch head");
-            Assert.AreEqual("Kent Lewin", ((Departments) result[0]).BranchHead, "incorrect entity returned");
+            Assert.AreEqual("Kent Lewin", ((Departments)result[0]).BranchHead, "incorrect entity returned");
 
             // Check other ClassBridge annotation.
             parser = new QueryParser("branchnetwork", new SimpleAnalyzer());
@@ -230,20 +238,93 @@ namespace NHibernate.Search.Tests.Bridge
             hibQuery = session.CreateFullTextQuery(query);
             result = hibQuery.List();
             Assert.IsNotNull(result);
-            Assert.AreEqual("1D", ((Departments) result[0]).Network, "incorrect entity returned, wrong network");
-            Assert.AreEqual("St. George", ((Departments) result[0]).Branch, "incorrect entity returned, wrong branch");
+            Assert.AreEqual("1D", ((Departments)result[0]).Network, "incorrect entity returned, wrong network");
+            Assert.AreEqual("St. George", ((Departments)result[0]).Branch, "incorrect entity returned, wrong branch");
             Assert.AreEqual(1, result.Count, "incorrect number of results returned");
 
             // Cleanup
             foreach (object element in s.CreateQuery("from " + typeof(Departments).FullName).List())
+            {
                 s.Delete(element);
+            }
             tx.Commit();
             s.Close();
         }
 
-        [Test, Ignore("Projection functionality not implemented yet")]
+        [Test]
+        [Ignore("Projection functionality not implemented yet")]
         public void ClassBridgesWithProjection()
         {
+            ISession s = this.OpenSession();
+            ITransaction tx = s.BeginTransaction();
+            s.Save(this.getDepts1());
+            s.Save(this.getDepts2());
+            s.Save(this.getDepts3());
+            s.Save(this.getDepts4());
+            s.Flush();
+            tx.Commit();
+
+            tx = s.BeginTransaction();
+            IFullTextSession session = Search.CreateFullTextSession(s);
+
+            // The equipment field is the manufacturer field  in the
+            // Departments entity after being massaged by passing it
+            // through the EquipmentType class. This field is in
+            // the Lucene document but not in the Department entity itself.
+            QueryParser parser = new QueryParser("equipment", new SimpleAnalyzer());
+
+            // Check the second ClassBridge annotation
+            Query query = parser.Parse("equiptype:Cisco");
+            IFullTextQuery hibQuery = session.CreateFullTextQuery(query, typeof(Departments));
+
+            hibQuery.SetProjection(ProjectionConstants.THIS, ProjectionConstants.DOCUMENT);
+
+            IList projections = hibQuery.List();
+            Assert.IsNotNull(projections);
+
+            //projections.BeforeFirst();
+            //projections.Next();
+            object[] projection = (object[])projections[0];
+
+            Assert.IsTrue(projection[0] is Departments, "DOCUMENT incorrect");
+            Assert.AreEqual(1, ((Departments)projection[0]).Id, "id incorrect");
+            Assert.IsTrue(projection[1] is Document, "DOCUMENT incorrect");
+            Assert.AreEqual(8, ((Document)projection[1]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.IsNotNull(((Document)projection[1]).GetField("equiptype"), "equiptype is null");
+            Assert.AreEqual(
+                    "Cisco", ((Document)projection[1]).GetField("equiptype").StringValue(), "equiptype incorrect");
+            Assert.IsNotNull(((Document)projection[1]).GetField("branchnetwork"), "branchnetwork is null");
+            Assert.AreEqual(
+                    "Salt Lake City 1A",
+                    ((Document)projection[1]).GetField("branchnetwork").StringValue(),
+                    "branchnetwork incorrect");
+
+            projection = (object[])projections[1];
+            //projections.next();
+            //projection = projections.get();
+
+            Assert.IsTrue(projection[0] is Departments, "DOCUMENT incorrect");
+            Assert.AreEqual(4, ((Departments)projection[0]).Id, "id incorrect");
+            Assert.IsTrue(projection[1] is Document, "DOCUMENT incorrect");
+            Assert.AreEqual(8, ((Document)projection[1]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.IsNotNull(((Document)projection[1]).GetField("equiptype"), "equiptype is null");
+            Assert.AreEqual(
+                    "Cisco", ((Document)projection[1]).GetField("equiptype").StringValue(), "equiptype incorrect");
+            Assert.IsNotNull(((Document)projection[1]).GetField("branchnetwork"), "branchnetwork is null");
+            Assert.AreEqual(
+                    "St. George 1D",
+                    ((Document)projection[1]).GetField("branchnetwork").StringValue(),
+                    "branchnetwork incorrect");
+
+            Assert.AreEqual(2, projections.Count, "incorrect result count returned");
+            //Assert.IsTrue("incorrect result count returned", projections.isLast());
+            //cleanup
+            foreach (object element in s.CreateQuery("from " + typeof(Departments).FullName).List())
+            {
+                s.Delete(element);
+            }
+            tx.Commit();
+            s.Close();
         }
     }
 }

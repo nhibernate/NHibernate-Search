@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Iesi.Collections.Generic;
 using log4net;
-using Lucene.Net.Documents;
 using Lucene.Net.Search;
-using NHibernate.Engine;
 using NHibernate.Engine.Query;
 using NHibernate.Impl;
 using NHibernate.Search.Engine;
@@ -15,15 +13,28 @@ using NHibernate.Search.Util;
 
 namespace NHibernate.Search.Query
 {
+    using Filter;
+
+    using NHibernate.Util;
+
+    using Transform;
+
     public class FullTextQueryImpl : AbstractQueryImpl, IFullTextQuery
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(FullTextQueryImpl));
+        private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
         private readonly Lucene.Net.Search.Query luceneQuery;
-        private readonly System.Type[] classes;
+        private System.Type[] classes;
         private ISet<System.Type> classesAndSubclasses;
-        private int resultSize = -1;
+        private int resultSize;
         private Sort sort;
+        private Lucene.Net.Search.Filter filter;
+        private ICriteria criteria;
+        private string[] indexProjection;
+        private IResultTransformer resultTransformer;        
         private ISearchFactoryImplementor searchFactoryImplementor;
+
+        #region Constructors
 
         /// <summary>
         /// classes must be immutable
@@ -33,12 +44,133 @@ namespace NHibernate.Search.Query
             : base(query.ToString(), FlushMode.Unspecified, session.GetSessionImplementation(), parameterMetadata)
         {
             luceneQuery = query;
+            resultSize = -1;
             this.classes = classes;
+            this.filterDefinitions = new Dictionary<string, FullTextFilterImpl>();
+        }
+
+        #endregion
+
+        public IFullTextQuery SetSort(Sort value)
+        {
+            this.sort = value;
+            return this;
+        }
+
+        public IFullTextQuery SetFilter(Lucene.Net.Search.Filter value)
+        {
+            this.filter = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Return an interator on the results.
+        /// Retrieve the object one by one (initialize it during the next() operation)
+        /// </summary>
+        public override IEnumerable<T> Enumerable<T>()
+        {
+            //implement an interator which keep the id/class for each hit and get the object on demand
+            //cause I can't keep the searcher and hence the hit opened. I dont have any hook to know when the
+            //user stop using it
+            //scrollable is better in this area
+
+            //find the directories
+            IndexSearcher searcher = BuildSearcher();
+            if (searcher == null)
+            {
+                return new IteratorImpl<T>(new List<EntityInfo>(), noLoader).Iterate();
+            }
+
+            try
+            {
+                Hits hits = GetHits(searcher);
+                SetResultSize(hits);
+                int first = First();
+                int max = Max(first, hits);
+
+                int size = max - first + 1 < 0 ? 0 : max - first + 1;
+                IList<EntityInfo> infos = new List<EntityInfo>(size);
+                DocumentExtractor extractor = new DocumentExtractor(SearchFactory, indexProjection);
+                for (int index = first; index <= max; index++)
+                {
+                    //TODO use indexSearcher.getIndexReader().document( hits.id(index), FieldSelector(indexProjection) );
+                    infos.Add(extractor.Extract(hits, index));
+                }
+                return new IteratorImpl<T>(infos, this.GetLoader(Session.GetSession())).Iterate();
+            }
+            catch (IOException e)
+            {
+                throw new HibernateException("Unable to query Lucene index", e);
+            }
+            finally
+            {
+                CloseSearcher(searcher);
+            }
+        }
+
+        public override IEnumerable Enumerable()
+        {
+            return Enumerable<object>();
+        }
+
+        private ILoader GetLoader(ISession session)
+        {
+            if (indexProjection != null)
+            {
+                ProjectionLoader loader = new ProjectionLoader();
+                loader.Init(session, SearchFactory, resultTransformer, indexProjection);
+                return loader;
+            }
+
+            if (criteria != null)
+            {
+                if (classes.GetLength(0) > 1)
+                    throw new SearchException("Cannot mix criteria and multiple entity types");
+
+                if (criteria is CriteriaImpl)
+                {
+                    string targetEntity = ((CriteriaImpl)criteria).EntityOrClassName;
+                    if (classes.GetLength(0) == 1 && classes[0].Name != targetEntity)
+                    {
+                        throw new SearchException("Criteria query entity should match query entity");
+                    }
+
+                    try
+                    {
+                        System.Type entityType = ReflectHelper.ClassForName(targetEntity);
+                        classes = new System.Type[] {entityType};
+                    }
+                    catch (Exception e)
+                    {
+                        throw new SearchException("Unable to load indexed class: " + targetEntity, e);
+                    }
+                }
+
+                QueryLoader loader = new QueryLoader();
+                loader.Init(session, searchFactoryImplementor);
+                loader.EntityType = classes[0];
+                loader.Criteria = criteria;
+                return loader;
+            }
+
+            if (classes.GetLength(0) == 1)
+            {
+                QueryLoader loader = new QueryLoader();
+                loader.Init(session, searchFactoryImplementor);
+                loader.EntityType = classes[0];
+                return loader;
+            }
+            else
+            {
+                ObjectLoader loader = new ObjectLoader();
+                loader.Init(session, searchFactoryImplementor);
+                return loader;
+            }
         }
 
         protected override IDictionary LockModes
         {
-            get { throw new NotImplementedException("Full Text Query doesn't support lock modes"); }
+            get { return null; }
         }
 
         private ISearchFactoryImplementor SearchFactory
@@ -51,8 +183,6 @@ namespace NHibernate.Search.Query
             }
         }
 
-        #region IFullTextQuery Members
-
         public int ResultSize
         {
             get
@@ -60,7 +190,7 @@ namespace NHibernate.Search.Query
                 if (resultSize < 0)
                 {
                     //get result size without object initialization
-                    Searcher searcher = BuildSearcher();
+                    IndexSearcher searcher = BuildSearcher();
 
                     if (searcher == null)
                         resultSize = 0;
@@ -82,53 +212,6 @@ namespace NHibernate.Search.Query
             }
         }
 
-        public override IEnumerable Enumerable()
-        {
-            return Enumerable<object>();
-        }
-
-        /// <summary>
-        /// Return an interator on the results.
-        /// Retrieve the object one by one (initialize it during the next() operation)
-        /// </summary>
-        public override IEnumerable<T> Enumerable<T>()
-        {
-            //implement an interator which keep the id/class for each hit and get the object on demand
-            //cause I can't keep the searcher and hence the hit opened. I dont have any hook to know when the
-            //user stop using it
-            //scrollable is better in this area
-
-            //find the directories
-            Searcher searcher = BuildSearcher();
-            if (searcher == null)
-                return new IteratorImpl<T>(new List<EntityInfo>(), Session.GetSession()).Iterate();
-            try
-            {
-                Hits hits = GetHits(searcher);
-                SetResultSize(hits);
-                int first = First();
-                int max = Max(first, hits);
-                IList<EntityInfo> entityInfos = new List<EntityInfo>(max - first + 1);
-                for (int index = first; index <= max; index++)
-                {
-                    Document document = hits.Doc(index);
-                    EntityInfo entityInfo = new EntityInfo();
-                    entityInfo.clazz = DocumentBuilder.GetDocumentClass(document);
-                    entityInfo.id = DocumentBuilder.GetDocumentId(searchFactoryImplementor, entityInfo.clazz, document);
-                    entityInfos.Add(entityInfo);
-                }
-                return new IteratorImpl<T>(entityInfos, Session.GetSession()).Iterate();
-            }
-            catch (IOException e)
-            {
-                throw new HibernateException("Unable to query Lucene index", e);
-            }
-            finally
-            {
-                CloseSearcher(searcher);
-            }
-        }
-
         public override IList<T> List<T>()
         {
             ArrayList arrayList = new ArrayList();
@@ -146,39 +229,40 @@ namespace NHibernate.Search.Query
         public override void List(IList list)
         {
             //find the directories
-            Searcher searcher = BuildSearcher();
+            IndexSearcher searcher = BuildSearcher();
             if (searcher == null)
+            {
                 return;
+            }
+            
             try
             {
                 Hits hits = GetHits(searcher);
                 SetResultSize(hits);
                 int first = First();
                 int max = Max(first, hits);
+                ISession sess = (ISession) Session;
+                DocumentExtractor extractor = new DocumentExtractor(SearchFactory, indexProjection);
+                ILoader loader = this.GetLoader(sess);                
                 for (int index = first; index <= max; index++)
                 {
-                    Document document = hits.Doc(index);
-                    System.Type clazz = DocumentBuilder.GetDocumentClass(document);
-                    object id = DocumentBuilder.GetDocumentId(SearchFactory, clazz, document);
-                    list.Add(Session.GetSession().Load(clazz, id));
-                    //use load to benefit from the batch-size
-                    //we don't face proxy casting issues since the exact class is extracted from the index
+                    list.Add(loader.Load(extractor.Extract(hits, index)));
                 }
-                //then initialize the objects
-                IList excludedObects = new ArrayList();
-                foreach (Object element in list)
-                    try
+
+                if (resultTransformer == null || loader is ProjectionLoader)
+                {
+                    // stay consistent with transformTuple which can only be executed during a projection
+                }
+                else
+                {
+                    IList tempList = resultTransformer.TransformList(list);
+                    list.Clear();
+                    foreach (object entity in tempList)
                     {
-                        NHibernateUtil.Initialize(element);
+                        list.Add(entity);
                     }
-                    catch (ObjectNotFoundException e)
-                    {
-                        log.Debug("Object found in Search index but not in database: "
-                                  + e.PersistentClass + " with id " + e.Identifier);
-                        excludedObects.Add(element);
-                    }
-                foreach (object excludedObect in excludedObects)
-                    list.Remove(excludedObect);
+                }
+                
             }
             catch (IOException e)
             {
@@ -192,50 +276,219 @@ namespace NHibernate.Search.Query
 
         public override IQuery SetLockMode(string alias, LockMode lockMode)
         {
-            throw new NotImplementedException("Full Text Query doesn't support lock modes");
-        }
-
-        public IFullTextQuery SetSort(Sort sort)
-        {
-            this.sort = sort;
-            return this;
+            return null;
         }
 
         public override int ExecuteUpdate()
         {
-            // TODO: Implement FullTextQueryImpl.ExecuteUpdate()
-            throw new NotImplementedException("Implement FullTextQueryImpl.ExecuteUpdate()");
+            throw new HibernateException("Not supported operation");
         }
 
-        #endregion
+        public IFullTextQuery SetCriteriaQuery(ICriteria value)
+        {
+            this.criteria = value;
+            return this;
+        }
+
+        public IFullTextQuery SetProjection(params string[] fields)
+        {
+            if (fields == null || fields.Length == 0)
+                this.indexProjection = null;
+            else
+                this.indexProjection = fields;
+
+            return this;
+        }
+
+        public IFullTextFilter EnableFullTextFilter(string name)
+        {
+            FullTextFilterImpl filterDefinition;
+            if (filterDefinitions.TryGetValue(name, out filterDefinition))
+                return filterDefinition;
+
+            filterDefinition = new FullTextFilterImpl();
+            filterDefinition.Name = name;
+            FilterDef filterDef = SearchFactory.GetFilterDefinition(name);
+            if (filterDef == null)
+                throw new SearchException("Unknown FullTextFilter: " + name);
+
+            filterDefinitions[name] = filterDefinition;
+
+            return filterDefinition;
+        }
+
+        public void DisableFullTextFilter(string name)
+        {
+            filterDefinitions.Remove(name);
+        }
+
+        public new IFullTextQuery SetFirstResult(int value)
+        {
+            // NB Base owns this value via Selection instance
+            base.SetFirstResult(value);
+            return this;
+        }
+
+        public new IFullTextQuery SetMaxResults(int value)
+        {
+            // NB Base owns this value via Selection instance
+            base.SetMaxResults(value);
+            return this;
+        }
+
+        public new IFullTextQuery SetFetchSize(int value)
+        {
+            // NB Base owns this value via Selection instance
+            base.SetFetchSize(value);
+            return this;
+        }
+
+        public new IFullTextQuery SetResultTransformer(IResultTransformer transformer)
+        {
+            base.SetResultTransformer(transformer);
+            this.resultTransformer = resultTransformer;
+            return this;
+        }
 
         private Hits GetHits(Searcher searcher)
         {
             Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
-            return searcher.Search(query, null, sort);
+            BuildFilters();
+            Hits hits = searcher.Search(query, this.filter, this.sort);
+            this.SetResultSize(hits);
+
+            return hits;
         }
 
-        private void CloseSearcher(Searcher searcher)
+        private void BuildFilters()
         {
-            if (searcher != null)
-                try
+            if (filterDefinitions.Count > 0)
+            {
+                ChainedFilter chainedFilter = new ChainedFilter();
+                foreach (FullTextFilterImpl filterDefinition in filterDefinitions.Values)
                 {
-                    searcher.Close();
+                    FilterDef def = SearchFactory.GetFilterDefinition(filterDefinition.Name);
+                    object instance;
+                    try
+                    {
+                        instance = Activator.CreateInstance(def.Impl);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new HibernateException("Unable to instantiate FullTextFilterDef: " + def.Impl.FullName, e);
+                    }
+
+                    foreach (KeyValuePair<string,object> entry in filterDefinition.Parameters)
+                    {
+                        def.Invoke(entry.Key, instance, entry.Value);
+                    }
+
+                    if (def.Cache && def.KeyMethod == null && filterDefinition.Parameters.Count > 0)
+                        throw new SearchException("Filter with parameters and no Key method: " + filterDefinition.Name);
+
+                    FilterKey key = null;
+                    if (def.Cache)
+                    {
+                        if (def.KeyMethod == null)
+                        {
+                            key = new ImplFilterKey();
+                        }
+                        else
+                        {
+                            try
+                            {
+                                key = (FilterKey)def.KeyMethod.Invoke(null, new object[] { instance });
+                            }
+                            catch (InvalidCastException)
+                            {
+                                throw new SearchException("Key method does not return FilterKey: " + def.Impl.Name + "." + def.KeyMethod.Name);
+                            }
+                            // TODO: More specific exception filtering here
+                            catch (Exception e)
+                            {
+                                throw new SearchException("Error accessing Key method: " + def.Impl.Name + "." + def.KeyMethod.Name, e);
+                            }
+                        }
+
+                        key.Impl = def.Impl;
+                    }
+
+                    Lucene.Net.Search.Filter f = def.Cache
+                                                 ? SearchFactory.GetFilterCachingStrategy().GetCachedFilter(key)
+                                                 : null;
+
+                    if (f == null)
+                    {
+                        if (def.FactoryMethod != null)
+                        {
+                            try
+                            {
+                                f = (Lucene.Net.Search.Filter)def.FactoryMethod.Invoke(null, new object[] { instance });
+                            }
+                            catch (InvalidCastException)
+                            {
+                                throw new SearchException("Factory method does not return Lucene.Net.Search.Filter: " + def.FactoryMethod.Name);
+                            }
+                            // TODO: More specific exception filtering here
+                            catch (Exception e)
+                            {
+                                throw new SearchException("Error accessing Factory method: " + def.FactoryMethod.Name, e);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                f = (Lucene.Net.Search.Filter) instance;
+                            }
+                            catch (InvalidCastException)
+                            {
+                                throw new SearchException("Class is not a Lucene.Net.Search.Filter: " + def.Impl.Name);
+                            }
+                        }
+                        if (def.Cache)
+                        {
+                            SearchFactory.GetFilterCachingStrategy().AddCachedFilter(key, f);
+                        }
+                    }
+
+                    chainedFilter.AddFilter(f);
                 }
-                catch (IOException e)
-                {
-                    log.Warn("Unable to properly close searcher during lucene query: " + QueryString, e);
-                }
+
+                if (filter != null)
+                    chainedFilter.AddFilter(filter);
+
+                filter = chainedFilter;
+            }
         }
 
-        private Searcher BuildSearcher()
+        private void CloseSearcher(IndexSearcher searcher)
         {
+            if (searcher == null)
+            {
+                return;
+            }
+
+            try
+            {
+                //SearchFactory.GetReaderProvider().CloseReader(searcher.GetIndexReader());
+                searcher.Close();
+            }
+            catch (IOException e)
+            {
+                log.Warn("Unable to properly close searcher during lucene query: " + QueryString, e);
+            }
+        }
+
+        private IndexSearcher BuildSearcher()
+        {
+            // Java version is inline, but we need the same code in LuceneQueryExpression
             return FullTextSearchHelper.BuildSearcher(SearchFactory, out classesAndSubclasses, classes);
         }
 
         private int Max(int first, Hits hits)
         {
-            if (Selection.MaxRows == RowSelection.NoValue)
+            if (Selection.MaxRows == NHibernate.Engine.RowSelection.NoValue)
                 return hits.Length() - 1;
 
             if (Selection.MaxRows + first < hits.Length())
@@ -246,23 +499,41 @@ namespace NHibernate.Search.Query
 
         private int First()
         {
-            return Selection.FirstRow != RowSelection.NoValue ? Selection.FirstRow : 0;
+            return Selection.FirstRow != NHibernate.Engine.RowSelection.NoValue ? Selection.FirstRow : 0;
         }
-
-        //TODO change classesAndSubclasses by side effect, which is a mismatch with the Searcher return, fix that.
 
         private void SetResultSize(Hits hits)
         {
             resultSize = hits.Length();
         }
 
-        #region Nested type: EntityInfo
+        #region Nested type: ImplFilterKey
 
-        private class EntityInfo
+        private class ImplFilterKey : FilterKey
         {
-            public System.Type clazz;
-            public object id;
         }
+
+        #endregion
+
+        #region Nested type: NoLoader
+
+        private static readonly ILoader noLoader = new NoLoader();
+
+	    private class NoLoader : ILoader
+        {
+	        public void Init(ISession session, ISearchFactoryImplementor searchFactoryImplementor) {
+		    }
+
+		    public object Load(EntityInfo entityInfo) 
+            {
+			    throw new NotSupportedException( "noLoader should not be used" );
+		    }
+
+            public IList Load(params EntityInfo[] entityInfos)
+            {
+			    throw new NotSupportedException( "noLoader should not be used" );
+		    }
+        };
 
         #endregion
 
@@ -271,18 +542,18 @@ namespace NHibernate.Search.Query
         private class IteratorImpl<T>
         {
             private readonly IList<EntityInfo> entityInfos;
-            private readonly ISession session;
+            private readonly ILoader loader;
 
-            public IteratorImpl(IList<EntityInfo> entityInfos, ISession session)
+            public IteratorImpl(IList<EntityInfo> entityInfos, ILoader loader)
             {
                 this.entityInfos = entityInfos;
-                this.session = session;
+                this.loader = loader;
             }
 
             public IEnumerable<T> Iterate()
             {
                 foreach (EntityInfo entityInfo in entityInfos)
-                    yield return (T) session.Load(entityInfo.clazz, entityInfo.id);
+                    yield return (T) loader.Load(entityInfo);
             }
         }
 

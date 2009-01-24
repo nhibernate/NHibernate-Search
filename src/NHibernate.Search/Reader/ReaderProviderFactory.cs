@@ -45,7 +45,7 @@ namespace NHibernate.Search.Reader
                 }
                 catch (Exception)
                 {
-                    throw new SearchException("Failed to instantiate IREaderProvider with type " + impl);
+                    throw new SearchException("Failed to instantiate IReaderProvider with type " + impl);
                 }
 
             }

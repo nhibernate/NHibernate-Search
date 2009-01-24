@@ -1,14 +1,12 @@
 using System.Collections.Generic;
-using System.IO;
 using Iesi.Collections.Generic;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Store;
 using NHibernate.Search.Util;
-using Directory=Lucene.Net.Store.Directory;
 
-namespace NHibernate.Search
+namespace NHibernate.Search.Query
 {
     public class FullTextSearchHelper
     {
@@ -37,7 +35,7 @@ namespace NHibernate.Search
             }
         }
 
-        public static Searcher BuildSearcher(ISearchFactoryImplementor searchFactory,
+        public static IndexSearcher BuildSearcher(ISearchFactoryImplementor searchFactory,
                                              out ISet<System.Type> classesAndSubclasses,
                                              params System.Type[] classes)
         {
@@ -80,31 +78,5 @@ namespace NHibernate.Search
             IDirectoryProvider[] directoryProviders = new List<IDirectoryProvider>(directories).ToArray();
             return new IndexSearcher(searchFactory.ReaderProvider.OpenReader(directoryProviders));
         }
-
-        //public static Searcher GetSearcher(ISet<IDirectoryProvider> directories)
-        //{
-        //    if (directories.Count == 0)
-        //        return null;
-        //    //set up the searcher
-        //    int dirNbr = directories.Count;
-        //    int dirNbr = directories.Count;
-        //    IndexSearcher[] searchers = new IndexSearcher[dirNbr];
-        //    try
-        //    {
-        //        int index = 0;
-        //        foreach (Directory directory in directories)
-        //        {
-        //            if (dirNbr == 1)
-        //                return new IndexSearcher(directory);
-        //            searchers[index] = new IndexSearcher(directory);
-        //            index += 1;
-        //        }
-        //        return new MultiSearcher(searchers);
-        //    }
-        //    catch (IOException e)
-        //    {
-        //        throw new HibernateException("Unable to read Lucene directory", e);
-        //    }
-        //}
     }
 }

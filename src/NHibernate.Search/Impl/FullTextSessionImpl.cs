@@ -488,20 +488,27 @@ namespace NHibernate.Search.Impl
 
         #region IFullTextSession Members
 
-        public IQuery CreateFullTextQuery<TEntity>(string defaultField, string queryString)
+        public IFullTextQuery CreateFullTextQuery<TEntity>(string defaultField, string queryString)
         {
             QueryParser queryParser = new QueryParser(defaultField, new StandardAnalyzer());
             Lucene.Net.Search.Query query = queryParser.Parse(queryString);
             return CreateFullTextQuery(query, typeof(TEntity));
         }
 
-        public IQuery CreateFullTextQuery<TEntity>(string queryString)
+        public IFullTextQuery CreateFullTextQuery<TEntity>(string queryString)
         {
-            QueryParser queryParser = new QueryParser("", new StandardAnalyzer());
+            QueryParser queryParser = new QueryParser(string.Empty, new StandardAnalyzer());
             Lucene.Net.Search.Query query = queryParser.Parse(queryString);
             return CreateFullTextQuery(query, typeof(TEntity));
         }
 
+        /// <summary>
+        /// Execute a Lucene query and retrieve managed objects of type entities (or their indexed subclasses
+        /// If entities is empty, include all indexed entities
+        /// </summary>
+        /// <param name="luceneQuery"></param>
+        /// <param name="entities">entities must be immutable for the lifetime of the query object</param>
+        /// <returns></returns>
         public IFullTextQuery CreateFullTextQuery(Lucene.Net.Search.Query luceneQuery, params System.Type[] entities)
         {
             return new FullTextQueryImpl(luceneQuery, entities, session, null);

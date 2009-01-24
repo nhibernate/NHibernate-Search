@@ -13,7 +13,7 @@ namespace NHibernate.Search
 
         public static ICriterion Query(string luceneQuery)
         {
-            QueryParser parser = new QueryParser("", new StandardAnalyzer());
+            QueryParser parser = new QueryParser(string.Empty, new StandardAnalyzer());
             return Query(parser.Parse(luceneQuery));
         }
 
