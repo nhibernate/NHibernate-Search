@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+				   namespace="NHibernate.Search.Tests"
+				   assembly="NHibernate.Search.Tests">
+	<class name="DocumentTop">
+		<id name="Id">
+			<generator class="native" />
+		</id>
+		<property name="Title"/>
+		<property name="Summary"/>
+		<property name="Text"/>
+	</class>
+</hibernate-mapping>
