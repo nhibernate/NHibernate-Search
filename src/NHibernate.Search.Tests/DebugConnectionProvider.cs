@@ -64,9 +64,13 @@ namespace NHibernate.Test
 		{
 			while (!connections.IsEmpty)
 			{
-				IEnumerator en = connections.GetEnumerator();
-				en.MoveNext();
-				CloseConnection(en.Current as IDbConnection);
+                IEnumerator en = connections.GetEnumerator();
+                if (en.MoveNext())
+                {
+                    IDbConnection conn = en.Current as IDbConnection;
+                    en.Reset();
+                    CloseConnection(conn);
+                }
 			}
 		}
 	}
