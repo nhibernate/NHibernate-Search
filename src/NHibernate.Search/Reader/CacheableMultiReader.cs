@@ -9,7 +9,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class CacheableMultiReader : MultiReader
     {
-        private readonly IndexReader[] subReaders;
+        private new readonly IndexReader[] subReaders;
 
         public CacheableMultiReader(IndexReader[] subReaders) : base(subReaders)
         {

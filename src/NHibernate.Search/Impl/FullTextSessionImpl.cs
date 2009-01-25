@@ -105,10 +105,12 @@ namespace NHibernate.Search.Impl
             return session.Load(theType, id, lockMode);
         }
 
+#if !NHIBERNATE20
     	public object Load(string entityName, object id, LockMode lockMode)
 		{
 			return session.Load(entityName, id, lockMode);
     	}
+#endif
 
     	public object Load(System.Type theType, object id)
         {
@@ -125,10 +127,12 @@ namespace NHibernate.Search.Impl
             return session.Load<T>(id);
         }
 
-    	public object Load(string entityName, object id)
+#if !NHIBERNATE20
+        public object Load(string entityName, object id)
 		{
     		return session.Load(entityName, id);
     	}
+#endif
 
     	public void Load(object obj, object id)
         {
@@ -145,10 +149,12 @@ namespace NHibernate.Search.Impl
             get { return session.Statistics; }
         }
 
-    	public EntityMode ActiveEntityMode
+#if !NHIBERNATE20
+        public EntityMode ActiveEntityMode
     	{
     		get { return session.ActiveEntityMode; }
     	}
+#endif
 
     	public FlushMode FlushMode
         {
@@ -277,10 +283,12 @@ namespace NHibernate.Search.Impl
             session.Delete(obj);
         }
 
-    	public void Delete(string entityName, object obj)
+#if !NHIBERNATE20
+        public void Delete(string entityName, object obj)
     	{
     		session.Delete(entityName, obj);
     	}
+#endif
 
     	public IList Find(string query)
         {
@@ -405,7 +413,8 @@ namespace NHibernate.Search.Impl
             return session.CreateCriteria(persistentClass, alias);
         }
 
-    	public ICriteria CreateCriteria(string entityName)
+#if !NHIBERNATE20
+        public ICriteria CreateCriteria(string entityName)
 		{
 			return session.CreateCriteria(entityName);
     	}
@@ -414,6 +423,7 @@ namespace NHibernate.Search.Impl
 		{
 			return session.CreateCriteria(entityName, alias);
     	}
+#endif
 
     	public IQuery CreateQuery(string queryString)
         {

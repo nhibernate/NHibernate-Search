@@ -168,7 +168,11 @@ namespace NHibernate.Search.Query
             }
         }
 
+#if NHIBERNATE20
+		protected override IDictionary LockModes
+#else
 		protected override IDictionary<string, LockMode> LockModes
+#endif
         {
             get { return null; }
         }
@@ -346,7 +350,7 @@ namespace NHibernate.Search.Query
         public new IFullTextQuery SetResultTransformer(IResultTransformer transformer)
         {
             base.SetResultTransformer(transformer);
-            this.resultTransformer = resultTransformer;
+            this.resultTransformer = transformer;
             return this;
         }
 

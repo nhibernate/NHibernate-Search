@@ -46,7 +46,13 @@ namespace NHibernate.Search
         private static System.Type GetCriteriaClass(ICriteria criteria)
         {
             CriteriaImpl impl = criteria as CriteriaImpl;
-            return impl != null ? impl.GetRootEntityTypeIfAvailable() : GetCriteriaClass(((CriteriaImpl.Subcriteria) criteria).Parent);
+            return impl != null ?
+#if NHIBERNATE20
+                impl.CriteriaClass
+#else
+                impl.GetRootEntityTypeIfAvailable()
+#endif
+                : GetCriteriaClass(((CriteriaImpl.Subcriteria) criteria).Parent);
         }
 
         public ISession GetSession(ICriteria criteria)
