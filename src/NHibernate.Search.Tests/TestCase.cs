@@ -258,9 +258,10 @@ namespace NHibernate.Test
 		}
 
 		protected virtual ISession OpenSession()
-		{
-			lastOpenedSession = sessions.OpenSession();
-			return lastOpenedSession;
+        {
+            ISession session = sessions.OpenSession();
+		    lastOpenedSession = session;
+            return session; // Don't return lastOpenedSession because it might have already been changed by another concurrent thread
 		}
 
 		protected void ApplyCacheSettings(Configuration configuration)

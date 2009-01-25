@@ -15,7 +15,7 @@ namespace NHibernate.Search.Tests.Inheritance
             set { id = value; }
         }
 
-        [Field(Index.Tokenized, Store = Attributes.Store.No)]
+        [Field(Index.Tokenized, Store = Attributes.Store.Yes)]
         public virtual string Name
         {
             get { return name; }
