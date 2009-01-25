@@ -6,11 +6,6 @@ namespace NHibernate.Search.Tests.Optimizer
     [TestFixture]
     public class IncrementalOptimizerStrategyTest : OptimizerTestCase
     {
-        protected override string BaseIndexDirName
-        {
-            get { return base.BaseIndexDirName + "inc"; } // Use another dir because running both tests on the same dir fails
-        }
-
         protected override void Configure(Configuration configuration)
         {
             base.Configure(configuration);

@@ -17,17 +17,16 @@ namespace NHibernate.Search.Tests.Optimizer
         private volatile int reverseWorksCount;
         private volatile int errorsCount;
 
-        protected virtual string BaseIndexDirName
-        {
-            get { return "indextemp"; }
-        }
-
         private FileInfo BaseIndexDir
         {
             get
             {
                 FileInfo current = new FileInfo(".");
-                FileInfo sub = new FileInfo(current.FullName + "\\" + BaseIndexDirName);
+                FileInfo sub = new FileInfo(current.FullName + "\\indextemp_optimiz"
+#if !CUSTOM_LUCENE // TODO: Find a way to dispose Lucene.Net so that it closes all its files
+                    + (this is IncrementalOptimizerStrategyTest ? "inc" : "") // Must be on a different directory because the other one still has some files open and cannot be deleted yet
+#endif
+                    );
                 return sub;
             }
         }
@@ -40,15 +39,8 @@ namespace NHibernate.Search.Tests.Optimizer
         protected override void Configure(Configuration configuration)
         {
             base.Configure(configuration);
+            DeleteBaseIndexDir();
             FileInfo sub = BaseIndexDir;
-            try
-            {
-                Delete(sub);
-            }
-            catch (IOException ex) // TODO: Find a way to dispose Lucene.Net so that it closes all its files
-            {
-                System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
-            }
             Directory.CreateDirectory(sub.FullName);
 
             configuration.SetProperty("hibernate.search.default.indexBase", sub.FullName);
@@ -59,13 +51,20 @@ namespace NHibernate.Search.Tests.Optimizer
         protected override void OnTearDown()
         {
             base.OnTearDown();
+            DeleteBaseIndexDir();
+        }
 
+        private void DeleteBaseIndexDir()
+        {
+#if CUSTOM_LUCENE // TODO: Find a way to dispose Lucene.Net so that it closes all its files
+            Lucene.Net.Tracker.CloseOpenedFiles();
+#endif
             FileInfo sub = BaseIndexDir;
             try
             {
                 Delete(sub);
             }
-            catch(IOException ex) // TODO: Find a way to dispose Lucene.Net so that it closes all its files
+            catch(IOException ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
             }
@@ -114,49 +113,45 @@ namespace NHibernate.Search.Tests.Optimizer
 
         private void Work(object state)
         {
+            Worker w = null;
+            Construction c = null;
             try
             {
-                ISession s = OpenSession();
-                ITransaction tx = s.BeginTransaction(); // TODO: Once, it returned "null" and the session was already closed!
-                Worker w = new Worker("Emmanuel", 65);
-                s.Save(w);
-                Construction c = new Construction("Bellagio", "Las Vegas Nevada");
-                s.Save(c);
-                tx.Commit();
-                s.Close();
+                using(ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction(); // TODO: Once, it returned "null" and the session was already closed!
+                    w = new Worker("Emmanuel", 65);
+                    s.Save(w);
+                    c = new Construction("Bellagio", "Las Vegas Nevada");
+                    s.Save(c);
+                    tx.Commit();
+                }
 
-                s = OpenSession();
-                tx = s.BeginTransaction();
-                w = s.Get<Worker>(w.Id);
-                w.Name = "Gavin";
-                c = s.Get<Construction>(c.Id);
-                c.Name = "W Hotel";
-                tx.Commit();
-                s.Close();
+                using(ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    w = s.Get<Worker>(w.Id);
+                    w.Name = "Gavin";
+                    c = s.Get<Construction>(c.Id);
+                    c.Name = "W Hotel";
+                    tx.Commit();
+                }
 
                 Thread.Sleep(50);
 
-                s = OpenSession();
-                tx = s.BeginTransaction();
-                IFullTextSession fts = new Impl.FullTextSessionImpl(s);
-                QueryParser parser = new QueryParser("id", new StopAnalyzer());
-                Lucene.Net.Search.Query query = parser.Parse("name:Gavin");
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    IFullTextSession fts = new Impl.FullTextSessionImpl(s);
+                    QueryParser parser = new QueryParser("id", new StopAnalyzer());
+                    Lucene.Net.Search.Query query = parser.Parse("name:Gavin");
 
-                bool results = fts.CreateFullTextQuery(query).List().Count > 0;
-                //don't test because in case of async, it query happens before actual saving
-                //if ( !results ) throw new Exception( "No results!" );
-                tx.Commit();
-                s.Close();
-
-                s = OpenSession();
-                tx = s.BeginTransaction();
-                w = s.Get<Worker>(w.Id);
-                s.Delete(w);
-                c = s.Get<Construction>(c.Id);
-                s.Delete(c);
-                tx.Commit();
-                s.Close();
-                System.Diagnostics.Debug.WriteLine("Interation " + worksCount + " completed on thread " + Thread.CurrentThread.ManagedThreadId);
+                    bool results = fts.CreateFullTextQuery(query).List().Count > 0;
+                    //don't test because in case of async, it query happens before actual saving
+                    //if ( !results ) throw new Exception( "No results!" );
+                    tx.Commit();
+                }
+                //System.Diagnostics.Debug.WriteLine("Interation " + worksCount + " completed on thread " + Thread.CurrentThread.ManagedThreadId);
             }
             catch (Exception ex)
             {
@@ -166,39 +161,51 @@ namespace NHibernate.Search.Tests.Optimizer
             finally
             {
                 worksCount++;
+
+                if (w != null || c != null)
+                    using (ISession s = OpenSession())
+                    {
+                        ITransaction tx = s.BeginTransaction();
+                        if (w != null)
+                        {
+                            w = s.Get<Worker>(w.Id);
+                            s.Delete(w);
+                        }
+                        if (c != null)
+                        {
+                            c = s.Get<Construction>(c.Id);
+                            s.Delete(c);
+                        }
+                        tx.Commit();
+                    }
             }
         }
 
         private void ReverseWork(object state)
         {
+            Worker w = null;
+            Construction c = null;
             try
             {
-                ISession s = OpenSession();
-                ITransaction tx = s.BeginTransaction();
-                Worker w = new Worker("Mladen", 70);
-                s.Save(w);
-                Construction c = new Construction("Hover Dam", "Croatia");
-                s.Save(c);
-                tx.Commit();
-                s.Close();
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    w = new Worker("Mladen", 70);
+                    s.Save(w);
+                    c = new Construction("Hover Dam", "Croatia");
+                    s.Save(c);
+                    tx.Commit();
+                }
 
-                s = OpenSession();
-                tx = s.BeginTransaction();
-                w = s.Get<Worker>(w.Id);
-                w.Name = "Remi";
-                c = s.Get<Construction>(c.Id);
-                c.Name = "Palais des festivals";
-                tx.Commit();
-                s.Close();
-
-                s = OpenSession();
-                tx = s.BeginTransaction();
-                w = s.Get<Worker>(w.Id);
-                s.Delete(w);
-                c = s.Get<Construction>(c.Id);
-                s.Delete(c);
-                tx.Commit();
-                s.Close();
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    w = s.Get<Worker>(w.Id);
+                    w.Name = "Remi";
+                    c = s.Get<Construction>(c.Id);
+                    c.Name = "Palais des festivals";
+                    tx.Commit();
+                }
             }
             catch (Exception ex)
             {
@@ -208,6 +215,23 @@ namespace NHibernate.Search.Tests.Optimizer
             finally
             {
                 reverseWorksCount++;
+
+                if (w != null || c != null)
+                    using (ISession s = OpenSession())
+                    {
+                        ITransaction tx = s.BeginTransaction();
+                        if (w != null)
+                        {
+                            w = s.Get<Worker>(w.Id);
+                            s.Delete(w);
+                        }
+                        if (c != null)
+                        {
+                            c = s.Get<Construction>(c.Id);
+                            s.Delete(c);
+                        }
+                        tx.Commit();
+                    }
             }
         }
     }
