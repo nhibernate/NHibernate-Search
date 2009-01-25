@@ -40,6 +40,9 @@ namespace NHibernate.Search.Bridge
 
         public static readonly ITwoWayFieldBridge STRING = new TwoWayString2FieldBridgeAdaptor(new StringBridge());
 
+		public static readonly ITwoWayFieldBridge GUID =
+			new TwoWayString2FieldBridgeAdaptor(new GuidBridge());
+
         static BridgeFactory()
         {
             builtInBridges.Add(typeof(double).Name, DOUBLE);
@@ -49,8 +52,9 @@ namespace NHibernate.Search.Bridge
             builtInBridges.Add(typeof(long).Name, LONG);
             builtInBridges.Add(typeof(String).Name, STRING);
             builtInBridges.Add(typeof(Boolean).Name, BOOLEAN);
+			builtInBridges.Add(typeof(Guid).Name, GUID);
 
-            builtInBridges.Add(typeof(DateTime).Name, DATE_MILLISECOND);
+			builtInBridges.Add(typeof(DateTime).Name, DATE_MILLISECOND);
         }
 
         private BridgeFactory()

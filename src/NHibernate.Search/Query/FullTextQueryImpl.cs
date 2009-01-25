@@ -168,7 +168,7 @@ namespace NHibernate.Search.Query
             }
         }
 
-        protected override IDictionary LockModes
+		protected override IDictionary<string, LockMode> LockModes
         {
             get { return null; }
         }

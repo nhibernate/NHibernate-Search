@@ -208,7 +208,8 @@ namespace NHibernate.Test
 		protected virtual void BuildSessionFactory()
 		{
 			sessions = cfg.BuildSessionFactory();
-			connectionProvider = sessions.ConnectionProvider as DebugConnectionProvider;
+			ISessionFactoryImplementor sessionsImpl = sessions as ISessionFactoryImplementor;
+			connectionProvider = sessionsImpl == null ? null : sessionsImpl.ConnectionProvider as DebugConnectionProvider;
 		}
 
 		private void Cleanup()
@@ -285,14 +286,14 @@ namespace NHibernate.Test
 				}
 				if (!hasLob && !clazz.IsInherited)
 				{
-					configuration.SetCacheConcurrencyStrategy(clazz.MappedClass, CacheConcurrencyStrategy);
+					configuration.SetCacheConcurrencyStrategy(clazz.MappedClass.AssemblyQualifiedName, CacheConcurrencyStrategy);
 				}
 			}
 
-			foreach (Mapping.Collection coll in configuration.CollectionMappings)
+			/*foreach (Mapping.Collection coll in configuration.CollectionMappings)
 			{
 				configuration.SetCacheConcurrencyStrategy(coll.Role, CacheConcurrencyStrategy);
-			}
+			}*/
 		}
 
 		#region Properties overridable by subclasses

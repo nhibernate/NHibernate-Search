@@ -76,6 +76,7 @@
     <Compile Include="Backend\PurgeAllLuceneWork.cs" />
     <Compile Include="Backend\WorkerFactory.cs" />
     <Compile Include="Backend\WorkQueue.cs" />
+    <Compile Include="Bridge\Builtin\GuidBridge.cs" />
     <Compile Include="Cfg\CfgHelper.cs" />
     <Compile Include="Cfg\CfgXmlHelper.cs" />
     <Compile Include="Cfg\ConfigurationSectionHandler.cs" />

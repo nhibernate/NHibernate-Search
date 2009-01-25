@@ -105,7 +105,12 @@ namespace NHibernate.Search.Impl
             return session.Load(theType, id, lockMode);
         }
 
-        public object Load(System.Type theType, object id)
+    	public object Load(string entityName, object id, LockMode lockMode)
+		{
+			return session.Load(entityName, id, lockMode);
+    	}
+
+    	public object Load(System.Type theType, object id)
         {
             return session.Load(theType, id);
         }
@@ -120,7 +125,12 @@ namespace NHibernate.Search.Impl
             return session.Load<T>(id);
         }
 
-        public void Load(object obj, object id)
+    	public object Load(string entityName, object id)
+		{
+    		return session.Load(entityName, id);
+    	}
+
+    	public void Load(object obj, object id)
         {
             session.Load(obj, id);
         }
@@ -135,7 +145,12 @@ namespace NHibernate.Search.Impl
             get { return session.Statistics; }
         }
 
-        public FlushMode FlushMode
+    	public EntityMode ActiveEntityMode
+    	{
+    		get { return session.ActiveEntityMode; }
+    	}
+
+    	public FlushMode FlushMode
         {
             get { return session.FlushMode; }
             set { session.FlushMode = value; }
@@ -262,7 +277,12 @@ namespace NHibernate.Search.Impl
             session.Delete(obj);
         }
 
-        public IList Find(string query)
+    	public void Delete(string entityName, object obj)
+    	{
+    		session.Delete(entityName, obj);
+    	}
+
+    	public IList Find(string query)
         {
 #pragma warning disable 618,612
             return session.Find(query);
@@ -385,7 +405,17 @@ namespace NHibernate.Search.Impl
             return session.CreateCriteria(persistentClass, alias);
         }
 
-        public IQuery CreateQuery(string queryString)
+    	public ICriteria CreateCriteria(string entityName)
+		{
+			return session.CreateCriteria(entityName);
+    	}
+
+    	public ICriteria CreateCriteria(string entityName, string alias)
+		{
+			return session.CreateCriteria(entityName, alias);
+    	}
+
+    	public IQuery CreateQuery(string queryString)
         {
             return session.CreateQuery(queryString);
         }
