@@ -11,19 +11,18 @@ namespace NHibernate.Search.Tests.Bridge
     {
         protected override IList Mappings
         {
-            get { return new string[] {"Bridge.Gangster.hbm.xml"}; }
+            get { return new string[] {}; }
         }
 
-        protected override void Configure(Configuration configuration)
+        [Test, ExpectedException(typeof(HibernateException), ExpectedMessage = "Unable to guess IFieldBridge for Id")]
+        public void SystemTypeForDocumentId()
         {
-            base.Configure(configuration);
-            configuration.SetProperty("hibernate.search.default.directory_provider", typeof(RAMDirectoryProvider).AssemblyQualifiedName);
-        }
-
-        [Test, ExpectedException(typeof(SearchException)), Ignore("Which is the undefined bridge on Gangster?")]
-        public void SerializableType()
-        {
-            
+            Configuration tempCfg = new Configuration();
+            tempCfg.Configure();
+            tempCfg.SetProperty("hibernate.search.default.directory_provider", typeof(RAMDirectoryProvider).AssemblyQualifiedName);
+            tempCfg.AddClass(typeof(Gangster));
+            tempCfg.BuildSessionFactory();
+            Assert.Fail("Undefined bridge went through (Gangster.Id's type is System.Type, which shouldn't be recognized)");
         }
     }
 }

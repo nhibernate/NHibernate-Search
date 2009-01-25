@@ -5,14 +5,14 @@ namespace NHibernate.Search.Tests.Bridge
     [Indexed]
     public class Gangster
     {
-        private int id;
+        private System.Type id;
         private string name;
 
         /// <summary>
         /// 
         /// </summary>
         [DocumentId]
-        public virtual int Id
+        public virtual System.Type Id
         {
             get { return id; }
             set { id = value; }
