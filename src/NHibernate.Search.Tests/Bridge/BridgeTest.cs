@@ -124,16 +124,20 @@ namespace NHibernate.Search.Tests.Bridge
             Lucene.Net.Search.Query query;
             IList result;
 
-            query = parser.Parse("Double2:[2 TO 2.1] AND Float2:[2  TO 2.1] " +
+            query = parser.Parse("Double2:[2 TO 2.1] AND Float2:[2 TO 2.1] " +
                                  "AND Int2:[2 TO 2.1] AND Long2:[2 TO 2.1] AND Type:\"Dog\" AND Storm:false");
 
             result = session.CreateFullTextQuery(query).List();
             Assert.AreEqual(1, result.Count, "find primitives and do not fail on null");
 
-            query = parser.Parse("Double1:[2 TO 2.1] OR Float1:[2 TO 2.1] OR Int1:[2 TO 2.1] OR Long1:[2 TO 2.1]");
+            query = parser.Parse("Double1:[2.1 TO 2.1] OR Float1:[2 TO 2.1] " +
+                                 "OR Int1:[2 TO 2.1] OR Long1:[2 TO 2.1]");
             result = session.CreateFullTextQuery(query).List();
-            Assert.AreEqual(0, result.Count, "null elements should not be stored");
-            //the query is dumb because restrictive
+            Assert.AreEqual(0, result.Count, "null elements should not be stored"); //the query is dumb because restrictive
+
+            query = parser.Parse("Type:Dog");
+            result = session.CreateFullTextQuery(query).SetProjection("Type").List();
+            Assert.AreEqual(1, result.Count, "Enum projection works"); //the query is dumb because restrictive
 
             s.Delete(s.Get(typeof(Cloud), cloud.Id));
             tx.Commit();

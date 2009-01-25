@@ -143,7 +143,7 @@ namespace NHibernate.Search.Tests.Bridge
             QueryParser parser = new QueryParser("branchnetwork", new SimpleAnalyzer());
 
             Query query = parser.Parse("branchnetwork:layton 2B");
-            IFullTextQuery hibQuery = session.CreateFullTextQuery(query);
+            IFullTextQuery hibQuery = session.CreateFullTextQuery(query, typeof(Department));
             IList result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.AreEqual("2B", ((Department)result[0]).Network, "incorrect entity returned, wrong network");
@@ -152,7 +152,7 @@ namespace NHibernate.Search.Tests.Bridge
 
             // Partial match.
             query = parser.Parse("branchnetwork:3c");
-            hibQuery = session.CreateFullTextQuery(query);
+            hibQuery = session.CreateFullTextQuery(query, typeof(Department));
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.AreEqual("3C", ((Department)result[0]).Network, "incorrect entity returned, wrong network");
@@ -161,7 +161,7 @@ namespace NHibernate.Search.Tests.Bridge
 
             // No data cross-ups .
             query = parser.Parse("branchnetwork:Kent Lewin");
-            hibQuery = session.CreateFullTextQuery(query);
+            hibQuery = session.CreateFullTextQuery(query, typeof(Department));
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count == 0, "problem with field cross-ups");
@@ -169,7 +169,7 @@ namespace NHibernate.Search.Tests.Bridge
             // Non-ClassBridge field.
             parser = new QueryParser("BranchHead", new SimpleAnalyzer());
             query = parser.Parse("BranchHead:Kent Lewin");
-            hibQuery = session.CreateFullTextQuery(query);
+            hibQuery = session.CreateFullTextQuery(query, typeof(Department));
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count == 1, "incorrect entity returned, wrong branch head");
@@ -207,7 +207,7 @@ namespace NHibernate.Search.Tests.Bridge
 
             // Check the second ClassBridge annotation
             Query query = parser.Parse("equiptype:Cisco");
-            IFullTextQuery hibQuery = session.CreateFullTextQuery(query);
+            IFullTextQuery hibQuery = session.CreateFullTextQuery(query, typeof(Departments));
             IList result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.AreEqual(2, result.Count, "incorrect number of results returned");
@@ -218,7 +218,7 @@ namespace NHibernate.Search.Tests.Bridge
 
             // No data cross-ups.
             query = parser.Parse("branchnetwork:Kent Lewin");
-            hibQuery = session.CreateFullTextQuery(query);
+            hibQuery = session.CreateFullTextQuery(query, typeof(Departments));
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count == 0, "problem with field cross-ups");
@@ -226,7 +226,7 @@ namespace NHibernate.Search.Tests.Bridge
             // Non-ClassBridge field.
             parser = new QueryParser("BranchHead", new SimpleAnalyzer());
             query = parser.Parse("BranchHead:Kent Lewin");
-            hibQuery = session.CreateFullTextQuery(query);
+            hibQuery = session.CreateFullTextQuery(query, typeof(Departments));
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count == 1, "incorrect entity returned, wrong branch head");
@@ -235,7 +235,7 @@ namespace NHibernate.Search.Tests.Bridge
             // Check other ClassBridge annotation.
             parser = new QueryParser("branchnetwork", new SimpleAnalyzer());
             query = parser.Parse("branchnetwork:st. george 1D");
-            hibQuery = session.CreateFullTextQuery(query);
+            hibQuery = session.CreateFullTextQuery(query, typeof(Departments));
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.AreEqual("1D", ((Departments)result[0]).Network, "incorrect entity returned, wrong network");
@@ -278,13 +278,14 @@ namespace NHibernate.Search.Tests.Bridge
 
             hibQuery.SetProjection(ProjectionConstants.THIS, ProjectionConstants.DOCUMENT);
 
-            IList projections = hibQuery.List();
+            IEnumerator projections = hibQuery.Enumerable().GetEnumerator();
             Assert.IsNotNull(projections);
 
-            object[] projection = (object[])projections[0];
+            projections.MoveNext();
+            object[] projection = (object[])projections.Current;
 
             Assert.AreEqual(typeof(Departments), projection[0].GetType(), "DOCUMENT incorrect");
-            // NB This assertion causes the test to break when run with other tests - some leakage?
+            // Note: This assertion fails when run with other tests because the id is assigned by the database, and previous tests have already used this value
             //Assert.AreEqual(1, ((Departments)projection[0]).Id, "id incorrect");
             Assert.IsTrue(projection[1] is Document, "DOCUMENT incorrect");
             Assert.AreEqual(8, ((Document)projection[1]).GetFieldsCount(), "DOCUMENT size incorrect");
@@ -297,7 +298,8 @@ namespace NHibernate.Search.Tests.Bridge
                     ((Document)projection[1]).GetField("branchnetwork").StringValue(),
                     "branchnetwork incorrect");
 
-            projection = (object[])projections[1];
+            projections.MoveNext();
+            projection = (object[])projections.Current;
 
             Assert.AreEqual(typeof(Departments), projection[0].GetType(), "DOCUMENT incorrect");
             // NB This assertion causes the test to break when run with other tests - some leakage?
@@ -313,7 +315,7 @@ namespace NHibernate.Search.Tests.Bridge
                     ((Document)projection[1]).GetField("branchnetwork").StringValue(),
                     "branchnetwork incorrect");
 
-            Assert.AreEqual(2, projections.Count, "incorrect result count returned");
+            Assert.AreEqual(false, projections.MoveNext(), "incorrect result count returned");
 
             //cleanup
             foreach (object element in s.CreateQuery("from " + typeof(Departments).FullName).List())

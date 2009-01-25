@@ -26,8 +26,8 @@ namespace NHibernate.Search.Tests.Bridge
 
         public override string ObjectToString(object obj)
         {
-            string str = (string)obj;
-            return obj != null ? str.Substring(0, str.Length / div) : null;
+            string str = obj as string;
+            return str != null ? str.Substring(0, str.Length / div) : null;
         }
     }
 }

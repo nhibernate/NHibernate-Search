@@ -180,7 +180,7 @@ namespace NHibernate.Search.Tests.Bridge
             set { dateTimeMillisecond = value; }
         }
 
-        [Field(Index.Tokenized)]
+        [Field(Index.Tokenized, Store = Attributes.Store.Yes)]
         public virtual CloudType Type
         {
             get { return type; }
