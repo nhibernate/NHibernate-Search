@@ -33,15 +33,15 @@ namespace NHibernate.Search.Tests.Analyzer
 
             QueryParser parser = new QueryParser("id", new StandardAnalyzer());
             Lucene.Net.Search.Query luceneQuery = parser.Parse("entity:alarm");
-            IFullTextQuery query = s.CreateFullTextQuery(luceneQuery);
+            IFullTextQuery query = s.CreateFullTextQuery(luceneQuery, typeof(MyEntity));
             Assert.AreEqual(1, query.ResultSize, "Entity query");
 
             luceneQuery = parser.Parse("property:cat");
-            query = s.CreateFullTextQuery(luceneQuery);
+            query = s.CreateFullTextQuery(luceneQuery, typeof(MyEntity));
             Assert.AreEqual(1, query.ResultSize, "Property query");
 
             luceneQuery = parser.Parse("field:energy");
-            query = s.CreateFullTextQuery(luceneQuery);
+            query = s.CreateFullTextQuery(luceneQuery, typeof(MyEntity));
             Assert.AreEqual(1, query.ResultSize, "Field query");
 
             // TODO: Uncomment once we have embedded components working
@@ -49,7 +49,7 @@ namespace NHibernate.Search.Tests.Analyzer
             //query = s.CreateFullTextQuery(luceneQuery);
             //Assert.AreEqual(1, query.ResultSize, "Component query");
 
-            s.Delete(en);
+            s.Delete(query.UniqueResult());
             tx.Commit();
 
             s.Close();
