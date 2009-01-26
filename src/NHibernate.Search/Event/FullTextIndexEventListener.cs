@@ -10,6 +10,9 @@ namespace NHibernate.Search.Event
     public class FullTextIndexEventListener : IPostDeleteEventListener, IPostInsertEventListener,
                                               IPostUpdateEventListener,
                                               IInitializable
+#if !NHIBERNATE20
+                                              , IDestructible
+#endif
     {
         protected bool used;
         protected ISearchFactoryImplementor searchFactory;
@@ -66,6 +69,11 @@ namespace NHibernate.Search.Event
             if ("event".Equals(indexingStrategy)) used = searchFactory.DocumentBuilders.Count != 0;
             else if ("manual".Equals(indexingStrategy)) used = false;
             else throw new SearchException(Environment.IndexBase + " unknown: " + indexingStrategy);
+        }
+
+        public void Cleanup()
+        {
+            searchFactory.Close();
         }
 
         public void OnPostDelete(PostDeleteEvent e)

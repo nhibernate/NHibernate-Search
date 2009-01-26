@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using log4net;
 using Iesi.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
@@ -22,6 +23,7 @@ namespace NHibernate.Search.Impl
 {
     public class SearchFactoryImpl : ISearchFactoryImplementor
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(SearchFactoryImpl));
         private static readonly object searchFactoryKey = new object();
 
         //it's now a <Configuration, SearchFactory> map
@@ -42,6 +44,8 @@ namespace NHibernate.Search.Impl
         private IBackendQueueProcessorFactory backendQueueProcessorFactory;
         private readonly Dictionary<string, FilterDef> filterDefinitions = new Dictionary<string, FilterDef>();
         private IFilterCachingStrategy filterCachingStrategy;
+
+        private int stopped;
 
         /*
          * Each directory provider (index) can have its own performance settings
@@ -221,6 +225,21 @@ namespace NHibernate.Search.Impl
         #endregion
 
         #region Public methods
+
+        public void Close()
+        {
+            if (Interlocked.Exchange(ref stopped, 1) == 0)
+            {
+                try
+                {
+                    readerProvider.Destroy();
+                }
+                catch (Exception e)
+                {
+                    log.Error("ReaderProvider raises an exception on destroy()", e);
+                }
+            }
+        }
 
         public static SearchFactoryImpl GetSearchFactory(Configuration cfg)
         {

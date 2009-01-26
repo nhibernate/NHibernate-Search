@@ -23,11 +23,7 @@ namespace NHibernate.Search.Tests.Reader
             get
             {
                 FileInfo current = new FileInfo(".");
-                FileInfo sub = new FileInfo(current.FullName + "\\indextemp_reader"
-#if !CUSTOM_LUCENE // TODO: Find a way to dispose Lucene.Net so that it closes all its files
-                    + (this is SharedReaderPerfTest ? "shared" : (this is NotSharedReaderPerfTest ? "notshared" : "")) // Must be on a different directory because the other one still has some files open and cannot be deleted yet
-#endif
-                    );
+                FileInfo sub = new FileInfo(current.FullName + "\\indextemp");
                 return sub;
             }
         }
@@ -53,20 +49,18 @@ namespace NHibernate.Search.Tests.Reader
         protected override void OnTearDown()
         {
             base.OnTearDown();
+            if (sessions != null) sessions.Close(); // Close the files in the indexDir
             DeleteBaseIndexDir();
         }
 
         private void DeleteBaseIndexDir()
         {
-#if CUSTOM_LUCENE // TODO: Find a way to dispose Lucene.Net so that it closes all its files
-            Lucene.Net.Tracker.CloseOpenedFiles();
-#endif
             FileInfo sub = BaseIndexDir;
             try
             {
                 Delete(sub);
             }
-            catch(IOException ex)
+            catch (IOException ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
             }
@@ -107,13 +101,13 @@ namespace NHibernate.Search.Tests.Reader
             Thread.Sleep(1000);
 
             const int nThreads = 15; // Fixed number of threads
-            int DetectiveThreads, completionPortThreads;
-            ThreadPool.GetMinThreads(out DetectiveThreads, out completionPortThreads);
+            int workerThreads, completionPortThreads;
+            ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
             ThreadPool.SetMinThreads(nThreads, completionPortThreads);
-            ThreadPool.GetMaxThreads(out DetectiveThreads, out completionPortThreads);
+            ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
             ThreadPool.SetMaxThreads(nThreads, completionPortThreads);
-            int DetectiveThreadsAvailable;
-            ThreadPool.GetAvailableThreads(out DetectiveThreadsAvailable, out completionPortThreads);
+            int workerThreadsAvailable;
+            ThreadPool.GetAvailableThreads(out workerThreadsAvailable, out completionPortThreads);
 
             long start = DateTime.Now.Ticks;
             const int iteration = 20; // Note: Was 100
@@ -125,15 +119,14 @@ namespace NHibernate.Search.Tests.Reader
 
             do
             {
-                ThreadPool.GetAvailableThreads(out DetectiveThreads, out completionPortThreads);
+                ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
                 Thread.Sleep(20); // Wait that all the threads have been terminated before, otherwise, they will be aborted
             }
-            while (DetectiveThreads != DetectiveThreadsAvailable
+            while (workerThreads != workerThreadsAvailable
                 || worksCount < iteration || reverseWorksCount < iteration);
 
             System.Diagnostics.Debug.WriteLine(iteration + " iterations in " + nThreads
                 + " threads: " + new TimeSpan(DateTime.Now.Ticks - start).TotalSeconds + " secs; errorsCount = " + errorsCount);
-            Assert.AreEqual(0, errorsCount, "Some iterations failed");
 
             // Clean up
             using (ISession s = OpenSession())
@@ -142,6 +135,8 @@ namespace NHibernate.Search.Tests.Reader
                 s.Delete("from System.Object");
                 tx.Commit();
             }
+
+            Assert.AreEqual(0, errorsCount, "Some iterations failed");
         }
 
         private void Work(object state)
@@ -151,21 +146,21 @@ namespace NHibernate.Search.Tests.Reader
                 Random random = new Random();
                 QueryParser parser = new MultiFieldQueryParser(new string[] { "name", "physicalDescription", "suspectCharge" },
                     new Lucene.Net.Analysis.Standard.StandardAnalyzer());
-                using(ISession s = OpenSession())
+                using (ISession s = OpenSession())
                 {
                     ITransaction tx = s.BeginTransaction();
-				IFullTextQuery query = GetQuery("John Doe", parser, s);
-				Assert.IsTrue(query.ResultSize != 0);
-				
-				query = GetQuery("green", parser, s);
-				random.Next(query.ResultSize - 15);
-				query.SetFirstResult(random.Next(query.ResultSize - 15));
-				query.SetMaxResults(10);
-				query.List();
+                    IFullTextQuery query = GetQuery("John Doe", parser, s);
+                    Assert.IsTrue(query.ResultSize != 0);
+
+                    query = GetQuery("green", parser, s);
+                    random.Next(query.ResultSize - 15);
+                    query.SetFirstResult(random.Next(query.ResultSize - 15));
+                    query.SetMaxResults(10);
+                    query.List();
                     tx.Commit();
                 }
 
-                using(ISession s = OpenSession())
+                using (ISession s = OpenSession())
                 {
                     ITransaction tx = s.BeginTransaction();
                     IFullTextQuery query = GetQuery("John Doe", parser, s);

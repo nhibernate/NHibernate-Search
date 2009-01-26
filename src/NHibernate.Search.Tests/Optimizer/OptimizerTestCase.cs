@@ -22,11 +22,7 @@ namespace NHibernate.Search.Tests.Optimizer
             get
             {
                 FileInfo current = new FileInfo(".");
-                FileInfo sub = new FileInfo(current.FullName + "\\indextemp_optimiz"
-#if !CUSTOM_LUCENE // TODO: Find a way to dispose Lucene.Net so that it closes all its files
-                    + (this is IncrementalOptimizerStrategyTest ? "inc" : "") // Must be on a different directory because the other one still has some files open and cannot be deleted yet
-#endif
-                    );
+                FileInfo sub = new FileInfo(current.FullName + "\\indextemp");
                 return sub;
             }
         }
@@ -51,20 +47,18 @@ namespace NHibernate.Search.Tests.Optimizer
         protected override void OnTearDown()
         {
             base.OnTearDown();
+            if (sessions != null) sessions.Close(); // Close the files in the indexDir
             DeleteBaseIndexDir();
         }
 
         private void DeleteBaseIndexDir()
         {
-#if CUSTOM_LUCENE // TODO: Find a way to dispose Lucene.Net so that it closes all its files
-            Lucene.Net.Tracker.CloseOpenedFiles();
-#endif
             FileInfo sub = BaseIndexDir;
             try
             {
                 Delete(sub);
             }
-            catch(IOException ex)
+            catch (IOException ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
             }
@@ -117,7 +111,7 @@ namespace NHibernate.Search.Tests.Optimizer
             Construction c = null;
             try
             {
-                using(ISession s = OpenSession())
+                using (ISession s = OpenSession())
                 {
                     ITransaction tx = s.BeginTransaction(); // TODO: Once, it returned "null" and the session was already closed!
                     w = new Worker("Emmanuel", 65);
@@ -127,7 +121,7 @@ namespace NHibernate.Search.Tests.Optimizer
                     tx.Commit();
                 }
 
-                using(ISession s = OpenSession())
+                using (ISession s = OpenSession())
                 {
                     ITransaction tx = s.BeginTransaction();
                     w = s.Get<Worker>(w.Id);

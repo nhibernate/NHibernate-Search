@@ -19,5 +19,11 @@ namespace NHibernate.Search.Reader
         void CloseReader(IndexReader reader);
 
         void Initialize(IDictionary<string, string> properties, ISearchFactoryImplementor searchFactoryImplementor);
+
+        /// <summary>
+        /// Called when a <see cref="ISearchFactory" /> is destroyed. This method typically releases resources.
+        /// It is guaranteed to be executed after readers are released by queries (assuming no user error). 
+        /// </summary>
+        void Destroy();
     }
 }

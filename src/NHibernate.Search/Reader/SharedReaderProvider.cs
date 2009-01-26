@@ -79,7 +79,8 @@ namespace NHibernate.Search.Reader
                     if (trace) log.Info("Semaphore: 1 for " + reader);
                     if (outOfDateReader != null)
                     {
-                        ReaderData readerData = searchIndexReaderSemaphores[outOfDateReader];
+                        ReaderData readerData;
+                        searchIndexReaderSemaphores.TryGetValue(outOfDateReader, out readerData);
                         if (readerData == null)
                         {
                             closeOutOfDateReader = false; //already removed by another prevous thread
@@ -246,64 +247,75 @@ namespace NHibernate.Search.Reader
             }
 
             foreach (IndexReader subReader in readers)
+                CloseInternalReader(trace, subReader, false);
+        }
+
+        private void CloseInternalReader(bool trace, IndexReader subReader, bool finalClose)
+        {
+            ReaderData readerData;
+            // TODO: can we avoid the lock?
+            lock (semaphoreIndexReaderLock)
             {
-                ReaderData readerData;
-                // TODO: can we avoid the lock?
+                readerData = searchIndexReaderSemaphores[subReader];
+            }
+
+            if (readerData == null)
+            {
+                log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory());
+                // TODO: Should we try to close?
+                return;
+            }
+
+            // Acquire the locks in the same order as everywhere else
+            object directoryProviderLock = perDirectoryProviderManipulationLocks[readerData.Provider];
+            bool closeReader = false;
+            lock (directoryProviderLock)
+            {
+                IndexReader reader;
+                bool isActive = activeSearchIndexReaders.TryGetValue(readerData.Provider, out reader)
+                    && reader == subReader;
+                if (trace) log.Info("IndexReader not active: " + subReader);
                 lock (semaphoreIndexReaderLock)
                 {
                     readerData = searchIndexReaderSemaphores[subReader];
-                }
-
-                if (readerData == null)
-                {
-                    log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory());
-                    // TODO: Should we try to close?
-                    continue;
-                }
-
-                // Acquire the locks in the same order as everywhere else
-                object directoryProviderLock = perDirectoryProviderManipulationLocks[readerData.Provider];
-                bool closeReader = false;
-                lock (directoryProviderLock)
-                {
-                    bool isActive = activeSearchIndexReaders[readerData.Provider] == subReader;
-                    if (trace) log.Info("IndexReader not active: " + subReader);
-                    lock (semaphoreIndexReaderLock)
+                    if (readerData == null)
                     {
-                        readerData = searchIndexReaderSemaphores[subReader];
-                        if (readerData == null)
-                        {
-                            log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory());
-                            // TODO: Should we try to close?
-                            continue;
-                        }
+                        log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory());
+                        // TODO: Should we try to close?
+                        return;
+                    }
+
+                    //final close, the semaphore should be at 0 already
+                    if (!finalClose)
+                    {
                         readerData.Semaphore--;
-                        if (trace) log.Info("Semaphore decreased to: " + readerData.Semaphore + " for " + subReader);
-
-                        if (readerData.Semaphore < 0)
-                            log.Error("Semaphore negative: " + subReader.Directory());
-
-                        if (!isActive && readerData.Semaphore == 0)
-                        {
-                            searchIndexReaderSemaphores.Remove(subReader);
-                            closeReader = true;
-                        }
-                        else
-                            closeReader = false;
+                        if (trace)
+                            log.Info("Semaphore decreased to: " + readerData.Semaphore + " for " + subReader);
                     }
+
+                    if (readerData.Semaphore < 0)
+                        log.Error("Semaphore negative: " + subReader.Directory());
+
+                    if (!isActive && readerData.Semaphore == 0)
+                    {
+                        searchIndexReaderSemaphores.Remove(subReader);
+                        closeReader = true;
+                    }
+                    else
+                        closeReader = false;
                 }
+            }
 
-                if (closeReader)
+            if (closeReader)
+            {
+                if (trace) log.Info("Closing IndexReader: " + subReader);
+                try
                 {
-                    if (trace) log.Info("Closing IndexReader: " + subReader);
-                    try
-                    {
-                        subReader.Close();
-                    }
-                    catch (IOException e)
-                    {
-                        log.Warn("Unable to close Lucene IndexReader", e);
-                    }
+                    subReader.Close();
+                }
+                catch (IOException e)
+                {
+                    log.Warn("Unable to close Lucene IndexReader", e);
                 }
             }
         }
@@ -325,6 +337,29 @@ namespace NHibernate.Search.Reader
             perDirectoryProviderManipulationLocks = new Dictionary<IDirectoryProvider, object>();
             foreach (IDirectoryProvider dp in providers)
                 perDirectoryProviderManipulationLocks[dp] = new object();
+        }
+
+        public void Destroy()
+        {
+            bool trace = log.IsInfoEnabled;
+            List<IndexReader> readers;
+            lock (semaphoreIndexReaderLock)
+            {
+                //release active readers
+                activeSearchIndexReaders.Clear();
+                readers = new List<IndexReader>();
+                readers.AddRange(searchIndexReaderSemaphores.Keys);
+            }
+
+            foreach (IndexReader reader in readers)
+            {
+                CloseInternalReader(trace, reader, true);
+            }
+
+            if (searchIndexReaderSemaphores.Count != 0)
+            {
+                log.Warn("ReaderProvider contains readers not properly closed at destroy time");
+            }
         }
 
         #endregion

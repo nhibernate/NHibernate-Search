@@ -30,5 +30,7 @@ namespace NHibernate.Search.Engine
         LuceneIndexingParameters GetIndexingParameters(IDirectoryProvider provider);
 
         void AddIndexingParameters(IDirectoryProvider provider, LuceneIndexingParameters indexingParameters);
+
+        void Close();
     }
 }

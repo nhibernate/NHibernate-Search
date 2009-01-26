@@ -21,9 +21,8 @@ namespace NHibernate.Search.Reader
                 for (int index = 0; index < length; index++)
                     readers[index] = IndexReader.Open(directoryProviders[index].Directory);
             }
-            catch (Exception ex)
+            catch (System.IO.IOException ex)
             {
-                // TODO: Need tighter exception?
                 // TODO: more contextual info
                 ReaderProviderHelper.Clean(readers);
                 throw new SearchException("Unable to open one of the Lucene indexes", ex);
@@ -38,9 +37,9 @@ namespace NHibernate.Search.Reader
             {
                 reader.Close();
             }
-            catch (Exception ex)
+            catch (System.IO.IOException ex)
             {
-                // TODO: Need tighter exception?
+                //TODO: extract subReaders and close each one individually
                 ReaderProviderHelper.Clean(reader);
                 new SearchException("Unable to close multiReader", ex);
             }
@@ -48,6 +47,10 @@ namespace NHibernate.Search.Reader
 
         public void Initialize(IDictionary<string, string> properties,
                                ISearchFactoryImplementor searchFactoryImplementor)
+        {
+        }
+
+        public void Destroy()
         {
         }
     }
