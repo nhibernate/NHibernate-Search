@@ -9,14 +9,14 @@ namespace NHibernate.Search.Tests.Worker
         private string name;
 
         [DocumentId]
-        public int Id
+        public virtual int Id
         {
             get { return id; }
             set { id = value; }
         }
 
         [Field(Index.Tokenized)]
-        public string Name
+        public virtual string Name
         {
             get { return name; }
             set { name = value; }

@@ -2,6 +2,7 @@ using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Worker
 {
+    [Indexed(Index = "employee")]
     public class Employee
     {
         private int id;

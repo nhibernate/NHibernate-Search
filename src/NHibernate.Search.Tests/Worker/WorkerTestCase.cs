@@ -1,45 +1,30 @@
+using System;
 using System.Collections;
 using System.IO;
 using System.Threading;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
 using NHibernate.Cfg;
-using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Worker
 {
-    [TestFixture, Ignore("Only partially ported - can't figure out what this is testing.")]
+    [TestFixture]
     public class WorkerTestCase : SearchTestCase
     {
-        protected override void Configure(Configuration configuration)
-        {
-            base.Configure(configuration);
-            DirectoryInfo sub = BaseIndexDir;
-            configuration.SetProperty("hibernate.search.default.indexBase", sub.FullName);
-            configuration.SetProperty("hibernate.search.Clock.directory_provider", typeof(FSDirectoryProvider).AssemblyQualifiedName);
+        private volatile int worksCount;
+        private volatile int reverseWorksCount;
+        private volatile int errorsCount;
 
-            configuration.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
-        }
-
-        protected override void OnSetUp()
+        private FileInfo BaseIndexDir
         {
-            DirectoryInfo sub = BaseIndexDir;
-            sub.Create();
-            foreach (DirectoryInfo directoryInfo in sub.GetDirectories())
-                directoryInfo.Delete(true);
-            BuildSessionFactory(); //we need a fresh one per test
-        }
-
-        protected override void OnTearDown()
-        {
-            BaseIndexDir.Delete(true);
-        }
-
-        private DirectoryInfo BaseIndexDir
-        {
-            get { return new DirectoryInfo(Path.Combine(".", "indextemp")); }
+            get
+            {
+                FileInfo current = new FileInfo(".");
+                FileInfo sub = new FileInfo(current.FullName + "\\indextemp");
+                return sub;
+            }
         }
 
         protected override IList Mappings
@@ -56,118 +41,205 @@ namespace NHibernate.Search.Tests.Worker
             }
         }
 
-        protected class Work
+        protected override void Configure(Configuration configuration)
         {
-            private readonly ISessionFactory sf;
-            public volatile int count;
+            base.Configure(configuration);
+            DeleteBaseIndexDir();
+            FileInfo sub = BaseIndexDir;
+            Directory.CreateDirectory(sub.FullName);
 
-            public Work(ISessionFactory sf)
+            configuration.SetProperty("hibernate.search.default.indexBase", sub.FullName);
+            configuration.SetProperty("hibernate.search.default.directory_provider", typeof(FSDirectoryProvider).AssemblyQualifiedName);
+            configuration.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
+        }
+
+        protected override void OnTearDown()
+        {
+            base.OnTearDown();
+            if (sessions != null) sessions.Close(); // Close the files in the indexDir
+            DeleteBaseIndexDir();
+        }
+
+        private void DeleteBaseIndexDir()
+        {
+            FileInfo sub = BaseIndexDir;
+            try
             {
-                this.sf = sf;
+                Delete(sub);
             }
-
-            public void Run(object ignored)
+            catch (IOException ex)
             {
-                ISession s = sf.OpenSession();
-                ITransaction tx = s.BeginTransaction();
-                Employee ee = new Employee();
-                ee.Name = ("Emmanuel");
-                s.Save(ee);
-                Employer er = new Employer();
-                er.Name = ("RH");
-                s.Save(er);
-                tx.Commit();
-                s.Close();
-
-                s = sf.OpenSession();
-                tx = s.BeginTransaction();
-                ee = (Employee) s.Get(typeof(Employee), ee.Id);
-                ee.Name = ("Emmanuel2");
-                er = (Employer) s.Get(typeof(Employer), er.Id);
-                er.Name = ("RH2");
-                tx.Commit();
-                s.Close();
-
-                s = sf.OpenSession();
-                tx = s.BeginTransaction();
-                IFullTextSession fts = new FullTextSessionImpl(s);
-                QueryParser parser = new QueryParser("id", new StopAnalyzer());
-                Lucene.Net.Search.Query query;
-                query = parser.Parse("name:emmanuel2");
-
-                bool results = fts.CreateFullTextQuery(query).List().Count > 0;
-                //don't test because in case of async, it query happens before actual saving
-                //if ( !results ) throw new RuntimeException( "No results!" );
-                tx.Commit();
-                s.Close();
-
-                s = sf.OpenSession();
-                tx = s.BeginTransaction();
-                ee = (Employee) s.Get(typeof(Employee), ee.Id);
-                s.Delete(ee);
-                er = (Employer) s.Get(typeof(Employee), er.Id);
-                s.Delete(er);
-                tx.Commit();
-                s.Close();
-                count++;
+                System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
             }
         }
 
-        protected class ReverseWork
+        private void Delete(FileInfo sub)
         {
-            private readonly ISessionFactory sf;
-
-            public ReverseWork(ISessionFactory sf)
-            {
-                this.sf = sf;
-            }
-
-            public void Run(object ignored)
-            {
-                ISession s = sf.OpenSession();
-                ITransaction tx = s.BeginTransaction();
-                Employer er = new Employer();
-                er.Name = ("RH");
-                s.Save(er);
-                Employee ee = new Employee();
-                ee.Name = ("Emmanuel");
-                s.Save(ee);
-                tx.Commit();
-                s.Close();
-
-                s = sf.OpenSession();
-                tx = s.BeginTransaction();
-                er = (Employer) s.Get(typeof(Employer), er.Id);
-                er.Name = ("RH2");
-                ee = (Employee) s.Get(typeof(Employee), ee.Id);
-                ee.Name = ("Emmanuel2");
-                tx.Commit();
-                s.Close();
-
-                s = sf.OpenSession();
-                tx = s.BeginTransaction();
-                er = (Employer) s.Get(typeof(Employer), er.Id);
-                s.Delete(er);
-                ee = (Employee) s.Get(typeof(Employee), ee.Id);
-                s.Delete(ee);
-                tx.Commit();
-                s.Close();
-            }
+            if (Directory.Exists(sub.FullName))
+                Directory.Delete(sub.FullName, true);
+            else
+                File.Delete(sub.FullName);
         }
 
         [Test]
         public void Concurrency()
         {
-            Work work = new Work(sessions);
-            ReverseWork reverseWork = new ReverseWork(sessions);
-            int iteration = 100;
+            const int nThreads = 15; // Fixed number of threads
+            int workerThreads, completionPortThreads;
+            ThreadPool.GetMinThreads(out workerThreads, out completionPortThreads);
+            ThreadPool.SetMinThreads(nThreads, completionPortThreads);
+            ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+            ThreadPool.SetMaxThreads(nThreads, completionPortThreads);
+            int workerThreadsAvailable;
+            ThreadPool.GetAvailableThreads(out workerThreadsAvailable, out completionPortThreads);
+
+            long start = DateTime.Now.Ticks;
+            const int iteration = 20; // Note: Was 100
             for (int i = 0; i < iteration; i++)
             {
-                ThreadPool.QueueUserWorkItem(work.Run);
-                ThreadPool.QueueUserWorkItem(reverseWork.Run);
+                ThreadPool.QueueUserWorkItem(Work);
+                ThreadPool.QueueUserWorkItem(ReverseWork);
             }
-            while (work.count < iteration - 1)
-                Thread.Sleep(20);
+
+            do
+            {
+                ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+                Thread.Sleep(20); // Wait that all the threads have been terminated before, otherwise, they will be aborted
+            }
+            while (workerThreads != workerThreadsAvailable
+                || worksCount < iteration || reverseWorksCount < iteration);
+
+            System.Diagnostics.Debug.WriteLine(iteration + " iterations in " + nThreads
+                + " threads: " + new TimeSpan(DateTime.Now.Ticks - start).TotalSeconds + " secs; errorsCount = " + errorsCount);
+            Assert.AreEqual(0, errorsCount, "Some iterations failed");
+        }
+
+        private void Work(object state)
+        {
+            Employee ee = null;
+            Employer er = null;
+            try
+            {
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    ee = new Employee();
+                    ee.Name = ("Emmanuel");
+                    s.Save(ee);
+                    er = new Employer();
+                    er.Name = ("RH");
+                    s.Save(er);
+                    tx.Commit();
+                }
+
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    ee = s.Get<Employee>(ee.Id);
+                    ee.Name = ("Emmanuel2");
+                    er = s.Get<Employer>(er.Id);
+                    er.Name = ("RH2");
+                    tx.Commit();
+                }
+
+                //Thread.Sleep(50);
+
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    IFullTextSession fts = new Impl.FullTextSessionImpl(s);
+                    QueryParser parser = new QueryParser("id", new StopAnalyzer());
+                    Lucene.Net.Search.Query query = parser.Parse("name:emmanuel2");
+
+                    bool results = fts.CreateFullTextQuery(query).List().Count > 0;
+                    //don't test because in case of async, it query happens before actual saving
+                    //if ( !results ) throw new Exception( "No results!" );
+                    tx.Commit();
+                }
+                //System.Diagnostics.Debug.WriteLine("Interation " + worksCount + " completed on thread " + Thread.CurrentThread.ManagedThreadId);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                errorsCount++;
+            }
+            finally
+            {
+                worksCount++;
+
+                if (ee != null || er != null)
+                    using (ISession s = OpenSession())
+                    {
+                        ITransaction tx = s.BeginTransaction();
+                        if (ee != null)
+                        {
+                            ee = s.Get<Employee>(ee.Id);
+                            s.Delete(ee);
+                        }
+                        if (er != null)
+                        {
+                            er = s.Get<Employer>(er.Id);
+                            s.Delete(er);
+                        }
+                        tx.Commit();
+                    }
+            }
+        }
+
+        private void ReverseWork(object state)
+        {
+            Employee ee = null;
+            Employer er = null;
+            try
+            {
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    er = new Employer();
+                    er.Name = "RH";
+                    s.Save(er);
+                    ee = new Employee();
+                    ee.Name = "Emmanuel";
+                    s.Save(ee);
+                    tx.Commit();
+                }
+
+                using (ISession s = OpenSession())
+                {
+                    ITransaction tx = s.BeginTransaction();
+                    er = s.Get<Employer>(er.Id);
+                    er.Name = ("RH2");
+                    ee = s.Get<Employee>(ee.Id);
+                    ee.Name = ("Emmanuel2");
+                    tx.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                errorsCount++;
+            }
+            finally
+            {
+                reverseWorksCount++;
+
+                if (ee != null || er != null)
+                    using (ISession s = OpenSession())
+                    {
+                        ITransaction tx = s.BeginTransaction();
+                        if (ee != null)
+                        {
+                            ee = s.Get<Employee>(ee.Id);
+                            s.Delete(ee);
+                        }
+                        if (er != null)
+                        {
+                            er = s.Get<Employer>(er.Id);
+                            s.Delete(er);
+                        }
+                        tx.Commit();
+                    }
+            }
         }
     }
 }

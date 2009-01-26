@@ -1,10 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using NHibernate.Cfg;
+using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Worker
 {
-    class SyncWorkerTest
+    [TestFixture]
+    public class SyncWorkerTest : WorkerTestCase
     {
+        protected override void Configure(Configuration configuration)
+        {
+            base.Configure(configuration);
+            configuration.SetProperty("hibernate.search.default.directory_provider", typeof(Store.RAMDirectoryProvider).AssemblyQualifiedName);
+            configuration.SetProperty(Environment.AnalyzerClass, typeof(Lucene.Net.Analysis.StopAnalyzer).AssemblyQualifiedName);
+            configuration.SetProperty(Environment.WorkerScope, "transaction");
+            configuration.SetProperty(Environment.WorkerExecution, "sync"); // Note: It is WorkerPrefix in the Java version, but it must be a typo
+        }
     }
 }
