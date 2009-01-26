@@ -5,14 +5,19 @@ using Lucene.Net.QueryParsers;
 using NHibernate.Search.Impl;
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests.Sessions {
-    public class MassIndexTest : SearchTestCase {
-        protected override IList Mappings {
+namespace NHibernate.Search.Tests.Session
+{
+    [TestFixture]
+    public class MassIndexTest : SearchTestCase 
+    {
+        protected override IList Mappings 
+        {
             get { return new string[] {"Session.Email.hbm.xml"}; }
         }
 
         [Test]
-        public void Transactional() {
+        public void Transactional() 
+        {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             ITransaction tx = s.BeginTransaction();
             int loop = 4;

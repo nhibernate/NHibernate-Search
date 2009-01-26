@@ -13,8 +13,8 @@ namespace NHibernate.Search.Tests.Worker
             configuration.SetProperty(Environment.AnalyzerClass, typeof(Lucene.Net.Analysis.StopAnalyzer).AssemblyQualifiedName);
             configuration.SetProperty(Environment.WorkerScope, "transaction");
             configuration.SetProperty(Environment.WorkerExecution, "async");
-            configuration.SetProperty(Environment.WorkerPrefix + "thread_pool.size", "1");
-            configuration.SetProperty(Environment.WorkerPrefix + "buffer_queue.max", "10");
+            configuration.SetProperty(Environment.WorkerThreadPoolSize, "1");
+            configuration.SetProperty(Environment.WorkerThreadPoolSize, "10");
         }
     }
 }

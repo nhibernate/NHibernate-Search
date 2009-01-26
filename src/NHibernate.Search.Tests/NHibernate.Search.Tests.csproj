@@ -97,15 +97,26 @@
     <Compile Include="ListenerCfg\ListenerRegistrationTests.cs" />
     <Compile Include="LuceneWorker\Document.cs" />
     <Compile Include="LuceneWorker\LuceneWorker.cs" />
+    <Compile Include="Optimizer\Construction.cs" />
+    <Compile Include="Optimizer\IncrementalOptimizerStrategyTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Optimizer\OptimizerTestCase.cs" />
+    <Compile Include="Optimizer\Worker.cs" />
     <Compile Include="PurgeTest.cs" />
     <Compile Include="Query\AlternateBook.cs" />
     <Compile Include="Query\Author.cs" />
     <Compile Include="Query\Book.cs" />
     <Compile Include="Query\Clock.cs" />
+    <Compile Include="Query\Employee.cs" />
     <Compile Include="Query\LuceneQuerySortTest.cs" />
     <Compile Include="Query\LuceneQueryTest.cs" />
     <Compile Include="Query\Music.cs" />
     <Compile Include="Query\ObjectLoaderTest.cs" />
+    <Compile Include="Query\ProjectionQueryTest.cs" />
+    <Compile Include="Query\ProjectionToDelimStringResultTransformer.cs" />
+    <Compile Include="Query\ProjectionToMapResultTransformer.cs" />
+    <Compile Include="Query\QueryLoaderTest.cs" />
     <Compile Include="SearchTestCase.cs" />
     <Compile Include="Session\Email.cs" />
     <Compile Include="Session\MassIndexTest.cs" />
@@ -118,7 +129,9 @@
     <Compile Include="Worker\Employer.cs" />
     <Compile Include="Worker\Food.cs" />
     <Compile Include="Worker\SyncWorkerTest.cs" />
-    <Compile Include="Worker\WorkerTestCase.cs" />
+    <Compile Include="Worker\WorkerTestCase.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -211,8 +224,21 @@
     <EmbeddedResource Include="Query\Music.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Optimizer\Construction.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Employee.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Optimizer\Worker.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Embedded\DoubleInsert\" />
+    <Folder Include="Filter\" />
+    <Folder Include="IndexingStrategy\" />
     <Folder Include="Properties\" />
     <Folder Include="Reader\" />
+    <Folder Include="Shards\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

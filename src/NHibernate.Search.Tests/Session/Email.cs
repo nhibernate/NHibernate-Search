@@ -1,8 +1,10 @@
 using NHibernate.Search.Attributes;
 
-namespace NHibernate.Search.Tests.Sessions {
+namespace NHibernate.Search.Tests.Session 
+{
     [Indexed]
-    public class Email {
+    public class Email 
+    {
         private string body;
         private string header;
         private int id;
@@ -10,31 +12,36 @@ namespace NHibernate.Search.Tests.Sessions {
 
         public Email() {}
 
-        public Email(int id, string title, string body) {
+        public Email(int id, string title, string body) 
+        {
             this.id = id;
             this.title = title;
             this.body = body;
         }
 
         [DocumentId]
-        public virtual int Id {
+        public virtual int Id 
+        {
             get { return id; }
             set { id = value; }
         }
 
         [Field(Index.Tokenized)]
-        public virtual string Title {
+        public virtual string Title 
+        {
             get { return title; }
             set { title = value; }
         }
 
         [Field(Index.Tokenized)]
-        public virtual string Body {
+        public virtual string Body 
+        {
             get { return body; }
             set { body = value; }
         }
 
-        public virtual string Header {
+        public virtual string Header 
+        {
             get { return header; }
             set { header = value; }
         }

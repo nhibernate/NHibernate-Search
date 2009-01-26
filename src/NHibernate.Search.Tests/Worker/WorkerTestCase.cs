@@ -10,7 +10,6 @@ using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Worker
 {
-    [TestFixture]
     public class WorkerTestCase : SearchTestCase
     {
         private volatile int worksCount;

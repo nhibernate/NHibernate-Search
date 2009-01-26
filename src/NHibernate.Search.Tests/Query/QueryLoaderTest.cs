@@ -1,10 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace NHibernate.Search.Tests.Query
 {
-    class QueryLoaderTest
+    using NUnit.Framework;
+
+    [TestFixture]
+    [Category("Not Implemented")]
+    [Explicit]
+    public class QueryLoaderTest : SearchTestCase
     {
+        protected override System.Collections.IList Mappings
+        {
+            get { throw new System.Exception("The method or operation is not implemented."); }
+        }
     }
 }

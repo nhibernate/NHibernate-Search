@@ -1,10 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace NHibernate.Search.Tests.Filter
 {
-    class FilterTest
+    using NUnit.Framework;
+
+    [TestFixture]
+    [Category("Not Implemented")]
+    [Explicit]
+    public class FilterTest
     {
     }
 }

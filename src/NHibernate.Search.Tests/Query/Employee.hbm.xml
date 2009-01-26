@@ -1,13 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
-				   namespace="NHibernate.Search.Tests.Session"
+				   namespace="NHibernate.Search.Tests.Query"
 				   assembly="NHibernate.Search.Tests">
-	<class name="Email">
+	<class name="Employee" lazy="false">
 		<id name="Id">
 			<generator class="assigned" />
 		</id>
-		<property name="Title"/>
-		<property name="Header"/>
-		<property name="Body"/>
+		<property name="Lastname"/>
+		<property name="Dept"/>
 	</class>
 </hibernate-mapping>

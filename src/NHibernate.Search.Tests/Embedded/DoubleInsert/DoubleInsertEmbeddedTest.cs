@@ -1,10 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 {
-    class DoubleInsertEmbeddedTest
+    using NUnit.Framework;
+
+    [TestFixture]
+    [Category("Not Implemented")]
+    [Explicit]
+    public class DoubleInsertEmbeddedTest
     {
     }
 }
