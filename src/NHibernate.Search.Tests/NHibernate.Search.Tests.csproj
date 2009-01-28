@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlternateDocument.cs" />
     <Compile Include="Analyzer\AbstractTestAnalyzer.cs" />
     <Compile Include="Analyzer\AnalyzerTest.cs" />
     <Compile Include="Analyzer\MyComponent.cs" />
@@ -79,9 +80,16 @@
     <Compile Include="DirectoryProvider\FSSlaveAndMasterDPTest.cs" />
     <Compile Include="DirectoryProvider\MultiplySessionFactoriesTestCase.cs" />
     <Compile Include="DirectoryProvider\SnowStorm.cs" />
+    <Compile Include="DocumentTop.cs" />
     <Compile Include="Embedded\Address.cs" />
     <Compile Include="Embedded\Author.cs" />
     <Compile Include="Embedded\Country.cs" />
+    <Compile Include="Embedded\DoubleInsert\Address.cs" />
+    <Compile Include="Embedded\DoubleInsert\BusinessContact.cs" />
+    <Compile Include="Embedded\DoubleInsert\Contact.cs" />
+    <Compile Include="Embedded\DoubleInsert\DoubleInsertEmbeddedTest.cs" />
+    <Compile Include="Embedded\DoubleInsert\PersonalContact.cs" />
+    <Compile Include="Embedded\DoubleInsert\Phone.cs" />
     <Compile Include="Embedded\EmbeddedTest.cs" />
     <Compile Include="Embedded\Order.cs" />
     <Compile Include="Embedded\Owner.cs" />
@@ -91,6 +99,7 @@
     <Compile Include="FieldAccess\Document.cs" />
     <Compile Include="FieldAccess\FieldAccessTest.cs" />
     <Compile Include="FileHelperTestCase.cs" />
+    <Compile Include="IndexingStrategy\ManualIndexingStrategyTest.cs" />
     <Compile Include="Inheritance\Animal.cs" />
     <Compile Include="Inheritance\InheritanceTest.cs" />
     <Compile Include="Inheritance\Mammal.cs" />
@@ -117,6 +126,11 @@
     <Compile Include="Query\ProjectionToDelimStringResultTransformer.cs" />
     <Compile Include="Query\ProjectionToMapResultTransformer.cs" />
     <Compile Include="Query\QueryLoaderTest.cs" />
+    <Compile Include="Reader\Detective.cs" />
+    <Compile Include="Reader\NotSharedReaderPerfTest.cs" />
+    <Compile Include="Reader\ReaderPerfTestCase.cs" />
+    <Compile Include="Reader\SharedReaderPerfTest.cs" />
+    <Compile Include="Reader\Suspect.cs" />
     <Compile Include="SearchTestCase.cs" />
     <Compile Include="Session\Email.cs" />
     <Compile Include="Session\MassIndexTest.cs" />
@@ -233,11 +247,24 @@
     <EmbeddedResource Include="Optimizer\Worker.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Embedded\DoubleInsert\" />
+    <EmbeddedResource Include="Reader\Detective.hbm.xml" />
+    <EmbeddedResource Include="Reader\Suspect.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\DoubleInsert\Address.hbm.xml" />
+    <EmbeddedResource Include="Embedded\DoubleInsert\Contact.hbm.xml" />
+    <EmbeddedResource Include="Embedded\DoubleInsert\PersonalContact.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AlternateDocument.hbm.xml" />
+    <EmbeddedResource Include="DocumentTop.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Filter\" />
-    <Folder Include="IndexingStrategy\" />
     <Folder Include="Properties\" />
-    <Folder Include="Reader\" />
     <Folder Include="Shards\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

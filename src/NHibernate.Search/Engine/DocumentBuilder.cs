@@ -220,7 +220,6 @@ namespace NHibernate.Search.Engine
             {
                 MemberInfo member = propertiesMetadata.embeddedGetters[i];
                 Object value = GetMemberValue(unproxiedInstance, member);
-                //if ( ! Hibernate.isInitialized( value ) ) continue; //this sounds like a bad idea 
                 //TODO handle boost at embedded level: already stored in propertiesMedatada.boost
 
                 if (value == null) continue;
@@ -235,7 +234,8 @@ namespace NHibernate.Search.Engine
                             break;
 
                         case Container.Collection:
-                            foreach (object collectionValue in value as ICollection)
+                            // Need to cast down to IEnumerable to support ISet 
+                            foreach (object collectionValue in value as IEnumerable)
                                 BuildDocumentFields(collectionValue, doc, embeddedMetadata);
                             break;
 
@@ -308,7 +308,7 @@ namespace NHibernate.Search.Engine
             return boost.Value;
         }
 
-        private static int getFieldPosition(string[] fields, string fieldName)
+        private static int GetFieldPosition(string[] fields, string fieldName)
         {
             int fieldNbr = fields.GetUpperBound(0);
             for (int index = 0; index < fieldNbr; index++)
@@ -381,8 +381,9 @@ namespace NHibernate.Search.Engine
                         idBridge = (ITwoWayFieldBridge) fieldBridge;
                     else
                         throw new SearchException(
-                            "Bridge for document id does not implement IdFieldBridge: " + member.Name);
+                            "Bridge for document id does not implement TwoWayFieldBridge: " + member.Name);
                     idBoost = GetBoost(member);
+                    SetAccessible(member);
                     idGetter = member;
                 }
                 else
@@ -444,21 +445,26 @@ namespace NHibernate.Search.Engine
                     metadata.analyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
                     string localPrefix = BuildEmbeddedPrefix(prefix, embeddedAttribute, member);
                     InitializeMembers(elementType, metadata, false, localPrefix, processedClasses);
+
+                    // PH Basic problem here I think is that we have a generic collection and we
+                    // never learn what the member type is, so we don't check that class for metadata
+
                     /**
                      * We will only index the "expected" type but that's OK, HQL cannot do downcasting either
                      */
                     if (elementType.IsArray)
                         propertiesMetadata.embeddedContainers.Add(Container.Array);
+                    else if (typeof(IDictionary).IsAssignableFrom(elementType))
+                        propertiesMetadata.embeddedContainers.Add(Container.Map);
                     else if (typeof(ICollection).IsAssignableFrom(elementType))
-                    {
-                        // TODO: Check this will cope with ISet and/or subclasses of IList/IDictionary correctly
-                        if (typeof(IDictionary).IsAssignableFrom(elementType))
-                            propertiesMetadata.embeddedContainers.Add(Container.Map);
-                        else
-                            propertiesMetadata.embeddedContainers.Add(Container.Collection);
-                    }
+                        propertiesMetadata.embeddedContainers.Add(Container.Collection);
+                    else if (typeof(IEnumerable).IsAssignableFrom(elementType))
+                        // NB We only see ISet and IDictionary`2 as IEnumerable
+                        propertiesMetadata.embeddedContainers.Add(Container.Collection);
                     else
                         propertiesMetadata.embeddedContainers.Add(Container.Object);
+
+                    processedClasses.Remove(elementType); // pop
                 }
                 else if (logger.IsDebugEnabled)
                 {
@@ -561,7 +567,7 @@ namespace NHibernate.Search.Engine
         private static void PopulateResult(string fieldName, IFieldBridge fieldBridge, Field.Store store,
                                            string[] fields, object[] result, Document document)
         {
-            int matchingPosition = getFieldPosition(fields, fieldName);
+            int matchingPosition = GetFieldPosition(fields, fieldName);
             if (matchingPosition != -1)
             {
                 //TODO make use of an isTwoWay() method
@@ -579,16 +585,14 @@ namespace NHibernate.Search.Engine
                     {
                         throw new SearchException("Projecting an unstored field: " + fieldName);
                     }
-                    else
-                    {
-                        throw new SearchException("IFieldBridge is not a ITwoWayFieldBridge: " + fieldBridge.GetType());
-                    }
+                    
+                    throw new SearchException("IFieldBridge is not a ITwoWayFieldBridge: " + fieldBridge.GetType());
                 }
             }
         }
 
         private static void ProcessContainedIn(Object instance, List<LuceneWork> queue, PropertiesMetadata metadata,
-                                               SearchFactoryImpl searchFactory)
+                                               ISearchFactoryImplementor searchFactoryImplementor)
         {
             for (int i = 0; i < metadata.containedInGetters.Count; i++)
             {
@@ -604,16 +608,17 @@ namespace NHibernate.Search.Engine
                     {
                         // Highly inneficient but safe wrt the actual targeted class, e.g. polymorphic items in the array
                         System.Type valueType = NHibernateUtil.GetClass(arrayValue);
-                        if (valueType == null || !searchFactory.DocumentBuilders.ContainsKey(valueType))
+                        if (valueType == null || !searchFactoryImplementor.DocumentBuilders.ContainsKey(valueType))
                             continue;
 
-                        ProcessContainedInValue(arrayValue, queue, valueType, searchFactory.DocumentBuilders[valueType],
-                                                searchFactory);
+                        ProcessContainedInValue(arrayValue, queue, valueType, searchFactoryImplementor.DocumentBuilders[valueType],
+                                                searchFactoryImplementor);
                     }
                 }
-                else if (typeof(ICollection).IsAssignableFrom(value.GetType()))
+                else if (typeof(IEnumerable).IsAssignableFrom(value.GetType()))
                 {
-                    ICollection collection = value as ICollection;
+                    // NB We only see ISet and IDictionary`2 as IEnumerable
+                    IEnumerable collection = value as IEnumerable;
                     if (typeof(IDictionary).IsAssignableFrom(value.GetType()))
                         collection = ((IDictionary) value).Values;
 
@@ -624,21 +629,21 @@ namespace NHibernate.Search.Engine
                     {
                         // Highly inneficient but safe wrt the actual targeted class, e.g. polymorphic items in the array
                         System.Type valueType = NHibernateUtil.GetClass(collectionValue);
-                        if (valueType == null || !searchFactory.DocumentBuilders.ContainsKey(valueType))
+                        if (valueType == null || !searchFactoryImplementor.DocumentBuilders.ContainsKey(valueType))
                             continue;
 
                         ProcessContainedInValue(collectionValue, queue, valueType,
-                                                searchFactory.DocumentBuilders[valueType], searchFactory);
+                                                searchFactoryImplementor.DocumentBuilders[valueType], searchFactoryImplementor);
                     }
                 }
                 else
                 {
                     System.Type valueType = NHibernateUtil.GetClass(value);
-                    if (valueType == null || !searchFactory.DocumentBuilders.ContainsKey(valueType))
+                    if (valueType == null || !searchFactoryImplementor.DocumentBuilders.ContainsKey(valueType))
                         continue;
 
-                    ProcessContainedInValue(value, queue, valueType, searchFactory.DocumentBuilders[valueType],
-                                            searchFactory);
+                    ProcessContainedInValue(value, queue, valueType, searchFactoryImplementor.DocumentBuilders[valueType],
+                                            searchFactoryImplementor);
                 }
             }
             //an embedded cannot have a useful @ContainedIn (no shared reference)
@@ -646,7 +651,7 @@ namespace NHibernate.Search.Engine
         }
 
         private static void ProcessContainedInValue(object value, List<LuceneWork> queue, System.Type valueClass,
-                                                    DocumentBuilder builder, SearchFactoryImpl searchFactory)
+                                                    DocumentBuilder builder, ISearchFactoryImplementor searchFactory)
         {
             object id = GetMemberValue(value, builder.idGetter);
             builder.AddToWorkQueue(valueClass, value, id, WorkType.Update, queue, searchFactory);
@@ -673,7 +678,7 @@ namespace NHibernate.Search.Engine
         /// </summary>
         public void AddToWorkQueue(System.Type entityClass, object entity, object id, WorkType workType,
                                    List<LuceneWork> queue,
-                                   SearchFactoryImpl searchFactory)
+                                   ISearchFactoryImplementor searchFactoryImplementor)
         {
             //TODO with the caller loop we are in a n^2: optimize it using a HashMap for work recognition
             foreach (LuceneWork luceneWork in queue)
@@ -730,7 +735,7 @@ namespace NHibernate.Search.Engine
 		     * When the internal object is changed, we apply the {Add|Update}Work on containedIns
 		    */
             if (searchForContainers)
-                ProcessContainedIn(entity, queue, rootPropertiesMetadata, searchFactory);
+                ProcessContainedIn(entity, queue, rootPropertiesMetadata, searchFactoryImplementor);
         }
 
         public Document GetDocument(object instance, object id)

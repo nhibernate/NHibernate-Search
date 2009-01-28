@@ -44,10 +44,9 @@ namespace NHibernate.Search.Tests.Analyzer
             query = s.CreateFullTextQuery(luceneQuery, typeof(MyEntity));
             Assert.AreEqual(1, query.ResultSize, "Field query");
 
-            // TODO: Uncomment once we have embedded components working
-            //luceneQuery = parser.Parse("component.componentProperty:noise");
-            //query = s.CreateFullTextQuery(luceneQuery);
-            //Assert.AreEqual(1, query.ResultSize, "Component query");
+            luceneQuery = parser.Parse("component.componentProperty:noise");
+            query = s.CreateFullTextQuery(luceneQuery);
+            Assert.AreEqual(1, query.ResultSize, "Component query");
 
             s.Delete(query.UniqueResult());
             tx.Commit();

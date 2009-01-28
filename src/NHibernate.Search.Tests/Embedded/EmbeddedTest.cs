@@ -40,7 +40,7 @@ namespace NHibernate.Search.Tests.Embedded
         #region Tests
 
         [Test]
-        public void TestEmbeddedIndexing()
+        public void EmbeddedIndexing()
         {
             Tower tower = new Tower();
             tower.Name = "JBoss tower";
@@ -110,7 +110,7 @@ namespace NHibernate.Search.Tests.Embedded
         }
 
         [Test]
-        public void TestContainedIn()
+        public void ContainedIn()
         {
             Tower tower = new Tower();
             tower.Name = "JBoss tower";
@@ -172,8 +172,9 @@ namespace NHibernate.Search.Tests.Embedded
             s.Close();
         }
 
-        [Test, Ignore]
-        public void TestIndexedEmbeddedAndCollections()
+        [Test]
+        [Ignore]
+        public void IndexedEmbeddedAndCollections()
         {
             Author a = new Author();
             a.Name = "Voltaire";
@@ -261,6 +262,7 @@ namespace NHibernate.Search.Tests.Embedded
 
             s.Close();
         }
+
         #endregion
     }
 }

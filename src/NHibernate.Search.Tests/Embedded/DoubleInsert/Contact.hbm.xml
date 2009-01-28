@@ -1,20 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
-				   namespace="NHibernate.Search.Tests.Embedded"
+				   namespace="NHibernate.Search.Tests.Embedded.DoubleInsert"
 				   assembly="NHibernate.Search.Tests">
-	<class name="Address">
+	<class name="Contact" discriminator-value="Contact">
 		<id name="Id">
 			<generator class="native" />
 		</id>
-		<property name="Street"/>
-		<component name="OwnedBy" class="Owner">
-			<property name="Name" column="OwnerName" />
-			<many-to-one name="Address" column="OwnerAddressId" class="Address" />
-		</component>
-		<set name="Towers" table="Tower" >
-			<key column="AddressId" />
-			<one-to-many class="Tower" />
-		</set>
-		<many-to-one name="Country" column="CountryId" class="Country" cascade="save-update" />
+		<property name="Email" />
+		<property name="CreatedOn" />
+		<property name="LastUpdateOn" />
+		<property name="Notes" />
 	</class>
 </hibernate-mapping>

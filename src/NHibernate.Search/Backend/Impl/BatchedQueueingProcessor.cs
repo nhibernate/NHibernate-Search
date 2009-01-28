@@ -15,19 +15,19 @@ namespace NHibernate.Search.Backend.Impl
     /// </summary>
     public class BatchedQueueingProcessor : IQueueingProcessor
     {
-        private readonly IBackendQueueProcessorFactory backendQueueProcessorFactory;
-        private readonly int batchSize;
-        private readonly SearchFactoryImpl searchFactory;
         private readonly bool sync;
+        private readonly int batchSize;
+        private readonly IBackendQueueProcessorFactory backendQueueProcessorFactory;
+        private readonly ISearchFactoryImplementor searchFactoryImplementor;
 
-        public BatchedQueueingProcessor(SearchFactoryImpl searchFactory, IDictionary properties)
+        public BatchedQueueingProcessor(ISearchFactoryImplementor searchFactoryImplementor, IDictionary properties)
         {
-            this.searchFactory = searchFactory;
+            this.searchFactoryImplementor = searchFactoryImplementor;
             //default to sync if none defined
             this.sync = !"async".Equals((string) properties[Environment.WorkerExecution],StringComparison.InvariantCultureIgnoreCase);
 
             string backend = (string) properties[Environment.WorkerBackend];
-            batchSize = 0; //(int)properties[Environment.WorkerBatchSize];
+            batchSize = 0;//(int) properties[Environment.WorkerBatchSize];
             if (StringHelper.IsEmpty(backend) || "lucene".Equals(backend, StringComparison.InvariantCultureIgnoreCase))
             {
                 backendQueueProcessorFactory = new LuceneBackendQueueProcessorFactory();
@@ -37,24 +37,24 @@ namespace NHibernate.Search.Backend.Impl
                 try
                 {
                     System.Type processorFactoryClass = ReflectHelper.ClassForName(backend);
-                    backendQueueProcessorFactory =
-                        (IBackendQueueProcessorFactory) Activator.CreateInstance((System.Type) processorFactoryClass);
+                    backendQueueProcessorFactory = (IBackendQueueProcessorFactory) Activator.CreateInstance(processorFactoryClass);
                 }
                 catch (Exception e)
                 {
                     throw new SearchException("Unable to find/create processor class: " + backend, e);
                 }
             }
-            backendQueueProcessorFactory.Initialize(properties, searchFactory);
-            searchFactory.BackendQueueProcessorFactory = backendQueueProcessorFactory;
+            backendQueueProcessorFactory.Initialize(properties, searchFactoryImplementor);
+            searchFactoryImplementor.BackendQueueProcessorFactory = backendQueueProcessorFactory;
         }
 
-        //TODO implements parallel batchWorkers (one per Directory)
 
         #region IQueueingProcessor Members
 
         public void Add(Work work, WorkQueue workQueue)
         {
+            //don't check for builder it's done in prepareWork
+            //FIXME WorkType.COLLECTION does not play well with batchSize
             workQueue.Add(work);
             if (batchSize > 0 && workQueue.Count >= batchSize)
             {
@@ -64,6 +64,7 @@ namespace NHibernate.Search.Backend.Impl
             }
         }
 
+        //TODO implements parallel batchWorkers (one per Directory)
         public void PerformWorks(WorkQueue workQueue)
         {
             WaitCallback processor = backendQueueProcessorFactory.GetProcessor(workQueue.GetSealedQueue());
@@ -122,13 +123,13 @@ namespace NHibernate.Search.Backend.Impl
                                           ? (System.Type)work.Entity
                                           : NHibernateUtil.GetClass(work.Entity);
 
-                DocumentBuilder builder = this.searchFactory.DocumentBuilders[entityClass];
+                DocumentBuilder builder = this.searchFactoryImplementor.DocumentBuilders[entityClass];
                 if (builder == null)
                 {
                     continue; //or exception?
                 }
 
-                builder.AddToWorkQueue(entityClass, work.Entity, work.Id, work.WorkType, luceneQueue, this.searchFactory);
+                builder.AddToWorkQueue(entityClass, work.Entity, work.Id, work.WorkType, luceneQueue, this.searchFactoryImplementor);
             }
         }
 
@@ -146,8 +147,7 @@ namespace NHibernate.Search.Backend.Impl
             {
                 public override bool IsRightLayer(WorkType type)
                 {
-                    //return type != WorkType.COLLECTION ;
-                    return true;
+                    return type != WorkType.Collection;
                 }
             }
 
@@ -159,8 +159,7 @@ namespace NHibernate.Search.Backend.Impl
             {
                 public override bool IsRightLayer(WorkType type)
                 {
-                    //return type == WorkType.COLLECTION;
-                    return false;
+                    return type == WorkType.Collection;
                 }
             }
 

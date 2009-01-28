@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using NHibernate.Search.Impl;
 
 namespace NHibernate.Search.Backend
 {
+    using Engine;
+
     /// <summary>
     /// Build stateful backend processor
     /// Must have a no arg constructor
@@ -12,7 +13,7 @@ namespace NHibernate.Search.Backend
     /// </summary>
     public interface IBackendQueueProcessorFactory
     {
-        void Initialize(IDictionary props, SearchFactoryImpl aSearchFactory);
+        void Initialize(IDictionary props, ISearchFactoryImplementor aSearchFactory);
 
         /// <summary>
         /// Return a runnable implementation responsible for processing the queue to a given backend
