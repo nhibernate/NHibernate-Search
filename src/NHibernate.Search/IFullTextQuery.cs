@@ -100,7 +100,7 @@ namespace NHibernate.Search
         /// </summary>
         /// <param name="fetchSize"></param>
         /// <returns></returns>
-        IFullTextQuery SetFetchSize(int fetchSize);
+        new IFullTextQuery SetFetchSize(int fetchSize);
 
         /// <summary>
         /// 

@@ -10,6 +10,7 @@ using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Worker
 {
+    [TestFixture]
     public class WorkerTestCase : SearchTestCase
     {
         private volatile int worksCount;
@@ -173,12 +174,14 @@ namespace NHibernate.Search.Tests.Worker
                         if (ee != null)
                         {
                             ee = s.Get<Employee>(ee.Id);
-                            s.Delete(ee);
+                            if (ee != null)
+                                s.Delete(ee);
                         }
                         if (er != null)
                         {
                             er = s.Get<Employer>(er.Id);
-                            s.Delete(er);
+                            if (er != null)
+                                s.Delete(er);
                         }
                         tx.Commit();
                     }
@@ -229,12 +232,14 @@ namespace NHibernate.Search.Tests.Worker
                         if (ee != null)
                         {
                             ee = s.Get<Employee>(ee.Id);
-                            s.Delete(ee);
+                            if (ee != null)
+                                s.Delete(ee);
                         }
                         if (er != null)
                         {
                             er = s.Get<Employer>(er.Id);
-                            s.Delete(er);
+                            if (er != null)
+                                s.Delete(er);
                         }
                         tx.Commit();
                     }

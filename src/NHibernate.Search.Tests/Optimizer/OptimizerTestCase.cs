@@ -163,12 +163,14 @@ namespace NHibernate.Search.Tests.Optimizer
                         if (w != null)
                         {
                             w = s.Get<Worker>(w.Id);
-                            s.Delete(w);
+                            if (w != null)
+                                s.Delete(w);
                         }
                         if (c != null)
                         {
                             c = s.Get<Construction>(c.Id);
-                            s.Delete(c);
+                            if (c != null)
+                                s.Delete(c);
                         }
                         tx.Commit();
                     }
@@ -217,12 +219,14 @@ namespace NHibernate.Search.Tests.Optimizer
                         if (w != null)
                         {
                             w = s.Get<Worker>(w.Id);
-                            s.Delete(w);
+                            if (w != null)
+                                s.Delete(w);
                         }
                         if (c != null)
                         {
                             c = s.Get<Construction>(c.Id);
-                            s.Delete(c);
+                            if (c != null)
+                                s.Delete(c);
                         }
                         tx.Commit();
                     }

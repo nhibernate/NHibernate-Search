@@ -25,7 +25,8 @@ namespace NHibernate.Search.Backend.Impl
                     txSync =
                         new PostTransactionWorkQueueSynchronization(queueingProcessor, synchronizationPerTransaction);
                     transaction.RegisterSynchronization(txSync);
-                    synchronizationPerTransaction[transaction] = txSync;
+                    lock (synchronizationPerTransaction.SyncRoot)
+                        synchronizationPerTransaction[transaction] = txSync;
                 }
                 txSync.Add(work);
             }
