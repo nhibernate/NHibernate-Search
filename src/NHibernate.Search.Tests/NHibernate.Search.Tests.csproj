@@ -95,6 +95,7 @@
     <Compile Include="Embedded\DoubleInsert\PersonalContact.cs" />
     <Compile Include="Embedded\DoubleInsert\Phone.cs" />
     <Compile Include="Embedded\EmbeddedTest.cs" />
+    <Compile Include="Embedded\IndexedEmbeddedAndCollections.cs" />
     <Compile Include="Embedded\Order.cs" />
     <Compile Include="Embedded\Owner.cs" />
     <Compile Include="Embedded\Person.cs" />

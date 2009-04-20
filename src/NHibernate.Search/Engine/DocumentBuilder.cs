@@ -19,6 +19,8 @@ using FieldInfo=System.Reflection.FieldInfo;
 
 namespace NHibernate.Search.Engine
 {
+    using Type=System.Type;
+
     /// <summary>
     /// Set up and provide a manager for indexes classes
     /// </summary>
@@ -341,7 +343,27 @@ namespace NHibernate.Search.Engine
             return info != null ? info.GetValue(instance, null) : ((FieldInfo) getter).GetValue(instance);
         }
 
-        private static System.Type GetMemberType(MemberInfo member)
+        private static System.Type GetMemberTypeOrGenericArguments(MemberInfo member)
+        {
+            Type type = GetMemberType(member);
+            if (type.IsGenericType)
+            {
+                Type[] arguments = type.GetGenericArguments();
+                //if we have more than one generic arg, we assume that this is a map
+                // and return its value
+                return arguments[arguments.Length - 1];
+            }
+            return type;
+        }
+
+        private static Type GetMemberTypeOrGenericCollectionType(MemberInfo member)
+        {
+            Type type = GetMemberType(member);
+            return type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+        }
+
+
+        private static Type GetMemberType(MemberInfo member)
         {
             PropertyInfo info = member as PropertyInfo;
             return info != null ? info.PropertyType : ((FieldInfo) member).FieldType;
@@ -424,7 +446,7 @@ namespace NHibernate.Search.Engine
                 maxLevel = potentialLevel > maxLevel ? maxLevel : potentialLevel;
                 level++;
 
-                System.Type elementType = embeddedAttribute.TargetElement ?? GetMemberType(member);
+                System.Type elementType = embeddedAttribute.TargetElement ?? GetMemberTypeOrGenericArguments(member);
 
                 if (maxLevel == int.MaxValue && processedClasses.Contains(elementType))
                     throw new SearchException(
@@ -446,25 +468,27 @@ namespace NHibernate.Search.Engine
                     string localPrefix = BuildEmbeddedPrefix(prefix, embeddedAttribute, member);
                     InitializeMembers(elementType, metadata, false, localPrefix, processedClasses);
 
-                    // PH Basic problem here I think is that we have a generic collection and we
-                    // never learn what the member type is, so we don't check that class for metadata
-
                     /**
                      * We will only index the "expected" type but that's OK, HQL cannot do downcasting either
                      */
-                    if (elementType.IsArray)
+                    // ayende: because we have to deal with generic collections here, we aren't 
+                    // actually using the element type to determain what the value is, since that 
+                    // was resolved to the element type of the possible collection
+                    Type actualFieldType = GetMemberTypeOrGenericCollectionType(member);
+                    if (actualFieldType.IsArray)
                         propertiesMetadata.embeddedContainers.Add(Container.Array);
-                    else if (typeof(IDictionary).IsAssignableFrom(elementType))
+                    else if (typeof(IDictionary).IsAssignableFrom(actualFieldType) ||
+                        typeof(IDictionary<,>).IsAssignableFrom(actualFieldType))
                         propertiesMetadata.embeddedContainers.Add(Container.Map);
-                    else if (typeof(ICollection).IsAssignableFrom(elementType))
+                    else if (typeof(ICollection).IsAssignableFrom(actualFieldType))
                         propertiesMetadata.embeddedContainers.Add(Container.Collection);
-                    else if (typeof(IEnumerable).IsAssignableFrom(elementType))
-                        // NB We only see ISet and IDictionary`2 as IEnumerable
+                    else if (typeof(IEnumerable).IsAssignableFrom(actualFieldType))
+                        // NB We only see ISet as IEnumerable
                         propertiesMetadata.embeddedContainers.Add(Container.Collection);
                     else
                         propertiesMetadata.embeddedContainers.Add(Container.Object);
 
-                    processedClasses.Remove(elementType); // pop
+                    processedClasses.Remove(actualFieldType); // pop
                 }
                 else if (logger.IsDebugEnabled)
                 {
