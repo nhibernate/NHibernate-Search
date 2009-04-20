@@ -402,7 +402,17 @@ namespace NHibernate.Search.Impl
         {
             return session.BeginTransaction(isolationLevel);
         }
+#if !NHIBERNATE20
+        public ICriteria CreateCriteria<T>() where T : class
+        {
+            return session.CreateCriteria<T>();
+        }
 
+        public ICriteria CreateCriteria<T>(string alias) where T : class
+        {
+            return session.CreateCriteria<T>(alias);
+        }
+#endif
         public ICriteria CreateCriteria(System.Type persistentClass)
         {
             return session.CreateCriteria(persistentClass);

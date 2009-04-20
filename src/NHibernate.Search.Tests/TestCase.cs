@@ -14,7 +14,10 @@ using NUnit.Framework;
 
 namespace NHibernate.Test
 {
-	public abstract class TestCase
+    using ByteCode.Castle;
+    using Environment=NHibernate.Cfg.Environment;
+
+    public abstract class TestCase
 	{
 		private const bool OutputDdl = false;
 		protected Configuration cfg;
@@ -180,6 +183,7 @@ namespace NHibernate.Test
 		private void Configure()
 		{
 			cfg = new Configuration();
+		    cfg.SetProperty(Environment.ProxyFactoryFactoryClass, typeof (ProxyFactory).AssemblyQualifiedName);
 			if (TestConfigurationHelper.hibernateConfigFile != null)
 				cfg.Configure(TestConfigurationHelper.hibernateConfigFile);
 

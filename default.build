@@ -8,7 +8,7 @@
 	<property name="framework.family" value="${framework::get-family(framework::get-target-framework())}"/>
 	<property name="framework.version" value="${framework::get-version(framework::get-target-framework())}"/>
 
-	<property name="folders.lib" value="../../lib/${framework.family}/${framework.version}" />
+	<property name="folders.lib" value="lib" />
 	<property name="folders.build" value="build" />
 
 	<target name="build" depends="clean">
@@ -49,7 +49,7 @@
 			</sources>
 			<references>
 				<include name="${folders.lib}/NHibernate.dll"/>
-				<include name="${folders.lib}/NHibernate.Test.dll"/>
+				<include name="${folders.lib}/NHibernate.ByteCode.Castle.dll"/>
 				<include name="${folders.lib}/log4net.dll"/>
 				<include name="${folders.lib}/nunit.framework.dll"/>
 				<include name="${folders.lib}/Iesi.Collections.dll"/>
@@ -71,7 +71,7 @@
 		<copy todir="build" flatten="true">
 			<fileset>
 				<include name="${folders.lib}/NHibernate.dll"/>
-				<include name="${folders.lib}/NHibernate.Test.dll"/>
+				<include name="${folders.lib}/NHibernate.ByteCode.Castle.dll"/>
 				<include name="${folders.lib}/NHibernate.DomainModel.dll"/>
 				<include name="${folders.lib}/Iesi.Collections.dll"/>
 				<include name="${folders.lib}/log4net.dll"/>

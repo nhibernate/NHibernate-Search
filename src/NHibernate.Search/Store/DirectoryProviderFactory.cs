@@ -18,7 +18,7 @@ namespace NHibernate.Search.Store
 
         private const string LUCENE_DEFAULT = LUCENE_PREFIX + "default.";
         private const string LUCENE_PREFIX = "hibernate.search.";
-        private const string DEFAULT_DIRECTORY_PROVIDER = "NHibernate.Search.Storage.FSDirectoryProvider, NHibernate.Search";
+        private const string DEFAULT_DIRECTORY_PROVIDER = "NHibernate.Search.Store.FSDirectoryProvider, NHibernate.Search";
 
         // Lucene index performance parameters
         private const string MERGE_FACTOR = "merge_factor";
@@ -86,14 +86,15 @@ namespace NHibernate.Search.Store
         private IDirectoryProvider CreateDirectoryProvider(string directoryProviderName, IDictionary<string, string> indexProps,
                                                           ISearchFactoryImplementor searchFactoryImplementor)
         {
-            String className = (string)indexProps["directory_provider"];
+            String className;
+            indexProps.TryGetValue("directory_provider", out className);
             if (StringHelper.IsEmpty(className))
                 className = DEFAULT_DIRECTORY_PROVIDER;
             IDirectoryProvider provider;
             try
             {
                 System.Type directoryClass = ReflectHelper.ClassForName(className);
-                provider = (IDirectoryProvider)Activator.CreateInstance((System.Type)directoryClass);
+                provider = (IDirectoryProvider)Activator.CreateInstance(directoryClass);
             }
             catch (Exception e)
             {
