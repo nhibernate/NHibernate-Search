@@ -52,7 +52,7 @@ namespace NHibernate.Search.Engine
             if (criteria == null) criteria = session.CreateCriteria(entityType);
 
             DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[entityType];
-            string idName = "?"; // builder.IdentifierName;
+            string idName = builder.GetIdKeywordName();
             int loop = maxResults/MAX_IN_CLAUSE;
             bool exact = maxResults % MAX_IN_CLAUSE == 0;
             if (!exact) loop++;
@@ -73,7 +73,7 @@ namespace NHibernate.Search.Engine
             criteria.Add(disjunction);
             criteria.List(); // Load all objects
 
-            // Mandatory to keep the same ordering
+            // Mandatory to keep the same ordering // TODO: Would it be faster to keep the list and then sort it?
             IList result = new ArrayList(entityInfos.Length);
             foreach (EntityInfo entityInfo in entityInfos)
             {
@@ -84,6 +84,8 @@ namespace NHibernate.Search.Engine
                     //the other ones are missing ones
                     result.Add(element);
                 }
+                else
+                    log.Warn("Lucene index contains info about entity " + entityInfo.Clazz.Name + "#" + entityInfo.Id + " which wasn't found in the database. Rebuild the index.");
             }
 
             return result;

@@ -44,7 +44,7 @@ namespace NHibernate.Search.Engine
         {
             // Use load to benefit from the batch-size
             // We don't face proxy casting issues since the exact class is extracted from the index
-            foreach (EntityInfo entityInfo in entityInfos)
+            foreach (EntityInfo entityInfo in entityInfos) // TODO: Why do this?
             {
                 session.Load(entityInfo.Clazz, entityInfo.Id);
             }
@@ -63,7 +63,7 @@ namespace NHibernate.Search.Engine
                 {
                     if (LoaderHelper.IsObjectNotFoundException(e))
                     {
-                        log.Debug("Object found in Search index but not in database: "
+                        log.Warn("Object found in Search index but not in database: "
                                   + entityInfo.Clazz + " wih id " + entityInfo.Id);
                     }
                     else

@@ -245,13 +245,23 @@ namespace NHibernate.Search.Query
                 SetResultSize(hits);
                 int first = First();
                 int max = Max(first, hits);
-                ISession sess = (ISession) Session;
+                ISession sess = (ISession)Session;
+
+                int size = max - first + 1;
+                if (size <= 0)
+                    return;
+                List<EntityInfo> infos = new List<EntityInfo>(size);
                 DocumentExtractor extractor = new DocumentExtractor(SearchFactory, indexProjection);
-                ILoader loader = this.GetLoader(sess);                
                 for (int index = first; index <= max; index++)
-                {
-                    list.Add(loader.Load(extractor.Extract(hits, index)));
-                }
+                    infos.Add(extractor.Extract(hits, index));
+
+                ILoader loader = GetLoader(sess);
+                IList entities = loader.Load(infos.ToArray());
+                foreach (object entity in entities)
+                    list.Add(entity);
+
+                if (entities.Count != infos.Count)
+                    log.Warn("Lucene index contains infos about " + infos.Count + " entities, but " + entities.Count + " were found in the database. Rebuild the index.");
 
                 if (resultTransformer == null || loader is ProjectionLoader)
                 {
