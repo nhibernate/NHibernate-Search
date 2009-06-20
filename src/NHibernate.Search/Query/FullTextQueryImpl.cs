@@ -96,7 +96,7 @@ namespace NHibernate.Search.Query
                     //TODO use indexSearcher.getIndexReader().document( hits.id(index), FieldSelector(indexProjection) );
                     infos.Add(extractor.Extract(hits, index));
                 }
-                return new IteratorImpl<T>(infos, this.GetLoader(Session.GetSession())).Iterate();
+                return new IteratorImpl<T>(infos, this.GetLoader((ISession)Session)).Iterate();
             }
             catch (IOException e)
             {

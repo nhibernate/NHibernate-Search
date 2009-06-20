@@ -14,15 +14,14 @@ namespace NHibernate.Search.Tests.Bridge
             get { return new string[] {}; }
         }
 
-        [Test, ExpectedException(typeof(HibernateException), ExpectedMessage = "Unable to guess IFieldBridge for Id")]
+        [Test]
         public void SystemTypeForDocumentId()
         {
             Configuration tempCfg = new Configuration();
             tempCfg.Configure();
             tempCfg.SetProperty("hibernate.search.default.directory_provider", typeof(RAMDirectoryProvider).AssemblyQualifiedName);
             tempCfg.AddClass(typeof(Gangster));
-            tempCfg.BuildSessionFactory();
-            Assert.Fail("Undefined bridge went through (Gangster.Id's type is System.Type, which shouldn't be recognized)");
+			Assert.Throws<HibernateException>(()=>tempCfg.BuildSessionFactory(),"Unable to guess IFieldBridge for Id");
         }
     }
 }

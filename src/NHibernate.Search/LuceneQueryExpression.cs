@@ -58,7 +58,7 @@ namespace NHibernate.Search
         public ISession GetSession(ICriteria criteria)
         {
             CriteriaImpl impl = criteria as CriteriaImpl;
-            return impl != null ? impl.Session.GetSession() : this.GetSession(((CriteriaImpl.Subcriteria) criteria).Parent);
+            return impl != null ? (ISession) impl.Session : this.GetSession(((CriteriaImpl.Subcriteria) criteria).Parent);
         }
     }
 }

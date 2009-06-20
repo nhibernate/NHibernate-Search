@@ -17,7 +17,7 @@ namespace NHibernate.Search.Backend.Impl
         {
             if (session.TransactionInProgress)
             {
-                ITransaction transaction = session.GetSession().Transaction;
+                ITransaction transaction = ((ISession)session).Transaction;
                 PostTransactionWorkQueueSynchronization txSync = (PostTransactionWorkQueueSynchronization)
                                                                  synchronizationPerTransaction[transaction];
                 if (txSync == null || txSync.IsConsumed)
