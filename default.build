@@ -71,6 +71,7 @@
 		<copy todir="build" flatten="true">
 			<fileset>
 				<include name="${folders.lib}/NHibernate.dll"/>
+				<include name="${folders.lib}/Antlr3.Runtime.dll"/>
 				<include name="${folders.lib}/NHibernate.ByteCode.Castle.dll"/>
 				<include name="${folders.lib}/NHibernate.DomainModel.dll"/>
 				<include name="${folders.lib}/Iesi.Collections.dll"/>
