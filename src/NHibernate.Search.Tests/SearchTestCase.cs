@@ -41,7 +41,6 @@ namespace NHibernate.Search.Tests
                             typeof(RAMDirectoryProvider).AssemblyQualifiedName);
             cfg.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
             SetListener(cfg);
-            cfg.Configure();
         }
 
         public static void SetListener(Configuration configure)

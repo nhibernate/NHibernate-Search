@@ -11,7 +11,6 @@ namespace NHibernate.Search.Tests.ListenerCfg {
 
         [Test]
         public void PostInsertEventListenerTest() {
-            cfg.Configure();
             Assert.AreEqual(1, cfg.EventListeners.PostInsertEventListeners.Length);
             Assert.IsTrue(cfg.EventListeners.PostInsertEventListeners[0] is FullTextIndexEventListener);
             Assert.Greater(cfg.EventListeners.PostInsertEventListeners.Length, 0);

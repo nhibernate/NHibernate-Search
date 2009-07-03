@@ -6,7 +6,9 @@ using NHibernate.Tool.hbm2ddl;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.DirectoryProvider {
-    public abstract class MultiplySessionFactoriesTestCase {
+	using Test;
+
+	public abstract class MultiplySessionFactoriesTestCase {
         private List<Configuration> configurations;
         private List<ISessionFactory> sessionFactories = new List<ISessionFactory>();
 
@@ -46,6 +48,8 @@ namespace NHibernate.Search.Tests.DirectoryProvider {
 
         private Configuration CreateConfiguration() {
             Configuration cfg = new Configuration();
+			if (TestConfigurationHelper.hibernateConfigFile != null)
+				cfg.Configure(TestConfigurationHelper.hibernateConfigFile);
             Assembly assembly = Assembly.GetExecutingAssembly();
 
             foreach (string file in Mappings)
