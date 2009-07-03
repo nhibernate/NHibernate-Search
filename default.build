@@ -1,9 +1,9 @@
-<?xml version="1.0"?>
+<?xml version="1.0"  ?>
 <project
 		name="NHibernate.Search"
 		default="build"
 		description="NHibernate Search - Integration with Lucene.NET"
-		xmlns="http://nant.sf.net/release/0.85/nant.xsd">
+		xmlns="http://nant.sf.net/release/0.85-rc3/nant.xsd">
 
 	<property name="framework.family" value="${framework::get-family(framework::get-target-framework())}"/>
 	<property name="framework.version" value="${framework::get-version(framework::get-target-framework())}"/>
@@ -11,12 +11,15 @@
 	<property name="folders.lib" value="lib" />
 	<property name="folders.build" value="build" />
 
+	
+	<target name="clean" description="aasd">
+		<delete dir="${folders.build}" failonerror="false"/>
+	</target>
 	<target name="build" depends="clean">
 		<mkdir dir="${folders.build}"/>
 
 		<csc target="library"
-			 output="${folders.build}/NHibernate.Search.dll"
-		>
+			 output="${folders.build}/NHibernate.Search.dll">
 			<nowarn>
 				<warning number="1591" />
 				<!-- No XML comment for publicly visible member -->
@@ -38,8 +41,7 @@
 		</csc>
 
 		<csc target="library"
-			 output="${folders.build}/NHibernate.Search.Tests.dll"
-		>
+			 output="${folders.build}/NHibernate.Search.Tests.dll"		>
 			<nowarn>
 				<warning number="1591" />
 				<!-- No XML comment for publicly visible member -->
@@ -94,8 +96,4 @@
 		</nunit2>
 	</target>
 
-	<target name="clean">
-		<delete dir="${folders.build}" failonerror="false"/>
-	</target>
-	
 </project>
