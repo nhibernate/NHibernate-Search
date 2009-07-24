@@ -1,10 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Collections;
+using Lucene.Net.Index;
 
 namespace NHibernate.Search.Tests.Filter
 {
-    class BestDriversFilter
+    public class BestDriversFilter : Lucene.Net.Search.Filter
     {
+        public override BitArray Bits(IndexReader reader)
+        {
+            BitArray bitArray = new BitArray(reader.MaxDoc());
+            TermDocs termDocs = reader.TermDocs(new Term("score", "5"));
+            while (termDocs.Next())
+            {
+                bitArray.Set(termDocs.Doc(), true);
+            }
+
+            return bitArray;
+        }
     }
 }

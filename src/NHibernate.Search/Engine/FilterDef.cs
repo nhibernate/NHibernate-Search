@@ -76,7 +76,7 @@ namespace NHibernate.Search.Engine
 
         public void AddSetter(string name, Method method)
         {
-            throw new NotImplementedException("Method not implemented");
+            setters[name] = method;
         }
 
         #endregion

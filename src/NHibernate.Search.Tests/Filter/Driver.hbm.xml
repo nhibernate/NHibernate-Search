@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+				   namespace="NHibernate.Search.Tests.Filter"
+				   assembly="NHibernate.Search.Tests">
+	<class name="Driver" lazy="false">
+		<id name="Id">
+			<generator class="assigned" />
+		</id>
+		<property name="Name"/>
+		<property name="Teacher"/>
+		<property name="Score"/>
+		<property name="Delivery"/>
+	</class>
+</hibernate-mapping>

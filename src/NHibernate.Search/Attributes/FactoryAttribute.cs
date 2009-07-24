@@ -8,7 +8,7 @@ namespace NHibernate.Search.Attributes
     /// type is requested.
     /// The factory method is used with a higher priority than a plain no-arg constructor when present
     ///
-    /// Factory currently works for FullTextFilterDef.impl classes
+    /// Factory currently works for classes supplied to <see cref="FullTextFilterDefAttribute.Impl" />.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class FactoryAttribute : Attribute

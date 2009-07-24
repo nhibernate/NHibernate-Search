@@ -197,6 +197,27 @@ namespace NHibernate.Search.Impl
         private void BuildFilterCachingStrategy(IDictionary<string, string> properties)
         {
             string impl = GetProperty(properties, Environment.FilterCachingStrategy);
+            if (string.IsNullOrEmpty(impl) || impl.ToUpperInvariant().Equals("MRU"))
+            {
+                filterCachingStrategy = new MruFilterCachingStrategy();
+            }
+            else
+            {
+                try
+                {
+                    filterCachingStrategy = (IFilterCachingStrategy)Activator.CreateInstance(ReflectHelper.ClassForName(impl));                    
+                }
+                catch (InvalidCastException)
+                {
+                    throw new SearchException("Class does not implement IFilterCachingStrategy: " + impl);
+                }
+                catch (Exception ex)
+                {
+                    throw new SearchException("Failed to instantiate IFilterCachingStrategy with type " + impl, ex);
+                }
+            }
+
+            filterCachingStrategy.Initialize(properties);
         }
 
         private void InitDocumentBuilders(Configuration cfg, Analyzer analyzer)
@@ -286,12 +307,12 @@ namespace NHibernate.Search.Impl
 
         public FilterDef GetFilterDefinition(string name)
         {
-            throw new Exception("The method or operation is not implemented.");
+            return filterDefinitions[name];
         }
 
         public IOptimizerStrategy GetOptimizerStrategy(IDirectoryProvider provider)
         {
-            throw new Exception("The method or operation is not implemented.");
+            return dirProviderOptimizerStrategy[provider];
         }
 
         public IDirectoryProvider[] GetDirectoryProviders(System.Type entity)

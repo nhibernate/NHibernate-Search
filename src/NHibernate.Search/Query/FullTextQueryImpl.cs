@@ -411,7 +411,7 @@ namespace NHibernate.Search.Query
                         {
                             try
                             {
-                                key = (FilterKey)def.KeyMethod.Invoke(null, new object[] { instance });
+                                key = (FilterKey)def.KeyMethod.Invoke(instance, null);
                             }
                             catch (InvalidCastException)
                             {
@@ -437,7 +437,7 @@ namespace NHibernate.Search.Query
                         {
                             try
                             {
-                                f = (Lucene.Net.Search.Filter)def.FactoryMethod.Invoke(null, new object[] { instance });
+                                f = (Lucene.Net.Search.Filter)def.FactoryMethod.Invoke(instance, null);
                             }
                             catch (InvalidCastException)
                             {
@@ -525,6 +525,22 @@ namespace NHibernate.Search.Query
 
         private class ImplFilterKey : FilterKey
         {
+            public override int GetHashCode()
+            {
+                return Impl.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null)
+                    return false;
+
+                FilterKey key = obj as FilterKey;
+                if (key == null)
+                    return false;
+
+                return Impl.Equals(key.Impl);
+            }
         }
 
         #endregion

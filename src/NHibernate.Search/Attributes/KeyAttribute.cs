@@ -9,7 +9,7 @@ namespace NHibernate.Search.Attributes
     /// The key object must implement equals / hashcode so that 2 keys are equals iif
     /// the given target object types are the same, the set of parameters are the same.
     ///
-    /// <see cref="FactoryAttribute" currently works for FullTextFilterDef.impl classes
+    /// KeyAttribute currently works for <see cref="FullTextFilterDefAttribute.Impl" >
     /// </summary>
     [AttributeUsage(AttributeTargets.Method,  AllowMultiple = false)]
     public class KeyAttribute : Attribute

@@ -37,11 +37,9 @@ namespace NHibernate.Search.Tests.Bridge
             tx = s.BeginTransaction();
             IFullTextSession session = Search.CreateFullTextSession(s);
             QueryParser parser = new QueryParser("id", new SimpleAnalyzer());
-            Lucene.Net.Search.Query query;
-            IList result;
 
-            query = parser.Parse("CustomFieldBridge:This AND CustomStringBridge:This");
-            result = session.CreateFullTextQuery(query).List();
+            Lucene.Net.Search.Query query = parser.Parse("CustomFieldBridge:This AND CustomStringBridge:This");
+            IList result = session.CreateFullTextQuery(query).List();
             Assert.AreEqual(1, result.Count, "Properties not mapped");
 
             query = parser.Parse("CustomFieldBridge:by AND CustomStringBridge:is");
@@ -76,19 +74,17 @@ namespace NHibernate.Search.Tests.Bridge
             tx = s.BeginTransaction();
             IFullTextSession session = Search.CreateFullTextSession(s);
             QueryParser parser = new QueryParser("id", new StandardAnalyzer());
-            Lucene.Net.Search.Query query;
-            IList result;
 
-            query = parser.Parse("DateTime:[19900101 TO 20060101]"
-                                 + " AND DateTimeDay:[20001214 TO 2000121501]"
-                                 + " AND DateTimeMonth:[200012 TO 20001201]"
-                                 + " AND DateTimeYear:[2000 TO 200001]"
-                                 + " AND DateTimeHour:[20001214 TO 2000121503]"
-                                 + " AND DateTimeMinute:[20001214 TO 200012150343]"
-                                 + " AND DateTimeSecond:[20001214 TO 20001215034302]"
-                                 + " AND DateTimeMillisecond:[20001214 TO 20001215034302005]"
+            Lucene.Net.Search.Query query = parser.Parse("DateTime:[19900101 TO 20060101]"
+                                       + " AND DateTimeDay:[20001214 TO 2000121501]"
+                                       + " AND DateTimeMonth:[200012 TO 20001201]"
+                                       + " AND DateTimeYear:[2000 TO 200001]"
+                                       + " AND DateTimeHour:[20001214 TO 2000121503]"
+                                       + " AND DateTimeMinute:[20001214 TO 200012150343]"
+                                       + " AND DateTimeSecond:[20001214 TO 20001215034302]"
+                                       + " AND DateTimeMillisecond:[20001214 TO 20001215034302005]"
                 );
-            result = session.CreateFullTextQuery(query).List();
+            IList result = session.CreateFullTextQuery(query).List();
             Assert.AreEqual(1, result.Count, "DateTime not found or not property truncated");
 
             s.Delete(s.Get(typeof(Cloud), cloud.Id));
@@ -121,13 +117,11 @@ namespace NHibernate.Search.Tests.Bridge
             tx = s.BeginTransaction();
             IFullTextSession session = Search.CreateFullTextSession(s);
             QueryParser parser = new QueryParser("id", new StandardAnalyzer());
-            Lucene.Net.Search.Query query;
-            IList result;
 
-            query = parser.Parse("Double2:[2 TO 2.1] AND Float2:[2 TO 2.1] " +
-                                 "AND Int2:[2 TO 2.1] AND Long2:[2 TO 2.1] AND Type:\"Dog\" AND Storm:false");
+            Lucene.Net.Search.Query query = parser.Parse("Double2:[2 TO 2.1] AND Float2:[2 TO 2.1] " +
+                                       "AND Int2:[2 TO 2.1] AND Long2:[2 TO 2.1] AND Type:\"Dog\" AND Storm:false");
 
-            result = session.CreateFullTextQuery(query).List();
+            IList result = session.CreateFullTextQuery(query).List();
             Assert.AreEqual(1, result.Count, "find primitives and do not fail on null");
 
             query = parser.Parse("Double1:[2.1 TO 2.1] OR Float1:[2 TO 2.1] " +

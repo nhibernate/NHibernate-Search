@@ -113,6 +113,13 @@
     <Compile Include="FieldAccess\Document.cs" />
     <Compile Include="FieldAccess\FieldAccessTest.cs" />
     <Compile Include="FileHelperTestCase.cs" />
+    <Compile Include="Filter\BestDriversFilter.cs" />
+    <Compile Include="Filter\Driver.cs" />
+    <Compile Include="Filter\ExcludeAllFilter.cs" />
+    <Compile Include="Filter\ExcludeAllFilterFactory.cs" />
+    <Compile Include="Filter\FilterTest.cs" />
+    <Compile Include="Filter\SecurityFilterFactory.cs" />
+    <Compile Include="Filter\Soap.cs" />
     <Compile Include="IndexingStrategy\ManualIndexingStrategyTest.cs" />
     <Compile Include="Inheritance\Animal.cs" />
     <Compile Include="Inheritance\InheritanceTest.cs" />
@@ -275,9 +282,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
+    <Content Include="Filter\Soap.hbm.xml" />
+    <EmbeddedResource Include="Filter\Driver.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Filter\" />
     <Folder Include="Properties\" />
     <Folder Include="Shards\" />
   </ItemGroup>

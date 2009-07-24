@@ -183,11 +183,12 @@ namespace NHibernate.Test
 		private void Configure()
 		{
 			cfg = new Configuration();
-		    cfg.SetProperty(Environment.ProxyFactoryFactoryClass, typeof (ProxyFactory).AssemblyQualifiedName);
-			if (TestConfigurationHelper.hibernateConfigFile != null)
-				cfg.Configure(TestConfigurationHelper.hibernateConfigFile);
+            if (TestConfigurationHelper.hibernateConfigFile != null)
+            {
+                cfg.Configure(TestConfigurationHelper.hibernateConfigFile);
+            }
 
-			Assembly assembly = Assembly.Load(MappingsAssembly);
+		    Assembly assembly = Assembly.Load(MappingsAssembly);
 
 			foreach (string file in Mappings)
 			{

@@ -1,5 +1,3 @@
-using System;
-
 namespace NHibernate.Search.Filter
 {
     /// <summary>
@@ -26,19 +24,13 @@ namespace NHibernate.Search.Filter
         /// 
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode()
-        {
-            throw new NotImplementedException("Must override GetHashCode");
-        }
+        public new abstract int GetHashCode();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            throw new NotImplementedException("Must override Equals");
-        }
+        public new abstract bool Equals(object obj);
     }
 }
