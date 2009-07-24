@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 
 namespace NHibernate.Search.Filter
@@ -6,7 +5,9 @@ namespace NHibernate.Search.Filter
     /// <summary>
     /// Implements a filter key using all injected parameters to compute
     /// equals and hashCode
-    /// the order the parameters are added is significant
+    /// <para>
+    /// The order the parameters are added is significant.
+    /// </para>
     /// </summary>
     public class StandardFilterKey : FilterKey
     {
@@ -23,7 +24,9 @@ namespace NHibernate.Search.Filter
                 base.Impl = value;
                 // Add impl once and once only
                 if (implSet)
+                {
                     parameters[0] = value;
+                }
                 else
                 {
                     implSet = true;
@@ -41,31 +44,43 @@ namespace NHibernate.Search.Filter
             parameters.Add(value);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override int GetHashCode()
         {
             int hash = 23;
             foreach (object param in parameters)
-                hash = 31*hash + (param != null ? param.GetHashCode() : 0);
+            {
+                hash = 31 * hash + (param != null ? param.GetHashCode() : 0);
+            }
 
             return hash;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
         public override bool Equals(object obj)
         {
-            if (! (obj is StandardFilterKey)) return false;
+            if (!(obj is StandardFilterKey))
+            {
+                return false;
+            }
 
             StandardFilterKey that = (StandardFilterKey) obj;
 
-            throw new NotImplementedException("Must override Equals");
+            int size = parameters.Count;
+            if (size != that.parameters.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < size; index++)
+            {
+                object paramThis = parameters[index];
+                object paramThat = that.parameters[index];
+                if (!object.Equals(paramThis, paramThat))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         #endregion

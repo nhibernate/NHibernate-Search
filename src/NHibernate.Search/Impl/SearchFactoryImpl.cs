@@ -175,6 +175,7 @@ namespace NHibernate.Search.Impl
                                                   filterDef.Impl.FullName + "." + method.Name);
                     filterDef.FactoryMethod = method;
                 }
+
                 if (AttributeUtil.HasAttribute<KeyAttribute>(method))
                 {
                     if (filterDef.KeyMethod != null)
@@ -182,8 +183,17 @@ namespace NHibernate.Search.Impl
                                                   filterDef.Impl.FullName + "." + method.Name);
                     filterDef.KeyMethod = method;
                 }
-                // NB Don't need the setter logic that Java has
             }
+
+            // Use properties rather than the Java setter logic idea
+            foreach (PropertyInfo prop in filterDef.Impl.GetProperties())
+            {
+                if (AttributeUtil.HasAttribute<FilterParameterAttribute>(prop))
+                {
+                    filterDef.AddSetter(prop);
+                }
+            }
+
             filterDefinitions[defAnn.Name] = filterDef;
         }
 

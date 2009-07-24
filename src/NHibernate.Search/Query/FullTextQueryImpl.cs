@@ -533,13 +533,12 @@ namespace NHibernate.Search.Query
             public override bool Equals(object obj)
             {
                 if (obj == null)
+                {
                     return false;
+                }
 
                 FilterKey key = obj as FilterKey;
-                if (key == null)
-                    return false;
-
-                return Impl.Equals(key.Impl);
+                return key != null && this.Impl.Equals(key.Impl);
             }
         }
 

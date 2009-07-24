@@ -15,9 +15,9 @@ namespace NHibernate.Search.Tests.Filter
         private string name;
         [Field(Index = Index.UnTokenized)]
         private string teacher;
-        [Field(Index = Index.Tokenized)]
+        [Field(Index = Index.UnTokenized)]
         private int score;
-        [Field(Index = Index.Tokenized)]
+        [Field(Index = Index.UnTokenized)]
         [DateBridge(Resolution.Year)]
         private DateTime delivery;
 

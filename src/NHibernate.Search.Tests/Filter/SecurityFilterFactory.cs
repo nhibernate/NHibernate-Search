@@ -9,9 +9,11 @@ namespace NHibernate.Search.Tests.Filter
     {
         private string login;
 
-        public void SetLogin(string value)
+        [FilterParameter]
+        public string Login
         {
-            login = value;
+            get { return login; }
+            set { login = value; }
         }
 
         [Key]
@@ -22,11 +24,11 @@ namespace NHibernate.Search.Tests.Filter
             return key;
         }
 
+        [Factory]
         public Lucene.Net.Search.Filter GetFilter()
         {
             Lucene.Net.Search.Query query = new TermQuery(new Term("teacher", login));
-            // TODO: Change this to QueryWrapperFilter when upgraded to Lucene 2.2
-            return new CachingWrapperFilter(new QueryFilter(query));
+            return new CachingWrapperFilter(new QueryWrapperFilter(query));
         }
     }
 }

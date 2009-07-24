@@ -7,37 +7,56 @@ using NUnit.Framework;
 namespace NHibernate.Search.Tests.Filter
 {
     [TestFixture]
-    [Ignore("Could be Lucence issue causing problem")]
     public class FilterTest : SearchTestCase
     {
         protected override IList Mappings
         {
-            get { return new string[] {"Filter.Driver.hbm.xml"}; }
+            get { return new string[] { "Filter.Driver.hbm.xml" }; }
         }
 
+        private delegate void Method();
+
+        #region Tests
+        
+        //// Broke out NamedFilters into multiple tests as it was trying to do too much in one fixture.
+
         [Test]
-        public void NamedFilters()
+        public void ParameterizedFilter()
         {
-            createData();
+            CreateData();
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             s.Transaction.Begin();
             BooleanQuery query = new BooleanQuery();
             query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
             query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
             query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
-            IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
-            Assert.AreEqual(3, ftQuery.ResultSize, "No filter should happen");
 
-            ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
-            ftQuery.EnableFullTextFilter("bestDriver");
-            Assert.AreEqual(2, ftQuery.ResultSize, "Should filter out Gavin");
-
-            ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
-            ftQuery.EnableFullTextFilter("bestDriver");
-            ftQuery.EnableFullTextFilter("security").SetParameter("login", "andre");
+            IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
+            ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
             Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
 
-            ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
+            s.Transaction.Commit();
+            s.Close();
+            DeleteData();
+        }
+
+        [Test]
+        public void CombinedFilters()
+        {
+            CreateData();
+            IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+            s.Transaction.Begin();
+            BooleanQuery query = new BooleanQuery();
+            query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
+            query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
+            query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
+
+            IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
+            ftQuery.EnableFullTextFilter("bestDriver");
+            ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
+            Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
+
+            ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
             ftQuery.EnableFullTextFilter("bestDriver");
             ftQuery.EnableFullTextFilter("security").SetParameter("login", "andre");
             ftQuery.DisableFullTextFilter("security");
@@ -46,27 +65,28 @@ namespace NHibernate.Search.Tests.Filter
 
             s.Transaction.Commit();
             s.Close();
-            deleteData();
+            DeleteData();
         }
 
         [Test]
         public void Cache()
         {
-            createData();
+            CreateData();
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             s.Transaction.Begin();
             BooleanQuery query = new BooleanQuery();
             query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
             query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
             query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
-            IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
+
+            IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
             Assert.AreEqual(3, ftQuery.ResultSize, "No filter should happen");
 
-            ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
+            ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
             ftQuery.EnableFullTextFilter("cachetest");
             Assert.AreEqual(0, ftQuery.ResultSize, "Should filter out all");
 
-            ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
+            ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
             ftQuery.EnableFullTextFilter("cachetest");
             try
             {
@@ -79,13 +99,13 @@ namespace NHibernate.Search.Tests.Filter
 
             s.Transaction.Commit();
             s.Close();
-            deleteData();
+            DeleteData();
         }
 
         [Test]
         public void StraightFilters()
         {
-            createData();
+            CreateData();
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             s.Transaction.Begin();
             BooleanQuery query = new BooleanQuery();
@@ -93,28 +113,22 @@ namespace NHibernate.Search.Tests.Filter
             query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
             query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
 
-            IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
+            IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
             ftQuery.EnableFullTextFilter("bestDriver");
             Lucene.Net.Search.Filter dateFilter = new RangeFilter("delivery", "2001", "2005", true, true);
             ftQuery.SetFilter(dateFilter);
             Assert.AreEqual(1, ftQuery.ResultSize, "Should select only liz");
 
-            ftQuery = s.CreateFullTextQuery(query, typeof (Driver));
-            ftQuery.SetFilter(dateFilter);
-            ftQuery.EnableFullTextFilter("bestDriver");
-            ftQuery.EnableFullTextFilter("security").SetParameter("login", "andre");
-            ftQuery.DisableFullTextFilter("security");
-            ftQuery.DisableFullTextFilter("bestDriver");
-            ftQuery.SetFilter(null);
-            Assert.AreEqual(3, ftQuery.ResultSize, "Should not filter anymore");
-
             s.Transaction.Commit();
             s.Close();
-            deleteData();
+            DeleteData();
         }
 
+        #endregion
 
-        private void deleteData()
+        #region Helper methods
+
+        private void DeleteData()
         {
             ISession s = OpenSession();
             s.Transaction.Begin();
@@ -123,7 +137,7 @@ namespace NHibernate.Search.Tests.Filter
             s.Close();
         }
 
-        private void createData()
+        private void CreateData()
         {
             ISession s = OpenSession();
             s.Transaction.Begin();
@@ -153,5 +167,7 @@ namespace NHibernate.Search.Tests.Filter
             s.Transaction.Commit();
             s.Close();
         }
+
+        #endregion
     }
 }
