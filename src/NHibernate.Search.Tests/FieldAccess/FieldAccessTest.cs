@@ -1,25 +1,30 @@
 using System.Collections;
+
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
+
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests.FieldAccess {
+namespace NHibernate.Search.Tests.FieldAccess
+{
     [TestFixture]
-    public class FieldAccessTest : SearchTestCase {
-        protected override IList Mappings {
-            get { return new string[] {"FieldAccess.Document.hbm.xml"}; }
+    public class FieldAccessTest : SearchTestCase
+    {
+        protected override IList Mappings
+        {
+            get
+            {
+                return new[] {"FieldAccess.Document.hbm.xml"};
+            }
         }
 
         [Test]
-        public void FieldBoost() {
-            ISession s = OpenSession();
+        public void FieldBoost()
+        {
+            ISession s = this.OpenSession();
             ITransaction tx = s.BeginTransaction();
-            s.Save(
-                new Document("Hibernate in Action", "Object and Relational", "blah blah blah")
-                );
-            s.Save(
-                new Document("Object and Relational", "Hibernate in Action", "blah blah blah")
-                );
+            s.Save(new Document("Hibernate in Action", "Object and Relational", "blah blah blah"));
+            s.Save(new Document("Object and Relational", "Hibernate in Action", "blah blah blah"));
             tx.Commit();
 
             s.Clear();
@@ -29,7 +34,7 @@ namespace NHibernate.Search.Tests.FieldAccess {
             QueryParser p = new QueryParser("id", new StandardAnalyzer());
             IList result = session.CreateFullTextQuery(p.Parse("title:Action OR Abstract:Action")).List();
             Assert.AreEqual(2, result.Count, "Query by field");
-            Assert.AreEqual("Hibernate in Action", ((Document) result[0]).Title, "@Boost fails");
+            Assert.AreEqual("Hibernate in Action", ((Document)result[0]).Title, "@Boost fails");
             s.Delete(result[0]);
             s.Delete(result[1]);
             tx.Commit();
@@ -37,10 +42,11 @@ namespace NHibernate.Search.Tests.FieldAccess {
         }
 
         [Test]
-        public void Fields() {
-            Document doc =
-                new Document("Hibernate in Action", "Object/relational mapping with Hibernate", "blah blah blah");
-            ISession s = OpenSession();
+        public void Fields()
+        {
+            Document doc = new Document(
+                    "Hibernate in Action", "Object/relational mapping with Hibernate", "blah blah blah");
+            ISession s = this.OpenSession();
             ITransaction tx = s.BeginTransaction();
             s.Save(doc);
             tx.Commit();
