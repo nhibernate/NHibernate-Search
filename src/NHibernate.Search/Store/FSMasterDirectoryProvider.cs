@@ -212,7 +212,7 @@ namespace NHibernate.Search.Store
             try
             {
                 // NB Do we need to do this since we are passing the create flag to Lucene?
-                bool create = !indexDir.Exists;
+                bool create = !IndexReader.IndexExists(indexDir.FullName);
                 if (create)
                 {
                     log.DebugFormat("Index directory not found, creating '{0}'", indexDir.FullName);

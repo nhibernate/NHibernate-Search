@@ -286,6 +286,7 @@
     <EmbeddedResource Include="Filter\Driver.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="NHSpecificTest\" />
     <Folder Include="Properties\" />
     <Folder Include="Shards\" />
   </ItemGroup>

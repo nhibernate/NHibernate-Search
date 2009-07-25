@@ -27,7 +27,7 @@ namespace NHibernate.Search.Store
             DirectoryInfo indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary) properties);
             try
             {
-                bool create = !indexDir.Exists;
+                bool create = !IndexReader.IndexExists(indexDir.FullName);
                 indexName = indexDir.FullName;
                 directory = FSDirectory.GetDirectory(indexName, create);
                 if (create)

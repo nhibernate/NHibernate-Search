@@ -55,9 +55,6 @@ namespace NHibernate.Search.Store
                 this.destination = destination;
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
             public bool InProgress
             {
                 get { return inProgress; }
@@ -245,7 +242,7 @@ namespace NHibernate.Search.Store
                 bool create;
 
                 DirectoryInfo subDir = new DirectoryInfo(Path.Combine(indexName, "1"));
-                create = !subDir.Exists;
+                create = !IndexReader.IndexExists(subDir.FullName); 
                 directory1 = FSDirectory.GetDirectory(subDir.FullName, create);
                 if (create)
                 {
@@ -255,7 +252,7 @@ namespace NHibernate.Search.Store
                 }
 
                 subDir = new DirectoryInfo(Path.Combine(indexName, "2"));
-                create = !subDir.Exists;
+                create = !IndexReader.IndexExists(subDir.FullName); 
                 directory2 = FSDirectory.GetDirectory(subDir.FullName, create);
                 if (create)
                 {
