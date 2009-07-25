@@ -39,6 +39,8 @@ namespace NHibernate.Search.Store
         private const string MERGE_FACTOR = "merge_factor";
         private const string MAX_MERGE_DOCS = "max_merge_docs";
         private const string MAX_BUFFERED_DOCS = "max_buffered_docs";
+        private const string RAM_BUFFER_SIZE = "ram_buffer_size";
+
         private const string BATCH = "batch.";
         private const string TRANSACTION = "transaction.";
 
@@ -51,7 +53,7 @@ namespace NHibernate.Search.Store
                                                           ISearchFactoryImplementor searchFactoryImplementor)
         {
             // Get properties
-            String directoryProviderName = GetDirectoryProviderName(entity, cfg);
+            string directoryProviderName = GetDirectoryProviderName(entity, cfg);
             IDictionary<string, string>[] indexProps = GetDirectoryProperties(cfg, directoryProviderName);
 
             // Set up the directories
@@ -173,6 +175,16 @@ namespace NHibernate.Search.Store
                         indexingParams.BatchMaxBufferedDocs = value;
                         indexingParams.TransactionMaxBufferedDocs = value;
                     });
+
+            ConfigureProp(
+                    TRANSACTION + RAM_BUFFER_SIZE,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchRamBufferSizeMb = value;
+                        indexingParams.TransactionRamBufferSizeMb = value;
+                    });
+
             ConfigureProp(
                     BATCH + MERGE_FACTOR,
                     indexProps,
@@ -195,6 +207,14 @@ namespace NHibernate.Search.Store
                     delegate(int value)
                     {
                         indexingParams.BatchMaxBufferedDocs = value;
+                    });
+
+            ConfigureProp(
+                    BATCH + RAM_BUFFER_SIZE,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchRamBufferSizeMb = value;
                     });
 
             searchFactoryImplementor.AddIndexingParameters(provider, indexingParams);
@@ -267,23 +287,110 @@ namespace NHibernate.Search.Store
             return provider;
         }
 
-        private static IDictionary<string, string>[] GetDirectoryProperties(Configuration cfg, String directoryProviderName)
+        private static IDictionary<string, string>[] GetDirectoryProperties(Configuration cfg, string directoryProviderName)
         {
-            string shardsCountValue;
-            bool hasShards = cfg.Properties.TryGetValue(NBR_OF_SHARDS, out shardsCountValue);
-            if (!hasShards || string.IsNullOrEmpty(shardsCountValue))
+            IDictionary<string, string> props = cfg.Properties;
+            string indexName = LUCENE_PREFIX + directoryProviderName;
+            IDictionary<string, string> defaultProperties = new Dictionary<string, string>();
+            List<IDictionary<string, string>> indexSpecificProps = new List<IDictionary<string, string>>();
+            IDictionary<string, string> indexSpecificDefaultProps = new Dictionary<string, string>();
+
+            foreach (KeyValuePair<string, string> entry in props)
             {
-                return new IDictionary<string, string>[] {GetIndexProps(directoryProviderName, cfg)};
+                string key = entry.Key;
+                if (key.StartsWith(LUCENE_DEFAULT))
+                {
+                    defaultProperties[key.Substring(LUCENE_DEFAULT.Length)] = entry.Value;
+                }
+                else if (key.StartsWith(indexName))
+                {
+                    string suffixedKey = key.Substring(indexName.Length + 1);
+                    int nextDoc = suffixedKey.IndexOf('.');
+                    int index = -1;
+                    if (nextDoc != -1)
+                    {
+                        string potentialNbr = suffixedKey.Substring(0, nextDoc);
+                        if (!int.TryParse(potentialNbr, out index))
+                        {
+                            index = -1;
+                        }
+                    }
+
+                    if (index != -1)
+                    {
+                        indexSpecificDefaultProps[suffixedKey] = entry.Value;
+                    }
+                    else
+                    {
+                        string finalKeyName = suffixedKey.Substring(nextDoc + 1);
+
+                        // Ignore sharding strategy properties
+                        if (!finalKeyName.StartsWith(SHARDING_STRATEGY))
+                        {
+                            EnsureListSize(indexSpecificProps, index + 1);
+                            IDictionary<string, string> propertiesForIndex = indexSpecificProps[index];
+                            if (propertiesForIndex == null)
+                            {
+                                propertiesForIndex = new Dictionary<string, string>();
+                                indexSpecificProps[index] = propertiesForIndex;
+                            }
+
+                            propertiesForIndex[finalKeyName] = entry.Value;
+                        }
+                    }
+                }
             }
 
-            int shardsCount = Int32.Parse(shardsCountValue);
-            IDictionary<string, string>[] shardLocalProperties = new IDictionary<string, string>[shardsCount];
-            for (int i = 0; i < shardsCount; i++)
+            int nbrOfShards = -1;
+            if (indexSpecificDefaultProps.ContainsKey(NBR_OF_SHARDS))
             {
-                shardLocalProperties[i] = CreateMaskedIndexProps(i.ToString(), directoryProviderName, cfg);
+                string nbrOfShardsString = indexSpecificDefaultProps[NBR_OF_SHARDS];
+                if (!string.IsNullOrEmpty(nbrOfShardsString))
+                {
+                    if (!int.TryParse(nbrOfShardsString, out nbrOfShards))
+                    {
+                        throw new SearchException(indexName + "." + NBR_OF_SHARDS + " is not a number");
+                    }
+                }
             }
 
-            return shardLocalProperties;
+            // Original java doesn't copy properties from the defaults!
+            foreach (KeyValuePair<string, string> prop in defaultProperties)
+            {
+                if (!indexSpecificDefaultProps.ContainsKey(prop.Key))
+                {
+                    indexSpecificDefaultProps.Add(prop);
+                }
+            }
+
+            if (nbrOfShards <= 0 && indexSpecificDefaultProps.Count == 0)
+            {
+                // No Shard (A sharded subindex has to have at least one property)
+                return new IDictionary<string, string>[] { indexSpecificDefaultProps };
+            }
+
+            // Sharded
+            nbrOfShards = nbrOfShards > indexSpecificDefaultProps.Count ? nbrOfShards : indexSpecificDefaultProps.Count;
+            EnsureListSize(indexSpecificProps, nbrOfShards);
+
+            for (int index = 0; index < nbrOfShards; index++)
+            {
+                if (indexSpecificProps[index] == null)
+                {
+                    indexSpecificProps[index] = new Dictionary<string, string>(indexSpecificDefaultProps);
+                }
+
+                // Original java doesn't copy properties from the defaults!
+                foreach (KeyValuePair<string, string> prop in indexSpecificDefaultProps)
+                {
+                    if (!indexSpecificProps[index].ContainsKey(prop.Key))
+                    {
+                        indexSpecificProps[index].Add(prop);
+                    }
+                }
+            }
+
+            return indexSpecificProps.ToArray();
         }
 
         private static void EnsureListSize(List<IDictionary<string, string>> indexSpecificProps, int size)
@@ -292,40 +399,6 @@ namespace NHibernate.Search.Store
             {
                 indexSpecificProps.Add(null);
             }
-        }
-
-        private static IDictionary<string, string> GetIndexProps(string directoryProviderName, Configuration cfg)
-        {
-            IDictionary<string, string> indexProps = new Dictionary<string, string>();
-            String indexName = LUCENE_PREFIX + directoryProviderName;
-            IDictionary<string, string> indexSpecificProps = new Dictionary<string, string>();
-            IDictionary<string, string> props = cfg.Properties;
-            foreach (KeyValuePair<string, string> entry in props)
-            {
-                string key = entry.Key;
-                if (key.StartsWith(LUCENE_DEFAULT))
-                {
-                    indexProps[key.Substring(LUCENE_DEFAULT.Length)] = entry.Value;
-                }
-                else if (key.StartsWith(indexName))
-                {
-                    indexSpecificProps[key.Substring(indexName.Length)] = entry.Value;
-                }
-            }
-
-            foreach (KeyValuePair<string, string> indexSpecificProp in indexSpecificProps)
-            {
-                indexProps[indexSpecificProp.Key] = indexSpecificProp.Value;
-            }
-
-            return indexProps;
-        }
-
-        private static IDictionary<string, string> CreateMaskedIndexProps(string mask, string directoryProviderName, Configuration cfg)
-        {
-            /// this is a seudo implementation, it does not really take into account different NbrOfShard
-            // todo: fix this
-            return GetIndexProps(directoryProviderName, cfg);
         }
 
         private static string GetDirectoryProviderName(System.Type clazz, Configuration cfg)

@@ -12,12 +12,16 @@ namespace NHibernate.Search.Backend
         private const int DEFAULT_MAX_BUFFERED_DOCS = 10;
         private const int DEFAULT_MAX_MERGE_DOCS = int.MinValue;
         private const int DEFAULT_MERGE_FACTOR = 10;
-        private int batchMaxBufferedDocs = 10;
+        private const int DEFAULT_RAM_BUFFER = 64;
+
+        private int batchMaxBufferedDocs = DEFAULT_MAX_BUFFERED_DOCS;
         private int batchMaxMergeDocs = int.MinValue;
-        private int batchMergeFactor = 10;
-        private int transactionMaxBufferedDocs = 10;
+        private int batchMergeFactor = DEFAULT_MERGE_FACTOR;
+        private int batchRamBufferSizeMb = DEFAULT_RAM_BUFFER;
+        private int transactionMaxBufferedDocs = DEFAULT_MAX_BUFFERED_DOCS;
         private int transactionMaxMergeDocs = int.MaxValue;
-        private int transactionMergeFactor = 10;
+        private int transactionMergeFactor = DEFAULT_MERGE_FACTOR;
+        private int transactionRamBufferSizeMb = DEFAULT_RAM_BUFFER;
 
         #region Constructors
 
@@ -38,58 +42,52 @@ namespace NHibernate.Search.Backend
 
         #region Property methods
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public int TransactionMaxMergeDocs
-        {
-            get { return transactionMaxMergeDocs; }
-            set { transactionMaxMergeDocs = value; }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int TransactionMergeFactor
-        {
-            get { return transactionMergeFactor; }
-            set { transactionMergeFactor = value; }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         public int BatchMaxMergeDocs
         {
             get { return batchMaxMergeDocs; }
             set { batchMaxMergeDocs = value; }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int BatchMergeFactor
         {
             get { return batchMergeFactor; }
             set { batchMergeFactor = value; }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int BatchMaxBufferedDocs
         {
             get { return batchMaxBufferedDocs; }
             set { batchMaxBufferedDocs = value; }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        public int BatchRamBufferSizeMb
+        {
+            get { return batchRamBufferSizeMb;  }
+            set { batchRamBufferSizeMb = value; }
+        }
+
         public int TransactionMaxBufferedDocs
         {
             get { return transactionMaxBufferedDocs; }
             set { transactionMaxBufferedDocs = value; }
+        }
+
+        public int TransactionMaxMergeDocs
+        {
+            get { return transactionMaxMergeDocs; }
+            set { transactionMaxMergeDocs = value; }
+        }
+
+        public int TransactionMergeFactor
+        {
+            get { return transactionMergeFactor; }
+            set { transactionMergeFactor = value; }
+        }
+
+        public int TransactionRamBufferSizeMb
+        {
+            get { return transactionRamBufferSizeMb; }
+            set { transactionRamBufferSizeMb = value; }
         }
 
         #endregion
