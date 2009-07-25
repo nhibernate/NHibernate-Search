@@ -52,7 +52,7 @@ namespace NHibernate.Search.Engine
             if (criteria == null) criteria = session.CreateCriteria(entityType);
 
             DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[entityType];
-            string idName = builder.GetIdKeywordName();
+            string idName = builder.IdentifierName;
             int loop = maxResults/MAX_IN_CLAUSE;
             bool exact = maxResults % MAX_IN_CLAUSE == 0;
             if (!exact) loop++;

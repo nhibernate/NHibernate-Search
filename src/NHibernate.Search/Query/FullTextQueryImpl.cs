@@ -232,7 +232,7 @@ namespace NHibernate.Search.Query
 
         public override void List(IList list)
         {
-            //find the directories
+            // Find the directories
             IndexSearcher searcher = BuildSearcher();
             if (searcher == null)
             {
@@ -245,20 +245,26 @@ namespace NHibernate.Search.Query
                 SetResultSize(hits);
                 int first = First();
                 int max = Max(first, hits);
-                ISession sess = (ISession)Session;
-
                 int size = max - first + 1;
                 if (size <= 0)
+                {
                     return;
+                }
+
+                ISession sess = (ISession)Session;
                 List<EntityInfo> infos = new List<EntityInfo>(size);
                 DocumentExtractor extractor = new DocumentExtractor(SearchFactory, indexProjection);
                 for (int index = first; index <= max; index++)
+                {
                     infos.Add(extractor.Extract(hits, index));
+                }
 
                 ILoader loader = GetLoader(sess);
                 IList entities = loader.Load(infos.ToArray());
                 foreach (object entity in entities)
+                {
                     list.Add(entity);
+                }
 
                 if (entities.Count != infos.Count)
                     log.Warn("Lucene index contains infos about " + infos.Count + " entities, but " + entities.Count + " were found in the database. Rebuild the index.");
@@ -306,10 +312,7 @@ namespace NHibernate.Search.Query
 
         public IFullTextQuery SetProjection(params string[] fields)
         {
-            if (fields == null || fields.Length == 0)
-                this.indexProjection = null;
-            else
-                this.indexProjection = fields;
+            this.indexProjection = fields == null || fields.Length == 0 ? null : fields;
 
             return this;
         }
@@ -318,13 +321,17 @@ namespace NHibernate.Search.Query
         {
             FullTextFilterImpl filterDefinition;
             if (filterDefinitions.TryGetValue(name, out filterDefinition))
+            {
                 return filterDefinition;
+            }
 
             filterDefinition = new FullTextFilterImpl();
             filterDefinition.Name = name;
             FilterDef filterDef = SearchFactory.GetFilterDefinition(name);
             if (filterDef == null)
+            {
                 throw new SearchException("Unknown FullTextFilter: " + name);
+            }
 
             filterDefinitions[name] = filterDefinition;
 
@@ -460,6 +467,7 @@ namespace NHibernate.Search.Query
                                 throw new SearchException("Class is not a Lucene.Net.Search.Filter: " + def.Impl.Name);
                             }
                         }
+
                         if (def.Cache)
                         {
                             SearchFactory.GetFilterCachingStrategy().AddCachedFilter(key, f);
@@ -470,7 +478,9 @@ namespace NHibernate.Search.Query
                 }
 
                 if (filter != null)
+                {
                     chainedFilter.AddFilter(filter);
+                }
 
                 filter = chainedFilter;
             }
@@ -503,10 +513,14 @@ namespace NHibernate.Search.Query
         private int Max(int first, Hits hits)
         {
             if (Selection.MaxRows == NHibernate.Engine.RowSelection.NoValue)
+            {
                 return hits.Length() - 1;
+            }
 
             if (Selection.MaxRows + first < hits.Length())
+            {
                 return first + Selection.MaxRows - 1;
+            }
 
             return hits.Length() - 1;
         }

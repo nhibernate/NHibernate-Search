@@ -37,7 +37,7 @@ namespace NHibernate.Search.Engine
         private MemberInfo idGetter;
         private float? idBoost;
         private ITwoWayFieldBridge idBridge;
-        private ISet<System.Type> mappedSubclasses = new HashedSet<System.Type>();
+        private ISet<Type> mappedSubclasses = new HashedSet<System.Type>();
         private int level;
         private int maxLevel = int.MaxValue;
         private readonly ScopedAnalyzer analyzer;
@@ -126,6 +126,11 @@ namespace NHibernate.Search.Engine
         public ISet<System.Type> MappedSubclasses
         {
             get { return mappedSubclasses; }
+        }
+
+        public string IdentifierName
+        {
+            get { return idGetter.Name; }
         }
 
         #endregion
@@ -704,10 +709,15 @@ namespace NHibernate.Search.Engine
                                    List<LuceneWork> queue,
                                    ISearchFactoryImplementor searchFactoryImplementor)
         {
-            //TODO with the caller loop we are in a n^2: optimize it using a HashMap for work recognition
+            // TODO with the caller loop we are in a n^2: optimize it using a HashMap for work recognition
             foreach (LuceneWork luceneWork in queue)
+            {
                 if (luceneWork.EntityClass == entityClass && luceneWork.Id.Equals(id))
+                {
                     return;
+                }
+            }
+
             bool searchForContainers = false;
             string idString = idBridge.ObjectToString(id);
 
@@ -759,7 +769,9 @@ namespace NHibernate.Search.Engine
 		     * When the internal object is changed, we apply the {Add|Update}Work on containedIns
 		    */
             if (searchForContainers)
+            {
                 ProcessContainedIn(entity, queue, rootPropertiesMetadata, searchFactoryImplementor);
+            }
         }
 
         public Document GetDocument(object instance, object id)
@@ -767,15 +779,17 @@ namespace NHibernate.Search.Engine
             Document doc = new Document();
             System.Type instanceClass = instance.GetType();
             if (rootPropertiesMetadata.boost != null)
+            {
                 doc.SetBoost(rootPropertiesMetadata.boost.Value);
+            }
+
             // TODO: Check if that should be an else?
             {
-                Field classField =
-                    new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(instanceClass), Field.Store.YES,
-                              Field.Index.UN_TOKENIZED);
+                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(instanceClass), Field.Store.YES, Field.Index.UN_TOKENIZED);
                 doc.Add(classField);
                 idBridge.Set(idKeywordName, id, doc, Field.Store.YES, Field.Index.UN_TOKENIZED, idBoost);
             }
+
             BuildDocumentFields(instance, doc, rootPropertiesMetadata);
             return doc;
         }
@@ -792,7 +806,7 @@ namespace NHibernate.Search.Engine
 
         public static System.Type GetDocumentClass(Document document)
         {
-            String className = document.Get(CLASS_FIELDNAME);
+            string className = document.Get(CLASS_FIELDNAME);
             try
             {
                 return ReflectHelper.ClassForName(className);
@@ -806,7 +820,11 @@ namespace NHibernate.Search.Engine
         public static object GetDocumentId(ISearchFactoryImplementor searchFactory, System.Type clazz, Document document)
         {
             DocumentBuilder builder = searchFactory.DocumentBuilders[clazz];
-            if (builder == null) throw new SearchException("No Lucene configuration set up for: " + clazz.Name);
+            if (builder == null)
+            {
+                throw new SearchException("No Lucene configuration set up for: " + clazz.Name);
+            }
+
             return builder.IdBridge.Get(builder.GetIdKeywordName(), document);
         }
 
@@ -815,9 +833,11 @@ namespace NHibernate.Search.Engine
         {
             DocumentBuilder builder;
             if (!searchFactoryImplementor.DocumentBuilders.TryGetValue(clazz, out builder))
+            {
                 throw new SearchException("No Lucene configuration set up for: " + clazz.Name);
-            object[] result = new object[fields.Length];
+            }
 
+            object[] result = new object[fields.Length];
             if (builder.idKeywordName != null)
             {
                 PopulateResult(builder.idKeywordName, builder.idBridge, Field.Store.YES, fields, result, document);
@@ -831,14 +851,18 @@ namespace NHibernate.Search.Engine
 
         public void PostInitialize(ISet<System.Type> indexedClasses)
         {
-            //this method does not requires synchronization
-            System.Type plainClass = beanClass;
-            ISet<System.Type> tempMappedSubclasses = new HashedSet<System.Type>();
+            // this method does not requires synchronization
+            Type plainClass = beanClass;
+            ISet<Type> tempMappedSubclasses = new HashedSet<System.Type>();
 
-            //together with the caller this creates a o(2), but I think it's still faster than create the up hierarchy for each class
-            foreach (System.Type currentClass in indexedClasses)
+            // together with the caller this creates a o(2), but I think it's still faster than create the up hierarchy for each class
+            foreach (Type currentClass in indexedClasses)
+            {
                 if (plainClass.IsAssignableFrom(currentClass))
+                {
                     tempMappedSubclasses.Add(currentClass);
+                }
+            }
 
             mappedSubclasses = tempMappedSubclasses;
         }
