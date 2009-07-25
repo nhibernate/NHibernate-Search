@@ -16,18 +16,23 @@ namespace NHibernate.Search.Util
         {
             IPostInsertEventListener[] listeners = session.Listeners.PostInsertEventListeners;
             FullTextIndexEventListener listener = null;
-            //FIXME this sucks since we mandante the event listener use
+
+            // FIXME this sucks since we mandante the event listener use
             foreach (IPostInsertEventListener candidate in listeners)
             {
                 if (candidate is FullTextIndexEventListener)
+                {
                     listener = (FullTextIndexEventListener) candidate;
-                break;
+                    break;
+                }
             }
 
             if (listener == null)
+            {
                 throw new HibernateException(
-                    "Hibernate Search Event listeners not configured, please check the reference documentation and the " +
-                    "application's hibernate.cfg.xml");
+                        "Hibernate Search Event listeners not configured, please check the reference documentation and the "
+                        + "application's hibernate.cfg.xml");
+            }
 
             return listener.SearchFactory;
         }
