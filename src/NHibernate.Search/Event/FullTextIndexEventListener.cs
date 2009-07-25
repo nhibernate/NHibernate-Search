@@ -76,24 +76,30 @@ namespace NHibernate.Search.Event
             searchFactory.Close();
         }
 
-        public void OnPostDelete(PostDeleteEvent e)
+        public virtual void OnPostDelete(PostDeleteEvent e)
         {
             if (used)
+            {
                 ProcessWork(e.Entity, e.Id, WorkType.Delete, e);
+            }
         }
 
-        public void OnPostInsert(PostInsertEvent e)
+        public virtual void OnPostInsert(PostInsertEvent e)
         {
             if (used)
+            {
                 ProcessWork(e.Entity, e.Id, WorkType.Add, e);
+            }
         }
 
-        public void OnPostUpdate(PostUpdateEvent e)
+        public virtual void OnPostUpdate(PostUpdateEvent e)
         {
             if (used)
+            {
                 ProcessWork(e.Entity, e.Id, WorkType.Update, e);
+            }
         }
 
         #endregion
-    }
+    }    
 }
