@@ -48,7 +48,6 @@ namespace NHibernate.Search.Backend.Impl
             searchFactoryImplementor.BackendQueueProcessorFactory = backendQueueProcessorFactory;
         }
 
-
         #region IQueueingProcessor Members
 
         public void Add(Work work, WorkQueue workQueue)

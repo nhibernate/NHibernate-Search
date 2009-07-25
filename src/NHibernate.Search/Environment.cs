@@ -29,6 +29,7 @@ namespace NHibernate.Search
         /// Defines the maximum number of indexing operation batched per transaction
         /// </summary>
         public const string WorkerBatchSize = WorkerPrefix + "batch_size";
+
         /// <summary>
         /// Thread pool size, default 1
         /// </summary>

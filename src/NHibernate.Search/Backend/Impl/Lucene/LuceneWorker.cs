@@ -15,101 +15,16 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         private static readonly ILog log = LogManager.GetLogger(typeof(LuceneWorker));
         private readonly Workspace workspace;
 
+        #region Constructors
+
         public LuceneWorker(Workspace workspace)
         {
             this.workspace = workspace;
         }
 
-        #region Nested classes: WorkWithPayload
-
-        public class WorkWithPayload
-        {
-            private readonly IDirectoryProvider provider;
-            private readonly LuceneWork work;
-
-            public WorkWithPayload(LuceneWork work, IDirectoryProvider provider)
-            {
-                this.work = work;
-                this.provider = provider;
-            }
-
-            public LuceneWork Work
-            {
-                get { return work; }
-            }
-
-            public IDirectoryProvider Provider
-            {
-                get { return provider; }
-            }
-        }
-
         #endregion
 
-        #region Private methods
-
-        private void Add(System.Type entity, object id, Document document, IDirectoryProvider provider)
-        {
-            if (log.IsDebugEnabled)
-                log.Debug("Add to Lucene index: " + entity + "#" + id + ": " + document);
-            IndexWriter writer = workspace.GetIndexWriter(provider, entity, true);
-
-            try
-            {
-                writer.AddDocument(document);
-            }
-            catch (IOException e)
-            {
-                throw new SearchException("Unable to Add to Lucene index: " + entity + "#" + id, e);
-            }
-        }
-
-        private void Remove(System.Type entity, object id, IDirectoryProvider provider)
-        {
-            /*
-            * even with Lucene 2.1, use of indexWriter to delte is not an option
-            * We can only delete by term, and the index doesn't have a termt that
-            * uniquely identify the entry. See logic below
-            */
-            log.DebugFormat("remove from Lucene index: {0}#{1}", entity, id);
-            DocumentBuilder builder = workspace.GetDocumentBuilder(entity);
-            Term term = builder.GetTerm(id);
-            IndexReader reader = workspace.GetIndexReader(provider, entity);
-            TermDocs termDocs = null;
-            try
-            {
-                //TODO is there a faster way?
-                //TODO include TermDocs into the workspace?
-                termDocs = reader.TermDocs(term);
-                string entityName = TypeHelper.LuceneTypeName(entity);
-                while (termDocs.Next())
-                {
-                    int docIndex = termDocs.Doc();
-                    if (entityName.Equals(reader.Document(docIndex).Get(DocumentBuilder.CLASS_FIELDNAME)))
-                        //remove only the one of the right class
-                        //loop all to remove all the matches (defensive code)
-                        reader.DeleteDocument(docIndex);
-                }
-            }
-            catch (Exception e)
-            {
-                throw new SearchException("Unable to remove from Lucene index: " + entity + "#" + id, e);
-            }
-            finally
-            {
-                if (termDocs != null)
-                    try
-                    {
-                        termDocs.Close();
-                    }
-                    catch (IOException e)
-                    {
-                        log.Warn("Unable to close termDocs properly", e);
-                    }
-            }
-        }
-
-        #endregion
+        #region Public methods
 
         public void PerformWork(WorkWithPayload luceneWork)
         {
@@ -170,5 +85,105 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                 throw new SearchException("Unable to purge all from Lucene index: " + entity, e);
             }
         }
+
+        #endregion
+
+        #region Private methods
+
+        private void Add(System.Type entity, object id, Document document, IDirectoryProvider provider)
+        {
+            if (log.IsDebugEnabled)
+            {
+                log.Debug("Add to Lucene index: " + entity + "#" + id + ": " + document);
+            }
+
+            IndexWriter writer = workspace.GetIndexWriter(provider, entity, true);
+
+            try
+            {
+                writer.AddDocument(document);
+            }
+            catch (IOException e)
+            {
+                throw new SearchException("Unable to Add to Lucene index: " + entity + "#" + id, e);
+            }
+        }
+
+        private void Remove(System.Type entity, object id, IDirectoryProvider provider)
+        {
+            /*
+            * even with Lucene 2.1, use of indexWriter to delte is not an option
+            * We can only delete by term, and the index doesn't have a termt that
+            * uniquely identify the entry. See logic below
+            */
+            log.DebugFormat("remove from Lucene index: {0}#{1}", entity, id);
+            DocumentBuilder builder = workspace.GetDocumentBuilder(entity);
+            Term term = builder.GetTerm(id);
+            IndexReader reader = workspace.GetIndexReader(provider, entity);
+            TermDocs termDocs = null;
+            try
+            {
+                // TODO is there a faster way?
+                // TODO include TermDocs into the workspace?
+                termDocs = reader.TermDocs(term);
+                string entityName = TypeHelper.LuceneTypeName(entity);
+                while (termDocs.Next())
+                {
+                    int docIndex = termDocs.Doc();
+                    if (entityName.Equals(reader.Document(docIndex).Get(DocumentBuilder.CLASS_FIELDNAME)))
+                    {
+                        // remove only the one of the right class
+                        // loop all to remove all the matches (defensive code)
+                        reader.DeleteDocument(docIndex);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new SearchException("Unable to remove from Lucene index: " + entity + "#" + id, e);
+            }
+            finally
+            {
+                if (termDocs != null)
+                {
+                    try
+                    {
+                        termDocs.Close();
+                    }
+                    catch (IOException e)
+                    {
+                        log.Warn("Unable to close termDocs properly", e);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Nested classes: WorkWithPayload
+
+        public class WorkWithPayload
+        {
+            private readonly IDirectoryProvider provider;
+            private readonly LuceneWork work;
+
+            public WorkWithPayload(LuceneWork work, IDirectoryProvider provider)
+            {
+                this.work = work;
+                this.provider = provider;
+            }
+
+            public LuceneWork Work
+            {
+                get { return work; }
+            }
+
+            public IDirectoryProvider Provider
+            {
+                get { return provider; }
+            }
+        }
+
+        #endregion
     }
 }

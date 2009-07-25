@@ -1,6 +1,5 @@
 using System.Collections;
 using NHibernate.Cfg;
-using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
 using NUnit.Framework;
 

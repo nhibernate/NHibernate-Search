@@ -18,55 +18,6 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             this.searchFactoryImplementor = searchFactoryImplementor;
         }
 
-        #region Private methods
-
-        /// <summary>
-        /// one must lock the directory providers in the exact same order to avoid
-        /// dead lock between concurrent threads or processes
-        /// To achieve that, the work will be done per directory provider
-        /// We rely on the both the DocumentBuilder.GetHashCode() and the GetWorkHashCode() to 
-        /// sort them by predictive order at all times, and to put deletes before adds
-        /// </summary>
-        private static void DeadLockFreeQueue(List<LuceneWorker.WorkWithPayload> queue,
-                                              ISearchFactoryImplementor searchFactoryImplementor)
-        {
-            queue.Sort(delegate(LuceneWorker.WorkWithPayload x, LuceneWorker.WorkWithPayload y)
-                           {
-                               long h1 = GetWorkHashCode(x, searchFactoryImplementor);
-                               long h2 = GetWorkHashCode(y, searchFactoryImplementor);
-                               return h1 < h2 ? -1 : h1 == h2 ? 0 : 1;
-                           });
-        }
-
-        private static long GetWorkHashCode(LuceneWorker.WorkWithPayload luceneWork,
-                                            ISearchFactoryImplementor searchFactoryImplementor)
-        {
-            IDirectoryProvider provider = luceneWork.Provider;
-            int h = provider.GetHashCode();
-            h = 31*h + provider.GetHashCode();
-            long extendedHash = h; //to be sure extendedHash + 1 < extendedHash + 2 is always true
-            if (luceneWork.Work is AddLuceneWork)
-                extendedHash += 1; //addwork after deleteWork
-            if (luceneWork.Work is OptimizeLuceneWork)
-                extendedHash += 2; //optimize after everything
-
-            return extendedHash;
-        }
-
-        private void CheckForBatchIndexing(Workspace workspace)
-        {
-            foreach (LuceneWork luceneWork in queue)
-            {
-                // if there is at least a single batch index job we put the work space into batch indexing mode.
-                if (!luceneWork.IsBatch) 
-                    continue;
-                workspace.IsBatch = true;
-                break;
-            }
-        }
-
-        #endregion
-
         #region Public methods
 
         /// <summary>
@@ -79,8 +30,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             LuceneWorker worker = new LuceneWorker(workspace);
             try
             {
-                List<LuceneWorker.WorkWithPayload> queueWithFlatDPs =
-                    new List<LuceneWorker.WorkWithPayload>(queue.Count*2);
+                List<LuceneWorker.WorkWithPayload> queueWithFlatDPs = new List<LuceneWorker.WorkWithPayload>(queue.Count*2);
                 foreach (LuceneWork work in queue)
                 {
                     DocumentBuilder documentBuilder = searchFactoryImplementor.DocumentBuilders[work.EntityClass];
@@ -117,15 +67,75 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                         throw new AssertionFailure("Unknown work type: " + work.GetType());
                     }
                 }
+
                 DeadLockFreeQueue(queueWithFlatDPs, searchFactoryImplementor);
                 CheckForBatchIndexing(workspace);
                 foreach (LuceneWorker.WorkWithPayload luceneWork in queueWithFlatDPs)
+                {
                     worker.PerformWork(luceneWork);
+                }
             }
             finally
             {
                 workspace.Dispose();
                 queue.Clear();
+            }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// one must lock the directory providers in the exact same order to avoid
+        /// dead lock between concurrent threads or processes
+        /// To achieve that, the work will be done per directory provider
+        /// We rely on the both the DocumentBuilder.GetHashCode() and the GetWorkHashCode() to 
+        /// sort them by predictive order at all times, and to put deletes before adds
+        /// </summary>
+        private static void DeadLockFreeQueue(List<LuceneWorker.WorkWithPayload> queue,
+                                              ISearchFactoryImplementor searchFactoryImplementor)
+        {
+            queue.Sort(delegate(LuceneWorker.WorkWithPayload x, LuceneWorker.WorkWithPayload y)
+            {
+                long h1 = GetWorkHashCode(x, searchFactoryImplementor);
+                long h2 = GetWorkHashCode(y, searchFactoryImplementor);
+                return h1 < h2 ? -1 : h1 == h2 ? 0 : 1;
+            });
+        }
+
+        private static long GetWorkHashCode(LuceneWorker.WorkWithPayload luceneWork,
+                                            ISearchFactoryImplementor searchFactoryImplementor)
+        {
+            IDirectoryProvider provider = luceneWork.Provider;
+            int h = provider.GetHashCode();
+            h = 31 * h + provider.GetHashCode();
+            long extendedHash = h; //to be sure extendedHash + 1 < extendedHash + 2 is always true
+            if (luceneWork.Work is AddLuceneWork)
+            {
+                extendedHash += 1; //addwork after deleteWork
+            }
+
+            if (luceneWork.Work is OptimizeLuceneWork)
+            {
+                extendedHash += 2; //optimize after everything
+            }
+
+            return extendedHash;
+        }
+
+        private void CheckForBatchIndexing(Workspace workspace)
+        {
+            foreach (LuceneWork luceneWork in queue)
+            {
+                // if there is at least a single batch index job we put the work space into batch indexing mode.
+                if (!luceneWork.IsBatch)
+                {
+                    continue;
+                }
+
+                workspace.IsBatch = true;
+                break;
             }
         }
 

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+
 using log4net;
+
 using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search
@@ -11,45 +13,20 @@ namespace NHibernate.Search
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(AttributeUtil));
 
-        #region Private methods
-
-        private static void LogParameterError(string message, ICustomAttributeProvider member,
-                                              ParameterAttribute parameter)
-        {
-            string type = string.Empty;
-            string name = string.Empty;
-
-            if (typeof(System.Type).IsAssignableFrom(member.GetType()))
-            {
-                type = "class";
-                name = ((System.Type) member).FullName;
-            }
-            else if (typeof(MemberInfo).IsAssignableFrom(member.GetType()))
-            {
-                type = "member";
-                name = ((MemberInfo) member).DeclaringType.FullName + "." + ((MemberInfo) member).DeclaringType.FullName;
-            }
-
-            // Now log it
-            logger.Error(string.Format(CultureInfo.InvariantCulture, message, type, name, parameter.Name,
-                                       parameter.Owner));
-        }
-
-        #endregion
-
         #region Public methods
 
-        public static T GetAttribute<T>(ICustomAttributeProvider member)
-            where T : Attribute
+        public static T GetAttribute<T>(ICustomAttributeProvider member) where T : Attribute
         {
             object[] objects = member.GetCustomAttributes(typeof(T), true);
             if (objects.Length == 0)
+            {
                 return null;
+            }
+
             return (T) objects[0];
         }
 
-        public static bool HasAttribute<T>(ICustomAttributeProvider member)
-            where T : Attribute
+        public static bool HasAttribute<T>(ICustomAttributeProvider member) where T : Attribute
         {
             return GetAttribute<T>(member) != null;
         }
@@ -59,10 +36,14 @@ namespace NHibernate.Search
             List<T> attribs = new List<T>();
             object[] objects = member.GetCustomAttributes(typeof(T), true);
             if (objects.Length == 0)
+            {
                 return attribs;
+            }
 
             foreach (T attrib in objects)
+            {
                 attribs.Add(attrib);
+            }
 
             return attribs;
         }
@@ -73,16 +54,20 @@ namespace NHibernate.Search
 
             object[] objects = member.GetCustomAttributes(typeof(ClassBridgeAttribute), true);
             if (objects.Length == 0)
+            {
                 return parameters;
+            }
 
             foreach (ClassBridgeAttribute parameter in objects)
+            {
                 parameters.Add(parameter);
+            }
 
             return parameters;
         }
 
-        public static void GetClassBridgeParameters(ICustomAttributeProvider member,
-                                                    List<ClassBridgeAttribute> classBridges)
+        public static void GetClassBridgeParameters(
+                ICustomAttributeProvider member, List<ClassBridgeAttribute> classBridges)
         {
             // Are we expecting any unnamed parameters?
             bool fieldBridgeExists = GetFieldBridge(member) != null;
@@ -102,18 +87,24 @@ namespace NHibernate.Search
                     if (!fieldBridgeExists)
                     {
                         if (classBridges.Count == 1)
+                        {
                             // Case 2
                             classBridges[0].Parameters.Add(parameter.Name, parameter.Value);
+                        }
                         else
+                        {
                             // Case 3
                             LogParameterError(
-                                "Parameter needs a name when multiple bridges defined: {0}={1}, parameter={2}", member,
-                                parameter);
+                                    "Parameter needs a name when multiple bridges defined: {0}={1}, parameter={2}",
+                                    member,
+                                    parameter);
+                        }
                     }
                 }
                 else
                 {
                     bool found = false;
+
                     // Now see if we can find the owner
                     foreach (ClassBridgeAttribute classBridge in classBridges)
                     {
@@ -127,8 +118,10 @@ namespace NHibernate.Search
 
                     // Ok, did we find the appropriate class bridge?
                     if (found == false)
-                        LogParameterError("No matching owner for parameter: {0}={1}, parameter={2}, owner={3}", member,
-                                          parameter);
+                    {
+                        LogParameterError(
+                                "No matching owner for parameter: {0}={1}, parameter={2}, owner={3}", member, parameter);
+                    }
                 }
             }
         }
@@ -142,7 +135,9 @@ namespace NHibernate.Search
         {
             DocumentIdAttribute attribute = GetAttribute<DocumentIdAttribute>(member);
             if (attribute == null)
+            {
                 return null;
+            }
 
             attribute.Name = attribute.Name ?? member.Name;
             return attribute;
@@ -152,7 +147,9 @@ namespace NHibernate.Search
         {
             FieldAttribute attribute = GetAttribute<FieldAttribute>(member);
             if (attribute == null)
+            {
                 return null;
+            }
 
             attribute.Name = attribute.Name ?? member.Name;
             return attribute;
@@ -162,8 +159,12 @@ namespace NHibernate.Search
         {
             List<FieldAttribute> attribs = GetAttributes<FieldAttribute>(member);
             if (attribs != null)
+            {
                 foreach (FieldAttribute attribute in attribs)
+                {
                     attribute.Name = attribute.Name ?? member.Name;
+                }
+            }
 
             return attribs;
         }
@@ -172,7 +173,9 @@ namespace NHibernate.Search
         {
             FieldBridgeAttribute fieldBridge = GetAttribute<FieldBridgeAttribute>(member);
             if (fieldBridge == null)
+            {
                 return null;
+            }
 
             bool classBridges = GetClassBridges(member) != null;
 
@@ -184,7 +187,9 @@ namespace NHibernate.Search
                 {
                     // Ok, it's ours if there are no class bridges or no owner for the parameter
                     if (!classBridges || string.IsNullOrEmpty(parameter.Owner))
+                    {
                         fieldBridge.Parameters.Add(parameter.Name, parameter.Value);
+                    }
                 }
             }
 
@@ -209,6 +214,30 @@ namespace NHibernate.Search
         public static bool IsDateBridge(MemberInfo member)
         {
             return GetDateBridge(member) != null;
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private static void LogParameterError(string message, ICustomAttributeProvider member, ParameterAttribute parameter)
+        {
+            string type = string.Empty;
+            string name = string.Empty;
+
+            if (typeof(System.Type).IsAssignableFrom(member.GetType()))
+            {
+                type = "class";
+                name = ((System.Type)member).FullName;
+            }
+            else if (typeof(MemberInfo).IsAssignableFrom(member.GetType()))
+            {
+                type = "member";
+                name = ((MemberInfo)member).DeclaringType.FullName + "." + ((MemberInfo)member).DeclaringType.FullName;
+            }
+
+            // Now log it
+            logger.Error(string.Format(CultureInfo.InvariantCulture, message, type, name, parameter.Name, parameter.Owner));
         }
 
         #endregion

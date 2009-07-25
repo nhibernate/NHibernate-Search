@@ -22,8 +22,10 @@ namespace NHibernate.Search.Tests.Bridge
             String fieldValue2 = dep.Network ?? string.Empty;
             String fieldValue = fieldValue1 + sepChar + fieldValue2;
             Field field = new Field(name, fieldValue, store, index);
-            if (boost != null) 
-                field.SetBoost((float)boost);
+            if (boost != null)
+            {
+                field.SetBoost((float) boost);
+            }
 
             document.Add(field);
         }

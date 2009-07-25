@@ -15,7 +15,8 @@ namespace NHibernate.Search.Tests
         {
             IPostInsertEventListener[] listeners = ((SessionFactoryImpl) sessions).EventListeners.PostInsertEventListeners;
             FullTextIndexEventListener listener = null;
-            //HACK: this sucks since we mandante the event listener use
+
+            // HACK: this sucks since we mandante the event listener use
             foreach (IPostInsertEventListener candidate in listeners)
             {
                 if (typeof(FullTextIndexEventListener).IsAssignableFrom(candidate.GetType()))
@@ -24,8 +25,11 @@ namespace NHibernate.Search.Tests
                     break;
                 }
             }
+
             if (listener == null)
+            {
                 throw new HibernateException("Lucene event listener not initialized");
+            }
 
             return listener;
         }
@@ -37,8 +41,7 @@ namespace NHibernate.Search.Tests
 
         protected override void Configure(Configuration configuration)
         {
-            cfg.SetProperty("hibernate.search.default.directory_provider",
-                            typeof(RAMDirectoryProvider).AssemblyQualifiedName);
+            cfg.SetProperty("hibernate.search.default.directory_provider", typeof(RAMDirectoryProvider).AssemblyQualifiedName);
             cfg.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
             SetListener(cfg);
         }

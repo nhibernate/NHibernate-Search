@@ -73,6 +73,7 @@ namespace NHibernate.Search.Engine
                     }
                 }
             }
+
             return entityInfo;
         }
     }

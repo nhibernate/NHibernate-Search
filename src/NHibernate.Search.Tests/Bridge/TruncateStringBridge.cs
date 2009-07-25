@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 using NHibernate.Search.Bridge;
 using NHibernate.Search.Bridge.Builtin;
 

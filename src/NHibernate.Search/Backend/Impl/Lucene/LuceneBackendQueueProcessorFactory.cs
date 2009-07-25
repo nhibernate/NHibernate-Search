@@ -14,7 +14,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 
         public void Initialize(IDictionary props, ISearchFactoryImplementor aSearchFactoryImplementor)
         {
-            this.searchFactoryImplementor = aSearchFactoryImplementor;
+            searchFactoryImplementor = aSearchFactoryImplementor;
         }
 
         public WaitCallback GetProcessor(IList<LuceneWork> queue)

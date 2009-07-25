@@ -45,32 +45,6 @@ namespace NHibernate.Search.Store
         private const string SHARDING_STRATEGY = "sharding_strategy";
         private const string NBR_OF_SHARDS = SHARDING_STRATEGY + ".nbr_of_shards";
 
-        #region Nested class : DirectoryProviders
-
-        public class DirectoryProviders
-        {
-            private readonly IIndexShardingStrategy shardingStrategy;
-            private readonly IDirectoryProvider[] providers;
-
-            public DirectoryProviders(IIndexShardingStrategy shardingStrategy, IDirectoryProvider[] providers)
-            {
-                this.shardingStrategy = shardingStrategy;
-                this.providers = providers;
-            }
-
-            public IIndexShardingStrategy SelectionStrategy
-            {
-                get { return shardingStrategy; }
-            }
-
-            public IDirectoryProvider[] Providers
-            {
-                get { return providers; }
-            }
-        }
-
-        #endregion
-
         #region Public methods
 
         public DirectoryProviders CreateDirectoryProviders(System.Type entity, Configuration cfg,
@@ -88,6 +62,7 @@ namespace NHibernate.Search.Store
                 string providerName = nbrOfProviders > 1
                                           ? directoryProviderName + "." + index
                                           : directoryProviderName;
+
                 // NB Are the properties nested??
                 providers[index] = CreateDirectoryProvider(providerName, indexProps[index], searchFactoryImplementor);
             }
@@ -95,7 +70,8 @@ namespace NHibernate.Search.Store
             // Define sharding strategy
             IIndexShardingStrategy shardingStrategy;
             IDictionary<string, string> shardingProperties = new Dictionary<string, string>();
-            //any indexProperty will do, the indexProps[0] surely exists.
+
+            // Any indexProperty will do, the indexProps[0] surely exists.
             foreach (KeyValuePair<string, string> entry in indexProps[0])
             {
                 if (entry.Key.StartsWith(SHARDING_STRATEGY))
@@ -109,9 +85,13 @@ namespace NHibernate.Search.Store
             if (string.IsNullOrEmpty(shardingStrategyName))
             {
                 if (indexProps.Length == 1)
+                {
                     shardingStrategy = new NotShardedStrategy();
+                }
                 else
+                {
                     shardingStrategy = new IdHashShardingStrategy();
+                }
             }
             else
             {
@@ -135,7 +115,9 @@ namespace NHibernate.Search.Store
         public void StartDirectoryProviders()
         {
             foreach (IDirectoryProvider provider in providers)
+            {
                 provider.Start();
+            }
         }
 
         #endregion
@@ -304,6 +286,14 @@ namespace NHibernate.Search.Store
             return shardLocalProperties;
         }
 
+        private static void EnsureListSize(List<IDictionary<string, string>> indexSpecificProps, int size)
+        {
+            while (indexSpecificProps.Count < size)
+            {
+                indexSpecificProps.Add(null);
+            }
+        }
+
         private static IDictionary<string, string> GetIndexProps(string directoryProviderName, Configuration cfg)
         {
             IDictionary<string, string> indexProps = new Dictionary<string, string>();
@@ -367,6 +357,32 @@ namespace NHibernate.Search.Store
             }
 
             throw new HibernateException("Trying to extract the index name from a non @Indexed class: " + clazz);
+        }
+
+        #endregion
+
+        #region Nested class : DirectoryProviders
+
+        public class DirectoryProviders
+        {
+            private readonly IIndexShardingStrategy shardingStrategy;
+            private readonly IDirectoryProvider[] providers;
+
+            public DirectoryProviders(IIndexShardingStrategy shardingStrategy, IDirectoryProvider[] providers)
+            {
+                this.shardingStrategy = shardingStrategy;
+                this.providers = providers;
+            }
+
+            public IIndexShardingStrategy SelectionStrategy
+            {
+                get { return shardingStrategy; }
+            }
+
+            public IDirectoryProvider[] Providers
+            {
+                get { return providers; }
+            }
         }
 
         #endregion
