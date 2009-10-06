@@ -5,6 +5,7 @@ using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using NHibernate.Engine;
 using NHibernate.Event;
+using NHibernate.Impl;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Query;
@@ -540,16 +541,22 @@ namespace NHibernate.Search.Impl
 
         public IFullTextQuery CreateFullTextQuery<TEntity>(string defaultField, string queryString)
         {
-            QueryParser queryParser = new QueryParser(defaultField, new StandardAnalyzer());
-            Lucene.Net.Search.Query query = queryParser.Parse(queryString);
-            return CreateFullTextQuery(query, typeof(TEntity));
+			using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+			{
+				QueryParser queryParser = new QueryParser(defaultField, new StandardAnalyzer());
+				Lucene.Net.Search.Query query = queryParser.Parse(queryString);
+				return CreateFullTextQuery(query, typeof (TEntity));
+			}
         }
 
         public IFullTextQuery CreateFullTextQuery<TEntity>(string queryString)
         {
-            QueryParser queryParser = new QueryParser(string.Empty, new StandardAnalyzer());
-            Lucene.Net.Search.Query query = queryParser.Parse(queryString);
-            return CreateFullTextQuery(query, typeof(TEntity));
+			using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+			{
+				QueryParser queryParser = new QueryParser(string.Empty, new StandardAnalyzer());
+				Lucene.Net.Search.Query query = queryParser.Parse(queryString);
+				return CreateFullTextQuery(query, typeof (TEntity));
+			}
         }
 
         /// <summary>
@@ -561,7 +568,10 @@ namespace NHibernate.Search.Impl
         /// <returns></returns>
         public IFullTextQuery CreateFullTextQuery(Lucene.Net.Search.Query luceneQuery, params System.Type[] entities)
         {
-            return new FullTextQueryImpl(luceneQuery, entities, session, null);
+			using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+			{
+				return new FullTextQueryImpl(luceneQuery, entities, session, null);
+			}
         }
 
         /// <summary>
@@ -573,45 +583,55 @@ namespace NHibernate.Search.Impl
         /// <returns></returns>
         public IFullTextSession Index(object entity)
         {
-            if (entity == null) return this;
+			using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+			{
+				if (entity == null)
+					return this;
 
-            System.Type clazz = NHibernateUtil.GetClass(entity);
-            // TODO: Cache that at the FTSession level
-            ISearchFactoryImplementor searchFactoryImplementor = SearchFactoryImplementor;
-            // not strictly necesary but a small optmization
-            DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[clazz];
-            if (builder != null)
-            {
-                object id = session.GetIdentifier(entity);
-                Work work = new Work(entity, id, WorkType.Index);
-                searchFactoryImplementor.Worker.PerformWork(work, eventSource);
-            }
-            return this;
+				System.Type clazz = NHibernateUtil.GetClass(entity);
+				// TODO: Cache that at the FTSession level
+				ISearchFactoryImplementor searchFactoryImplementor = SearchFactoryImplementor;
+				// not strictly necesary but a small optmization
+				DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[clazz];
+				if (builder != null)
+				{
+					object id = session.GetIdentifier(entity);
+					Work work = new Work(entity, id, WorkType.Index);
+					searchFactoryImplementor.Worker.PerformWork(work, eventSource);
+				}
+				return this;
+			}
         }
 
         public void PurgeAll(System.Type clazz)
         {
-            Purge(clazz, null);
+			using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+			{
+				Purge(clazz, null);
+			}
         }
 
         public void Purge(System.Type clazz, object id)
         {
-            if (clazz == null)
-            {
-                return;
-            }
+			using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+			{
+				if (clazz == null)
+				{
+					return;
+				}
 
-            ISearchFactoryImplementor searchFactoryImplementor = SearchFactoryImplementor;
-            // TODO: Cache that at the FTSession level
-            // not strictly necesary but a small optmization
-            DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[clazz];
-            if (builder != null)
-            {
-                // TODO: Check to see this entity type is indexed
-                WorkType workType = id == null ? WorkType.PurgeAll : WorkType.Purge;
-                Work work = new Work(clazz, id, workType);
-                searchFactoryImplementor.Worker.PerformWork(work, eventSource);
-            }
+				ISearchFactoryImplementor searchFactoryImplementor = SearchFactoryImplementor;
+				// TODO: Cache that at the FTSession level
+				// not strictly necesary but a small optmization
+				DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[clazz];
+				if (builder != null)
+				{
+					// TODO: Check to see this entity type is indexed
+					WorkType workType = id == null ? WorkType.PurgeAll : WorkType.Purge;
+					Work work = new Work(clazz, id, workType);
+					searchFactoryImplementor.Worker.PerformWork(work, eventSource);
+				}
+			}
         }
 
         public void Dispose()
