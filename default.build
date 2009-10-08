@@ -10,7 +10,6 @@
 
 	<property name="folders.lib" value="lib" />
 	<property name="folders.build" value="build" />
-  <property name="key.file" value="src/NHibernate.Search/nhsearch.snk" />
 
 	
 	<target name="clean" description="aasd">
