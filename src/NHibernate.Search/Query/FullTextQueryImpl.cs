@@ -401,16 +401,7 @@ namespace NHibernate.Search.Query
 		{
 			using (new SessionIdLoggingContext(Session.SessionId))
 			{
-				if (log.IsDebugEnabled)
-				{
-					var sb = new StringBuilder();
-					foreach (var type in classesAndSubclasses)
-					{
-						sb.Append(type.Name).Append("|");
-					}
-					log.DebugFormat("Execute lucene query [{0}]: {1}. Max rows: {2}, First result: {3}", 
-						sb, luceneQuery, RowSelection.MaxRows, RowSelection.FirstRow);
-				}
+				LogQuery();
 				Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
 				BuildFilters();
 				Hits hits = searcher.Search(query, this.filter, this.sort);
@@ -419,6 +410,32 @@ namespace NHibernate.Search.Query
 
 				return hits;
 			}
+		}
+
+		private void LogQuery()
+		{
+			if (log.IsDebugEnabled == false)
+				return;
+
+			var sb = new StringBuilder();
+			foreach (var type in classesAndSubclasses)
+			{
+				sb.Append(type.Name).Append("|");
+			}
+			int maxRows;
+			int firstRow;
+			if(RowSelection != null)
+			{
+				maxRows = RowSelection.MaxRows;
+				firstRow = RowSelection.FirstRow;
+			}
+			else
+			{
+				maxRows = -1;
+				firstRow = -1;
+			}
+			log.DebugFormat("Execute lucene query [{0}]: {1}. Max rows: {2}, First result: {3}", 
+			                sb, luceneQuery, maxRows, firstRow);
 		}
 
 		private void BuildFilters()
