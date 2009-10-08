@@ -408,7 +408,8 @@ namespace NHibernate.Search.Query
 					{
 						sb.Append(type.Name).Append("|");
 					}
-					log.DebugFormat("Execute lucene query [{0}]: {1}", sb, luceneQuery);
+					log.DebugFormat("Execute lucene query [{0}]: {1}. Max rows: {2}, First result: {3}", 
+						sb, luceneQuery, RowSelection.MaxRows, RowSelection.FirstRow);
 				}
 				Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
 				BuildFilters();
