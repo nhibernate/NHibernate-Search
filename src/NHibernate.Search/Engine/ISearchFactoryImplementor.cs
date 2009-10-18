@@ -13,7 +13,7 @@ namespace NHibernate.Search.Engine
     {
         IBackendQueueProcessorFactory BackendQueueProcessorFactory { get; set; }
 
-        Dictionary<System.Type, DocumentBuilder> DocumentBuilders { get; }
+        IDictionary<System.Type, DocumentBuilder> DocumentBuilders { get; }
 
         Dictionary<IDirectoryProvider, object> GetLockableDirectoryProviders();
 

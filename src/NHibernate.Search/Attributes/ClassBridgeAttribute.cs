@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NHibernate.Search.Mapping.Definition;
 
 namespace NHibernate.Search.Attributes
 {
@@ -12,7 +13,7 @@ namespace NHibernate.Search.Attributes
     /// We allow multiple instances of this attribute rather than having a ClassBridgesAttribute as per Java
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class ClassBridgeAttribute : Attribute
+    public class ClassBridgeAttribute : Attribute, IClassBridgeDefinition
     {
         private readonly System.Type impl;
         private readonly Dictionary<string, object> parameters;

@@ -20,6 +20,8 @@ namespace NHibernate.Search
         /// </summary>
         public const string AnalyzerClass = "hibernate.search.analyzer";
 
+        public const string MappingClass = "hibernate.search.mapping";
+
         public const string WorkerPrefix = "hibernate.search.worker.";
         public const string WorkerScope = WorkerPrefix + "scope";
         public const string WorkerBackend = WorkerPrefix + "backend";

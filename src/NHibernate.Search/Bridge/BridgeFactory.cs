@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using NHibernate.Search.Attributes;
 using NHibernate.Search.Bridge.Builtin;
+using NHibernate.Search.Mapping;
+using NHibernate.Search.Mapping.Definition;
 
 namespace NHibernate.Search.Bridge
 {
@@ -61,7 +63,7 @@ namespace NHibernate.Search.Bridge
         {
         }
 
-        public static IFieldBridge ExtractType(ClassBridgeAttribute cb)
+        public static IFieldBridge ExtractType(IClassBridgeDefinition cb)
         {
             IFieldBridge bridge = null;
 
@@ -95,13 +97,16 @@ namespace NHibernate.Search.Bridge
             return bridge;
         }
 
-        public static IFieldBridge GuessType(MemberInfo member)
+        public static IFieldBridge GuessType(
+            string fieldName, System.Type fieldType,
+            IFieldBridgeDefinition fieldBridgeDefinition,
+            IDateBridgeDefinition dateBridgeDefinition
+        )
         {
             IFieldBridge bridge = null;
-            FieldBridgeAttribute bridgeAnn = AttributeUtil.GetFieldBridge(member);
-            if (bridgeAnn != null)
+            if (fieldBridgeDefinition != null)
             {
-                System.Type impl = bridgeAnn.Impl;
+                System.Type impl = fieldBridgeDefinition.Impl;
                 try
                 {
                     Object instance = Activator.CreateInstance(impl);
@@ -112,25 +117,23 @@ namespace NHibernate.Search.Bridge
                             (ITwoWayStringBridge) instance);
                     else if (typeof(StringBridge).IsAssignableFrom(impl))
                         bridge = new String2FieldBridgeAdaptor((StringBridge) instance);
-                    if (bridgeAnn.Parameters.Count > 0 && typeof(IParameterizedBridge).IsAssignableFrom(impl))
-                        ((IParameterizedBridge) instance).SetParameterValues(bridgeAnn.Parameters);
+                    if (fieldBridgeDefinition.Parameters.Count > 0 && typeof(IParameterizedBridge).IsAssignableFrom(impl))
+                        ((IParameterizedBridge)instance).SetParameterValues(fieldBridgeDefinition.Parameters);
                 }
                 catch (Exception e)
                 {
                     //TODO add classname
-                    throw new HibernateException("Unable to instaniate IFieldBridge for " + member.Name, e);
+                    throw new HibernateException("Unable to instaniate IFieldBridge for " + fieldName, e);
                 }
             }
-            else if (AttributeUtil.IsDateBridge(member))
+            else if (dateBridgeDefinition != null)
             {
-                Resolution resolution =
-                    AttributeUtil.GetDateBridge(member).Resolution;
-                bridge = GetDateField(resolution);
+                bridge = GetDateField(dateBridgeDefinition.Resolution);
             }
             else
             {
                 //find in built-ins
-                System.Type returnType = GetMemberType(member);
+                System.Type returnType = fieldType;
                 if (IsNullable(returnType))
                     returnType = returnType.GetGenericArguments()[0];
                 builtInBridges.TryGetValue(returnType.Name, out bridge);
@@ -140,22 +143,13 @@ namespace NHibernate.Search.Bridge
                         );
             }
             //TODO add classname
-            if (bridge == null) throw new HibernateException("Unable to guess IFieldBridge for " + member.Name);
+            if (bridge == null) throw new HibernateException("Unable to guess IFieldBridge for " + fieldName);
             return bridge;
         }
 
         private static bool IsNullable(System.Type returnType)
         {
             return returnType.IsGenericType && typeof(Nullable<>) == returnType.GetGenericTypeDefinition();
-        }
-
-        private static System.Type GetMemberType(MemberInfo member)
-        {
-            PropertyInfo prop = member as PropertyInfo;
-            if (prop != null)
-                return prop.PropertyType;
-            else
-                return ((FieldInfo) member).FieldType;
         }
 
         public static IFieldBridge GetDateField(Resolution resolution)

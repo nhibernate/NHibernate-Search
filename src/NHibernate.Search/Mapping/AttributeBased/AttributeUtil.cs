@@ -7,7 +7,7 @@ using log4net;
 
 using NHibernate.Search.Attributes;
 
-namespace NHibernate.Search
+namespace NHibernate.Search.Mapping.AttributeBased
 {
     public class AttributeUtil
     {
@@ -28,52 +28,23 @@ namespace NHibernate.Search
 
         public static bool HasAttribute<T>(ICustomAttributeProvider member) where T : Attribute
         {
-            return GetAttribute<T>(member) != null;
+            return member.IsDefined(typeof(T), true);
         }
 
-        public static List<T> GetAttributes<T>(ICustomAttributeProvider member)
+        public static T[] GetAttributes<T>(ICustomAttributeProvider member)
+            where T : class
         {
-            List<T> attribs = new List<T>();
-            object[] objects = member.GetCustomAttributes(typeof(T), true);
-            if (objects.Length == 0)
-            {
-                return attribs;
-            }
-
-            foreach (T attrib in objects)
-            {
-                attribs.Add(attrib);
-            }
-
-            return attribs;
-        }
-
-        public static List<ClassBridgeAttribute> GetClassBridges(ICustomAttributeProvider member)
-        {
-            List<ClassBridgeAttribute> parameters = new List<ClassBridgeAttribute>();
-
-            object[] objects = member.GetCustomAttributes(typeof(ClassBridgeAttribute), true);
-            if (objects.Length == 0)
-            {
-                return parameters;
-            }
-
-            foreach (ClassBridgeAttribute parameter in objects)
-            {
-                parameters.Add(parameter);
-            }
-
-            return parameters;
+            return (T[])member.GetCustomAttributes(typeof(T), true);
         }
 
         public static void GetClassBridgeParameters(
-                ICustomAttributeProvider member, List<ClassBridgeAttribute> classBridges)
+                ICustomAttributeProvider member, IList<ClassBridgeAttribute> classBridges)
         {
             // Are we expecting any unnamed parameters?
             bool fieldBridgeExists = GetFieldBridge(member) != null;
 
             // This is a bit inefficient, but the loops will be very small
-            List<ParameterAttribute> parameters = GetParameters(member);
+            IList<ParameterAttribute> parameters = GetParameters(member);
 
             // Do it this way around so we can ensure we process all parameters
             foreach (ParameterAttribute parameter in parameters)
@@ -126,23 +97,6 @@ namespace NHibernate.Search
             }
         }
 
-        public static DateBridgeAttribute GetDateBridge(MemberInfo member)
-        {
-            return GetAttribute<DateBridgeAttribute>(member);
-        }
-
-        public static DocumentIdAttribute GetDocumentId(MemberInfo member)
-        {
-            DocumentIdAttribute attribute = GetAttribute<DocumentIdAttribute>(member);
-            if (attribute == null)
-            {
-                return null;
-            }
-
-            attribute.Name = attribute.Name ?? member.Name;
-            return attribute;
-        }
-
         public static FieldAttribute GetField(MemberInfo member)
         {
             FieldAttribute attribute = GetAttribute<FieldAttribute>(member);
@@ -155,9 +109,9 @@ namespace NHibernate.Search
             return attribute;
         }
 
-        public static List<FieldAttribute> GetFields(MemberInfo member)
+        public static FieldAttribute[] GetFields(MemberInfo member)
         {
-            List<FieldAttribute> attribs = GetAttributes<FieldAttribute>(member);
+            FieldAttribute[] attribs = GetAttributes<FieldAttribute>(member);
             if (attribs != null)
             {
                 foreach (FieldAttribute attribute in attribs)
@@ -177,10 +131,10 @@ namespace NHibernate.Search
                 return null;
             }
 
-            bool classBridges = GetClassBridges(member) != null;
+            bool classBridges = GetAttributes<ClassBridgeAttribute>(member) != null;
 
             // Ok, get all the parameters
-            List<ParameterAttribute> parameters = GetParameters(member);
+            IList<ParameterAttribute> parameters = GetParameters(member);
             if (parameters != null)
             {
                 foreach (ParameterAttribute parameter in parameters)
@@ -196,24 +150,9 @@ namespace NHibernate.Search
             return fieldBridge;
         }
 
-        public static IndexedAttribute GetIndexed(System.Type type)
-        {
-            return GetAttribute<IndexedAttribute>(type);
-        }
-
-        public static List<ParameterAttribute> GetParameters(ICustomAttributeProvider member)
+        public static IList<ParameterAttribute> GetParameters(ICustomAttributeProvider member)
         {
             return GetAttributes<ParameterAttribute>(member);
-        }
-
-        public static bool IsIndexed(System.Type type)
-        {
-            return GetIndexed(type) != null;
-        }
-
-        public static bool IsDateBridge(MemberInfo member)
-        {
-            return GetDateBridge(member) != null;
         }
 
         #endregion

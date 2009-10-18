@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using NHibernate.Cfg;
-using NHibernate.Mapping;
-using NHibernate.Search.Attributes;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
+using NHibernate.Search.Mapping;
 using NHibernate.Search.Store.Optimization;
 using NHibernate.Util;
 
@@ -49,11 +48,11 @@ namespace NHibernate.Search.Store
 
         #region Public methods
 
-        public DirectoryProviders CreateDirectoryProviders(System.Type entity, Configuration cfg,
+        public DirectoryProviders CreateDirectoryProviders(DocumentMapping classMapping, Configuration cfg,
                                                           ISearchFactoryImplementor searchFactoryImplementor)
         {
             // Get properties
-            string directoryProviderName = GetDirectoryProviderName(entity, cfg);
+            string directoryProviderName = GetDirectoryProviderName(classMapping, cfg);
             IDictionary<string, string>[] indexProps = GetDirectoryProperties(cfg, directoryProviderName);
 
             // Set up the directories
@@ -289,6 +288,9 @@ namespace NHibernate.Search.Store
 
         private static IDictionary<string, string>[] GetDirectoryProperties(Configuration cfg, string directoryProviderName)
         {
+            if (string.IsNullOrEmpty(directoryProviderName))
+                throw new ArgumentException("Value should be not null and not empty.", "directoryProviderName");
+
             IDictionary<string, string> props = cfg.Properties;
             string indexName = LUCENE_PREFIX + directoryProviderName;
             IDictionary<string, string> defaultProperties = new Dictionary<string, string>();
@@ -401,35 +403,11 @@ namespace NHibernate.Search.Store
             }
         }
 
-        private static string GetDirectoryProviderName(System.Type clazz, Configuration cfg)
+        private string GetDirectoryProviderName(DocumentMapping documentMapping, Configuration cfg)
         {
-            // Get the most specialized (ie subclass > superclass) non default index name
-            // If none extract the name from the most generic (superclass > subclass) [Indexed] class in the hierarchy
-            PersistentClass pc = cfg.GetClassMapping(clazz);
-            System.Type rootIndex = null;
-            do
-            {
-                IndexedAttribute indexAnn = AttributeUtil.GetIndexed(pc.MappedClass);
-                if (indexAnn != null)
-                {
-                    if (string.IsNullOrEmpty(indexAnn.Index) == false)
-                    {
-                        return indexAnn.Index;
-                    }
-
-                    rootIndex = pc.MappedClass;
-                }
-
-                pc = pc.Superclass;
-            } while (pc != null);
-
-            // there is nobody out there with a non default [Indexed(Index = "fo")]
-            if (rootIndex != null)
-            {
-                return rootIndex.Name;
-            }
-
-            throw new HibernateException("Trying to extract the index name from a non @Indexed class: " + clazz);
+            return string.IsNullOrEmpty(documentMapping.IndexName)
+                 ? documentMapping.MappedClass.Name
+                 : documentMapping.IndexName;
         }
 
         #endregion

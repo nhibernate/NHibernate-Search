@@ -12,6 +12,7 @@ using NHibernate.Search.Attributes;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Bridge;
 using NHibernate.Search.Impl;
+using NHibernate.Search.Mapping;
 using NHibernate.Search.Store;
 using NHibernate.Search.Util;
 using NHibernate.Util;
@@ -29,74 +30,34 @@ namespace NHibernate.Search.Engine
         public const string CLASS_FIELDNAME = "_hibernate_class";
         private static readonly ILog logger = LogManager.GetLogger(typeof(DocumentBuilder));
 
-        private readonly PropertiesMetadata rootPropertiesMetadata;
-        private readonly System.Type beanClass;
         private readonly IDirectoryProvider[] directoryProviders;
         private readonly IIndexShardingStrategy shardingStrategy;
         private readonly ScopedAnalyzer analyzer;
-        private string idKeywordName;
-        private MemberInfo idGetter;
-        private float? idBoost;
-        private ITwoWayFieldBridge idBridge;
+        private DocumentIdMapping idMapping;
         private ISet<Type> mappedSubclasses = new HashedSet<System.Type>();
-        private int level;
-        private int maxLevel = int.MaxValue;
 
-        #region Nested type: PropertiesMetadata
-
-        private enum Container
-        {
-            Object,
-            Collection,
-            Map,
-            Array
-        }
-
-        private class PropertiesMetadata
-        {
-            public readonly List<float> classBoosts = new List<float>();
-            public readonly List<IFieldBridge> classBridges = new List<IFieldBridge>();
-            public readonly List<Field.Index> classIndexes = new List<Field.Index>();
-            public readonly List<string> classNames = new List<string>();
-            public readonly List<Field.Store> classStores = new List<Field.Store>();
-            public readonly List<MemberInfo> containedInGetters = new List<MemberInfo>();
-            public readonly List<Container> embeddedContainers = new List<Container>();
-            public readonly List<MemberInfo> embeddedGetters = new List<MemberInfo>();
-            public readonly List<PropertiesMetadata> embeddedPropertiesMetadata = new List<PropertiesMetadata>();
-            public readonly List<IFieldBridge> fieldBridges = new List<IFieldBridge>();
-            public readonly List<MemberInfo> fieldGetters = new List<MemberInfo>();
-            public readonly List<Field.Index> fieldIndex = new List<Field.Index>();
-            public readonly List<String> fieldNames = new List<String>();
-            public readonly List<Field.Store> fieldStore = new List<Field.Store>();
-            public Analyzer analyzer;
-            public float? boost;
-        }
-
-        #endregion
+        private readonly DocumentMapping rootClassMapping;
 
         #region Constructors
 
-        public DocumentBuilder(System.Type clazz, Analyzer defaultAnalyzer, IDirectoryProvider[] directoryProviders,
+        public DocumentBuilder(DocumentMapping classMapping, Analyzer defaultAnalyzer, IDirectoryProvider[] directoryProviders,
                                IIndexShardingStrategy shardingStrategy)
         {
             analyzer = new ScopedAnalyzer();
-            beanClass = clazz;
             this.directoryProviders = directoryProviders;
             this.shardingStrategy = shardingStrategy;
 
-            if (clazz == null) throw new AssertionFailure("Unable to build a DocumemntBuilder with a null class");
+            if (classMapping == null) throw new AssertionFailure("Unable to build a DocumemntBuilder with a null class");
 
-            rootPropertiesMetadata = new PropertiesMetadata();
-            rootPropertiesMetadata.boost = GetBoost(clazz);
-            rootPropertiesMetadata.analyzer = defaultAnalyzer;
+            rootClassMapping = classMapping;
 
             Set<System.Type> processedClasses = new HashedSet<System.Type>();
-            processedClasses.Add(clazz);
-            InitializeMembers(clazz, rootPropertiesMetadata, true, string.Empty, processedClasses);
+            processedClasses.Add(classMapping.MappedClass);
+            CollectAnalyzers(rootClassMapping, defaultAnalyzer, true, string.Empty, processedClasses);
             //processedClasses.remove( clazz ); for the sake of completness
-            analyzer.GlobalAnalyzer = rootPropertiesMetadata.analyzer;
-            if (idKeywordName == null)
-                throw new SearchException("No document id for: " + clazz.Name);
+            analyzer.GlobalAnalyzer = defaultAnalyzer;
+            if (idMapping == null)
+                throw new SearchException("No document id for: " + classMapping.MappedClass.Name);
         }
 
         #endregion
@@ -120,7 +81,7 @@ namespace NHibernate.Search.Engine
 
         public ITwoWayFieldBridge IdBridge
         {
-            get { return idBridge; }
+            get { return idMapping.Bridge; }
         }
 
         public ISet<System.Type> MappedSubclasses
@@ -130,7 +91,7 @@ namespace NHibernate.Search.Engine
 
         public string IdentifierName
         {
-            get { return idGetter.Name; }
+            get { return idMapping.Name; }
         }
 
         #endregion
@@ -154,7 +115,7 @@ namespace NHibernate.Search.Engine
             }
 
             bool searchForContainers = false;
-            string idString = idBridge.ObjectToString(id);
+            string idString = idMapping.Bridge.ObjectToString(id);
 
             switch (workType)
             {
@@ -205,7 +166,7 @@ namespace NHibernate.Search.Engine
 		    */
             if (searchForContainers)
             {
-                ProcessContainedIn(entity, queue, rootPropertiesMetadata, searchFactoryImplementor);
+                ProcessContainedIn(entity, queue, rootClassMapping, searchFactoryImplementor);
             }
         }
 
@@ -213,30 +174,30 @@ namespace NHibernate.Search.Engine
         {
             Document doc = new Document();
             System.Type instanceClass = instance.GetType();
-            if (rootPropertiesMetadata.boost != null)
+            if (rootClassMapping.Boost != null)
             {
-                doc.SetBoost(rootPropertiesMetadata.boost.Value);
+                doc.SetBoost(rootClassMapping.Boost.Value);
             }
 
             // TODO: Check if that should be an else?
             {
                 Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(instanceClass), Field.Store.YES, Field.Index.UN_TOKENIZED);
                 doc.Add(classField);
-                idBridge.Set(idKeywordName, id, doc, Field.Store.YES, Field.Index.UN_TOKENIZED, idBoost);
+                idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES, Field.Index.UN_TOKENIZED, idMapping.Boost);
             }
 
-            BuildDocumentFields(instance, doc, rootPropertiesMetadata);
+            BuildDocumentFields(instance, doc, rootClassMapping, string.Empty);
             return doc;
         }
 
         public Term GetTerm(object id)
         {
-            return new Term(idKeywordName, idBridge.ObjectToString(id));
+            return new Term(IdentifierName, IdBridge.ObjectToString(id));
         }
 
         public String GetIdKeywordName()
         {
-            return idKeywordName;
+            return IdentifierName;
         }
 
         public static System.Type GetDocumentClass(Document document)
@@ -273,13 +234,12 @@ namespace NHibernate.Search.Engine
             }
 
             object[] result = new object[fields.Length];
-            if (builder.idKeywordName != null)
+            if (builder.idMapping != null)
             {
-                PopulateResult(builder.idKeywordName, builder.idBridge, Field.Store.YES, fields, result, document);
+                PopulateResult(builder.IdentifierName, builder.IdBridge, Attributes.Store.Yes, fields, result, document);
             }
 
-            PropertiesMetadata metadata = builder.rootPropertiesMetadata;
-            ProcessFieldsForProjection(metadata, fields, result, document);
+            ProcessFieldsForProjection(builder.rootClassMapping, fields, result, document);
 
             return result;
         }
@@ -287,7 +247,7 @@ namespace NHibernate.Search.Engine
         public void PostInitialize(ISet<System.Type> indexedClasses)
         {
             // this method does not requires synchronization
-            Type plainClass = beanClass;
+            Type plainClass = rootClassMapping.MappedClass;
             ISet<Type> tempMappedSubclasses = new HashedSet<System.Type>();
 
             // together with the caller this creates a o(2), but I think it's still faster than create the up hierarchy for each class
@@ -306,48 +266,7 @@ namespace NHibernate.Search.Engine
 
         #region Private methods
 
-        private void BindClassAnnotation(string prefix, PropertiesMetadata propertiesMetadata, ClassBridgeAttribute ann)
-        {
-            // TODO: Name should be prefixed - NB is this still true?
-            string fieldName = prefix + ann.Name;
-            propertiesMetadata.classNames.Add(fieldName);
-            propertiesMetadata.classStores.Add(GetStore(ann.Store));
-            propertiesMetadata.classIndexes.Add(GetIndex(ann.Index));
-            propertiesMetadata.classBridges.Add(BridgeFactory.ExtractType(ann));
-            propertiesMetadata.classBoosts.Add(ann.Boost);
-
-            Analyzer classAnalyzer = GetAnalyzer(ann.Analyzer) ?? propertiesMetadata.analyzer;
-            if (classAnalyzer == null)
-            {
-                throw new NotSupportedException("Analyzer should not be undefined");
-            }
-
-            analyzer.AddScopedAnalyzer(fieldName, classAnalyzer);
-        }
-
-        private void BindFieldAnnotation(MemberInfo member, PropertiesMetadata propertiesMetadata, string prefix,
-                                         FieldAttribute fieldAnn)
-        {
-            SetAccessible(member);
-            propertiesMetadata.fieldGetters.Add(member);
-            string fieldName = prefix + BinderHelper.GetAttributeName(member, fieldAnn.Name);
-            propertiesMetadata.fieldNames.Add(prefix + fieldAnn.Name);
-            propertiesMetadata.fieldStore.Add(GetStore(fieldAnn.Store));
-            propertiesMetadata.fieldIndex.Add(GetIndex(fieldAnn.Index));
-            propertiesMetadata.fieldBridges.Add(BridgeFactory.GuessType(member));
-
-            // Field > property > entity analyzer
-            Analyzer localAnalyzer = (GetAnalyzer(fieldAnn.Analyzer) ?? GetAnalyzer(member)) ??
-                                     propertiesMetadata.analyzer;
-            if (localAnalyzer == null)
-            {
-                throw new NotSupportedException("Analyzer should not be undefined");
-            }
-
-            analyzer.AddScopedAnalyzer(fieldName, localAnalyzer);
-        }
-
-        private static void BuildDocumentFields(Object instance, Document doc, PropertiesMetadata propertiesMetadata)
+        private void BuildDocumentFields(Object instance, Document doc, DocumentMapping classMapping, string prefix)
         {
             if (instance == null)
             {
@@ -355,165 +274,96 @@ namespace NHibernate.Search.Engine
             }
 
             object unproxiedInstance = Unproxy(instance);
-
-            for (int i = 0; i < propertiesMetadata.classBridges.Count; i++)
+            foreach (var bridge in classMapping.ClassBridges)
             {
-                IFieldBridge fb = propertiesMetadata.classBridges[i];
-
+                var bridgeName = prefix + bridge.Name;
                 try
                 {
-                    fb.Set(propertiesMetadata.classNames[i],
-                           unproxiedInstance,
-                           doc,
-                           propertiesMetadata.classStores[i],
-                           propertiesMetadata.classIndexes[i],
-                           propertiesMetadata.classBoosts[i]);
+                    bridge.Bridge.Set(
+                        bridgeName,
+                        unproxiedInstance,
+                        doc,
+                        GetStore(bridge.Store),
+                        GetIndex(bridge.Index),
+                        bridge.Boost
+                    );
                 }
                 catch (Exception e)
                 {
                     logger.Error(
                         string.Format(CultureInfo.InvariantCulture, "Error processing class bridge for {0}",
-                                      propertiesMetadata.classNames[i]), e);
+                                      bridgeName), e);
                 }
             }
 
-            for (int i = 0; i < propertiesMetadata.fieldNames.Count; i++)
+            foreach (var field in classMapping.Fields)
             {
-                try
-                {
-                    MemberInfo member = propertiesMetadata.fieldGetters[i];
-                    Object value = GetMemberValue(unproxiedInstance, member);
-                    propertiesMetadata.fieldBridges[i].Set(
-                        propertiesMetadata.fieldNames[i],
-                        value,
-                        doc,
-                        propertiesMetadata.fieldStore[i],
-                        propertiesMetadata.fieldIndex[i],
-                        GetBoost(member));
-                }
-                catch (Exception e)
-                {
-                    logger.Error(
-                        string.Format(CultureInfo.InvariantCulture, "Error processing field bridge for {0}.{1}",
-                                      unproxiedInstance.GetType().FullName, propertiesMetadata.fieldNames[i]), e);
-                }
+                BuildDocumentField(field, unproxiedInstance, doc, prefix);
             }
 
-            for (int i = 0; i < propertiesMetadata.embeddedGetters.Count; i++)
+            foreach (var embedded in classMapping.Embedded)
             {
-                MemberInfo member = propertiesMetadata.embeddedGetters[i];
-                Object value = GetMemberValue(unproxiedInstance, member);
-                //TODO handle boost at embedded level: already stored in propertiesMedatada.boost
-
-                if (value == null)
-                {
-                    continue;
-                }
-
-                PropertiesMetadata embeddedMetadata = propertiesMetadata.embeddedPropertiesMetadata[i];
-                try
-                {
-                    switch (propertiesMetadata.embeddedContainers[i])
-                    {
-                        case Container.Array:
-                            foreach (object arrayValue in value as Array)
-                            {
-                                BuildDocumentFields(arrayValue, doc, embeddedMetadata);
-                            }
-                            break;
-
-                        case Container.Collection:
-                            // Need to cast down to IEnumerable to support ISet 
-                            foreach (object collectionValue in value as IEnumerable)
-                            {
-                                BuildDocumentFields(collectionValue, doc, embeddedMetadata);
-                            }
-                            break;
-
-                        case Container.Map:
-                            foreach (object collectionValue in (value as IDictionary).Values)
-                            {
-                                BuildDocumentFields(collectionValue, doc, embeddedMetadata);
-                            }
-                            break;
-
-                        case Container.Object:
-                            BuildDocumentFields(value, doc, embeddedMetadata);
-                            break;
-
-                        default:
-                            throw new NotSupportedException("Unknown embedded container: " +
-                                                            propertiesMetadata.embeddedContainers[i]);
-                    }
-                }
-                catch (NullReferenceException)
-                {
-                    logger.Error(string.Format("Null reference whilst processing {0}.{1}, container type {2}",
-                                               instance.GetType().FullName,
-                                               member.Name, propertiesMetadata.embeddedContainers[i]));
-                }
+                BuildDocumentFieldsForEmbedded(embedded, unproxiedInstance, doc, prefix);
             }
         }
 
-        private static string BuildEmbeddedPrefix(string prefix, IndexedEmbeddedAttribute embeddedAnn, MemberInfo member)
+        private void BuildDocumentField(FieldMapping fieldMapping, object unproxiedInstance, Document doc, string prefix)
         {
-            string localPrefix = prefix;
-            if (embeddedAnn.Prefix == ".")
+            var value = fieldMapping.Getter.Get(unproxiedInstance);
+            var fieldName = prefix + fieldMapping.Name;
+            try
             {
-                // Default to property name
-                localPrefix += member.Name + ".";
+                fieldMapping.Bridge.Set(
+                    fieldName,
+                    value,
+                    doc,
+                    GetStore(fieldMapping.Store),
+                    GetIndex(fieldMapping.Index),
+                    fieldMapping.Boost
+                );
             }
-            else
+            catch (Exception e)
             {
-                localPrefix += embeddedAnn.Prefix;
+                logger.Error(
+                    string.Format(CultureInfo.InvariantCulture, "Error processing field bridge for {0}.{1}",
+                                  unproxiedInstance.GetType().FullName, fieldName), e);
             }
-
-            return localPrefix;
         }
 
-        private static Analyzer GetAnalyzer(ICustomAttributeProvider member)
+        private void BuildDocumentFieldsForEmbedded(EmbeddedMapping embeddedMapping, object unproxiedInstance, Document doc, string prefix)
         {
-            AnalyzerAttribute attrib = AttributeUtil.GetAttribute<AnalyzerAttribute>(member);
-            return attrib == null ? null : GetAnalyzer(attrib.Type);
-        }
-
-        private static Analyzer GetAnalyzer(System.Type analyzerType)
-        {
-            if (analyzerType == null)
-            {
-                return null;
-            }
-
-            if (!typeof(Analyzer).IsAssignableFrom(analyzerType))
-            {
-                throw new SearchException("Lucene analyzer not implemented by " + analyzerType.FullName);
-            }
+            var value = embeddedMapping.Getter.Get(unproxiedInstance);
+            if (value == null)
+                return;
 
             try
             {
-                return (Analyzer)Activator.CreateInstance(analyzerType);
+                prefix += embeddedMapping.Prefix;
+                if (value is IDictionary)
+                {
+                    foreach (object collectionValue in (value as IDictionary).Values)
+                    {
+                        BuildDocumentFields(collectionValue, doc, embeddedMapping.Class, prefix);
+                    }
+                }
+                else if (value is IEnumerable)
+                {
+                    foreach (object collectionValue in value as IEnumerable)
+                    {
+                        BuildDocumentFields(collectionValue, doc, embeddedMapping.Class, prefix);
+                    }
+                }
+                else
+                {
+                    BuildDocumentFields(value, doc, embeddedMapping.Class, prefix);
+                }
             }
-            catch
+            catch (NullReferenceException)
             {
-                // TODO: See if we can get a tigher exception trap here
-                throw new SearchException("Failed to instantiate lucene analyzer with type  " + analyzerType.FullName);
+                logger.Error(string.Format("Null reference while processing {0}.{1}, property type {2}",
+                                           unproxiedInstance.GetType().FullName,
+                                           prefix, value.GetType()));
             }
-        }
-
-        private static float? GetBoost(ICustomAttributeProvider element)
-        {
-            if (element == null)
-            {
-                return null;
-            }
-
-            BoostAttribute boost = AttributeUtil.GetAttribute<BoostAttribute>(element);
-            if (boost == null)
-            {
-                return null;
-            }
-
-            return boost.Value;
         }
 
         private static int GetFieldPosition(string[] fields, string fieldName)
@@ -547,38 +397,6 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private static object GetMemberValue(Object instance, MemberInfo getter)
-        {
-            PropertyInfo info = getter as PropertyInfo;
-            return info != null ? info.GetValue(instance, null) : ((FieldInfo)getter).GetValue(instance);
-        }
-
-        private static System.Type GetMemberTypeOrGenericArguments(MemberInfo member)
-        {
-            Type type = GetMemberType(member);
-            if (type.IsGenericType)
-            {
-                Type[] arguments = type.GetGenericArguments();
-
-                // if we have more than one generic arg, we assume that this is a map and return its value
-                return arguments[arguments.Length - 1];
-            }
-
-            return type;
-        }
-
-        private static Type GetMemberTypeOrGenericCollectionType(MemberInfo member)
-        {
-            Type type = GetMemberType(member);
-            return type.IsGenericType ? type.GetGenericTypeDefinition() : type;
-        }
-
-        private static Type GetMemberType(MemberInfo member)
-        {
-            PropertyInfo info = member as PropertyInfo;
-            return info != null ? info.PropertyType : ((FieldInfo)member).FieldType;
-        }
-
         private static Field.Store GetStore(Attributes.Store store)
         {
             switch (store)
@@ -594,249 +412,84 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private void InitializeMember(
-            MemberInfo member, PropertiesMetadata propertiesMetadata, bool isRoot,
-            String prefix, ISet<System.Type> processedClasses)
+        private void CollectAnalyzers(
+            DocumentMapping @class, Analyzer parentAnalyzer, bool isRoot, string prefix, ISet<System.Type> processedClasses
+        )
         {
-            DocumentIdAttribute documentIdAnn = AttributeUtil.GetDocumentId(member);
-            if (documentIdAnn != null)
+            foreach (var bridge in @class.ClassBridges)
             {
-                if (isRoot)
+                var bridgeAnalyzer = bridge.Analyzer ?? parentAnalyzer;
+                if (bridgeAnalyzer == null)
                 {
-                    if (idKeywordName != null)
-                    {
-                        throw new AssertionFailure("Two document id assigned: " + idKeywordName + " and " + documentIdAnn.Name ?? "'Unknown'");
-                    }
-
-                    idKeywordName = prefix + documentIdAnn.Name;
-                    IFieldBridge fieldBridge = BridgeFactory.GuessType(member);
-                    if (fieldBridge is ITwoWayFieldBridge)
-                    {
-                        idBridge = (ITwoWayFieldBridge)fieldBridge;
-                    }
-                    else
-                    {
-                        throw new SearchException("Bridge for document id does not implement TwoWayFieldBridge: " + member.Name);
-                    }
-
-                    idBoost = GetBoost(member);
-                    SetAccessible(member);
-                    idGetter = member;
+                    throw new NotSupportedException("Analyzer should not be undefined");
                 }
-                else
-                {
-                    // Component should index their document id
-                    SetAccessible(member);
-                    propertiesMetadata.fieldGetters.Add(member);
-                    string fieldName = prefix + BinderHelper.GetAttributeName(member, documentIdAnn.Name);
-                    propertiesMetadata.fieldNames.Add(fieldName);
-                    propertiesMetadata.fieldStore.Add(GetStore(Attributes.Store.Yes));
-                    propertiesMetadata.fieldIndex.Add(GetIndex(Index.UnTokenized));
-                    propertiesMetadata.fieldBridges.Add(BridgeFactory.GuessType(member));
 
-                    // Property > entity analyzer - no field analyzer
-                    Analyzer memberAnalyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
-                    if (memberAnalyzer == null)
-                    {
-                        throw new NotSupportedException("Analyzer should not be undefined");
-                    }
-
-                    analyzer.AddScopedAnalyzer(fieldName, memberAnalyzer);
-                }
+                analyzer.AddScopedAnalyzer(prefix + bridge.Name, bridgeAnalyzer);
             }
 
-            List<FieldAttribute> fieldAttributes = AttributeUtil.GetFields(member);
-            if (fieldAttributes != null)
+            if (isRoot && @class.DocumentId != null)
             {
-                foreach (FieldAttribute fieldAnn in fieldAttributes)
-                {
-                    BindFieldAnnotation(member, propertiesMetadata, prefix, fieldAnn);
-                }
+                idMapping = @class.DocumentId;
             }
 
-            IndexedEmbeddedAttribute embeddedAttribute = AttributeUtil.GetAttribute<IndexedEmbeddedAttribute>(member);
-            if (embeddedAttribute != null)
+            foreach (var field in @class.Fields)
             {
-                int oldMaxLevel = maxLevel;
-                int potentialLevel = embeddedAttribute.Depth + level;
-                if (potentialLevel < 0)
-                {
-                    potentialLevel = int.MaxValue;
-                }
-
-                maxLevel = potentialLevel > maxLevel ? maxLevel : potentialLevel;
-                level++;
-
-                System.Type elementType = embeddedAttribute.TargetElement ?? GetMemberTypeOrGenericArguments(member);
-
-                if (maxLevel == int.MaxValue && processedClasses.Contains(elementType))
-                {
-                    throw new SearchException(
-                            string.Format(
-                                    "Circular reference, Duplicate use of {0} in root entity {1}#{2}",
-                                    elementType.FullName,
-                                    beanClass.FullName,
-                                    BuildEmbeddedPrefix(prefix, embeddedAttribute, member)));
-                }
-
-                if (level <= maxLevel)
-                {
-                    processedClasses.Add(elementType); // push
-
-                    SetAccessible(member);
-                    propertiesMetadata.embeddedGetters.Add(member);
-                    PropertiesMetadata metadata = new PropertiesMetadata();
-                    propertiesMetadata.embeddedPropertiesMetadata.Add(metadata);
-                    metadata.boost = GetBoost(member);
-                    // property > entity analyzer
-                    metadata.analyzer = GetAnalyzer(member) ?? propertiesMetadata.analyzer;
-                    string localPrefix = BuildEmbeddedPrefix(prefix, embeddedAttribute, member);
-                    InitializeMembers(elementType, metadata, false, localPrefix, processedClasses);
-
-                    /**
-                     * We will only index the "expected" type but that's OK, HQL cannot do downcasting either
-                     */
-                    // ayende: because we have to deal with generic collections here, we aren't 
-                    // actually using the element type to determine what the value is, since that 
-                    // was resolved to the element type of the possible collection
-                    Type actualFieldType = GetMemberTypeOrGenericCollectionType(member);
-                    if (actualFieldType.IsArray)
-                    {
-                        propertiesMetadata.embeddedContainers.Add(Container.Array);
-                    }
-                    else if (typeof(IDictionary).IsAssignableFrom(actualFieldType) || typeof(IDictionary<,>).IsAssignableFrom(actualFieldType))
-                    {
-                        propertiesMetadata.embeddedContainers.Add(Container.Map);
-                    }
-                    else if (typeof(ICollection).IsAssignableFrom(actualFieldType))
-                    {
-                        propertiesMetadata.embeddedContainers.Add(Container.Collection);
-                    }
-                    else if (typeof(IEnumerable).IsAssignableFrom(actualFieldType))
-                    {
-                        // NB We only see ISet as IEnumerable
-                        propertiesMetadata.embeddedContainers.Add(Container.Collection);
-                    }
-                    else
-                    {
-                        propertiesMetadata.embeddedContainers.Add(Container.Object);
-                    }
-
-                    processedClasses.Remove(actualFieldType); // pop
-                }
-                else if (logger.IsDebugEnabled)
-                {
-                    string localPrefix = BuildEmbeddedPrefix(prefix, embeddedAttribute, member);
-                    logger.Debug("Depth reached, ignoring " + localPrefix);
-                }
-
-                level--;
-                maxLevel = oldMaxLevel; // set back the old max level
+                CollectAnalyzer(field, parentAnalyzer, prefix);
             }
 
-            ContainedInAttribute containedInAttribute = AttributeUtil.GetAttribute<ContainedInAttribute>(member);
-            if (containedInAttribute != null)
+            foreach (var embedded in @class.Embedded)
             {
-                SetAccessible(member);
-                propertiesMetadata.containedInGetters.Add(member);
+                CollectAnalyzers(
+                    embedded.Class, parentAnalyzer, false, prefix + embedded.Prefix, processedClasses
+                );
             }
         }
 
-        private void InitializeMembers(
-            System.Type clazz, PropertiesMetadata propertiesMetadata, bool isRoot, String prefix,
-            ISet<System.Type> processedClasses)
+        private void CollectAnalyzer(FieldMapping field, Analyzer parentAnalyzer, string prefix) 
         {
-            IList<System.Type> hierarchy = new List<System.Type>();
-            System.Type currClass = clazz;
-            do
+            // Field > property > entity analyzer
+            var localAnalyzer = field.Analyzer ?? parentAnalyzer;
+            if (localAnalyzer == null)
+                throw new NotSupportedException("Analyzer should not be undefined");
+
+            analyzer.AddScopedAnalyzer(prefix + field.Name, localAnalyzer);
+        }
+
+        private static void ProcessFieldsForProjection(
+            DocumentMapping mapping, String[] fields, Object[] result, Document document
+        )
+        {
+            foreach (var field in mapping.Fields)
             {
-                hierarchy.Add(currClass);
-                currClass = currClass.BaseType;
-                // NB Java stops at null we stop at object otherwise we process the class twice
-                // We also need a null test for things like ISet which have no base class/interface
-            } while (currClass != null && currClass != typeof(object));
+                PopulateResult(
+                    field,
+                    fields,
+                    result,
+                    document
+               );                
+            }
 
-            for (int index = hierarchy.Count - 1; index >= 0; index--)
+            foreach (var embedded in mapping.Embedded)
             {
-                currClass = hierarchy[index];
-                /**
-                 * Override the default analyzer for the properties if the class hold one
-                 * That's the reason we go down the hierarchy
-                 */
-
-                // NB Must cast here as we want to look at the type's metadata
-                Analyzer localAnalyzer = GetAnalyzer(currClass as MemberInfo);
-                if (localAnalyzer != null)
-                {
-                    propertiesMetadata.analyzer = localAnalyzer;
-                }
-
-                // Check for any ClassBridges
-                List<ClassBridgeAttribute> classBridgeAnn = AttributeUtil.GetClassBridges(currClass);
-                if (classBridgeAnn != null)
-                {
-                    // Ok, pick up the parameters as well
-                    AttributeUtil.GetClassBridgeParameters(currClass, classBridgeAnn);
-
-                    // Now we can process the class bridges
-                    foreach (ClassBridgeAttribute cb in classBridgeAnn)
-                    {
-                        BindClassAnnotation(prefix, propertiesMetadata, cb);
-                    }
-                }
-
-                // NB As we are walking the hierarchy only retrieve items at this level
-                PropertyInfo[] propertyInfos =
-                    currClass.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public |
-                                            BindingFlags.Instance);
-                foreach (PropertyInfo propertyInfo in propertyInfos)
-                {
-                    InitializeMember(propertyInfo, propertiesMetadata, isRoot, prefix, processedClasses);
-                }
-
-                FieldInfo[] fields =
-                    clazz.GetFields(BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public |
-                                    BindingFlags.Instance);
-                foreach (FieldInfo fieldInfo in fields)
-                {
-                    InitializeMember(fieldInfo, propertiesMetadata, isRoot, prefix, processedClasses);
-                }
+                if (!embedded.IsCollection)
+                    ProcessFieldsForProjection(embedded.Class, fields, result, document);
             }
         }
 
-        private static void ProcessFieldsForProjection(PropertiesMetadata metadata, String[] fields, Object[] result,
-                                                       Document document)
+        private static void PopulateResult(FieldMapping field, string[] fields, object[] result, Document document)
         {
-            int nbrFoEntityFields = metadata.fieldNames.Count;
-            for (int index = 0; index < nbrFoEntityFields; index++)
-            {
-                PopulateResult(metadata.fieldNames[index],
-                               metadata.fieldBridges[index],
-                               metadata.fieldStore[index],
-                               fields,
-                               result,
-                               document
-                    );
-            }
-            int nbrOfEmbeddedObjects = metadata.embeddedPropertiesMetadata.Count;
-            for (int index = 0; index < nbrOfEmbeddedObjects; index++)
-            {
-                // there is nothing we can do for collections
-                if (metadata.embeddedContainers[index] == Container.Object)
-                {
-                    ProcessFieldsForProjection(metadata.embeddedPropertiesMetadata[index], fields, result, document);
-                }
-            }
+            PopulateResult(field.Name, field.Bridge, field.Store, fields, result, document);
         }
 
-        private static void PopulateResult(string fieldName, IFieldBridge fieldBridge, Field.Store store,
-                                           string[] fields, object[] result, Document document)
-        {
+        private static void PopulateResult(
+            string fieldName, IFieldBridge fieldBridge, Attributes.Store fieldStore,
+            string[] fields, object[] result, Document document
+        ) {
             int matchingPosition = GetFieldPosition(fields, fieldName);
             if (matchingPosition != -1)
             {
                 //TODO make use of an isTwoWay() method
-                if (store != Field.Store.NO && typeof(ITwoWayFieldBridge).IsAssignableFrom(fieldBridge.GetType()))
+                if (fieldStore != Attributes.Store.No && fieldBridge is ITwoWayFieldBridge)
                 {
                     result[matchingPosition] = ((ITwoWayFieldBridge)fieldBridge).Get(fieldName, document);
                     if (logger.IsInfoEnabled)
@@ -846,7 +499,7 @@ namespace NHibernate.Search.Engine
                 }
                 else
                 {
-                    if (store == Field.Store.NO)
+                    if (fieldStore == Attributes.Store.No)
                     {
                         throw new SearchException("Projecting an unstored field: " + fieldName);
                     }
@@ -856,13 +509,12 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private static void ProcessContainedIn(Object instance, List<LuceneWork> queue, PropertiesMetadata metadata,
+        private static void ProcessContainedIn(Object instance, List<LuceneWork> queue, DocumentMapping documentMapping,
                                                ISearchFactoryImplementor searchFactoryImplementor)
         {
-            for (int i = 0; i < metadata.containedInGetters.Count; i++)
+            foreach (var containedIn in documentMapping.ContainedIn)
             {
-                MemberInfo member = metadata.containedInGetters[i];
-                object value = GetMemberValue(instance, member);
+                object value = containedIn.Getter.Get(instance);
 
                 if (value == null) continue;
 
@@ -921,6 +573,7 @@ namespace NHibernate.Search.Engine
                                             searchFactoryImplementor);
                 }
             }
+
             //an embedded cannot have a useful @ContainedIn (no shared reference)
             //do not walk through them
         }
@@ -928,13 +581,8 @@ namespace NHibernate.Search.Engine
         private static void ProcessContainedInValue(object value, List<LuceneWork> queue, System.Type valueClass,
                                                     DocumentBuilder builder, ISearchFactoryImplementor searchFactory)
         {
-            object id = GetMemberValue(value, builder.idGetter);
+            object id = builder.idMapping.Getter.Get(value);
             builder.AddToWorkQueue(valueClass, value, id, WorkType.Update, queue, searchFactory);
-        }
-
-        private static void SetAccessible(MemberInfo member)
-        {
-            // NB Not sure we need to do anything for C#
         }
 
         private static object Unproxy(object value)

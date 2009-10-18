@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using NHibernate.Properties;
 
 namespace NHibernate.Search.Backend
 {
@@ -10,7 +11,7 @@ namespace NHibernate.Search.Backend
     {
         private readonly object entity;
         private readonly object id;
-        private readonly MemberInfo idGetter;
+        private readonly IGetter idGetter;
         private readonly WorkType workType;
 
         public Work(object entity, Object id, WorkType type)
@@ -20,7 +21,7 @@ namespace NHibernate.Search.Backend
             workType = type;
         }
 
-        public Work(object entity, MemberInfo idGetter, WorkType type)
+        public Work(object entity, IGetter idGetter, WorkType type)
         {
             this.entity = entity;
             this.idGetter = idGetter;
@@ -37,7 +38,7 @@ namespace NHibernate.Search.Backend
             get { return id; }
         }
 
-        public MemberInfo IdGetter
+        public IGetter IdGetter
         {
             get { return idGetter; }
         }

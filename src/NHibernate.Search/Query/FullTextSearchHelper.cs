@@ -39,7 +39,7 @@ namespace NHibernate.Search.Query
                                              out ISet<System.Type> classesAndSubclasses,
                                              params System.Type[] classes)
         {
-            Dictionary<System.Type, DocumentBuilder> builders = searchFactory.DocumentBuilders;
+            IDictionary<System.Type, DocumentBuilder> builders = searchFactory.DocumentBuilders;
             ISet<IDirectoryProvider> directories = new HashedSet<IDirectoryProvider>();
             if (classes == null || classes.Length == 0)
             {

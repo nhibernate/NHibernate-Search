@@ -1,4 +1,5 @@
 using System;
+using NHibernate.Search.Mapping.Definition;
 
 namespace NHibernate.Search.Attributes
 {
@@ -7,7 +8,7 @@ namespace NHibernate.Search.Attributes
     /// Date are stored as String in GMT
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class DateBridgeAttribute : Attribute
+    public class DateBridgeAttribute : Attribute, IDateBridgeDefinition
     {
         private readonly Resolution resolution;
 

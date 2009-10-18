@@ -46,6 +46,8 @@ namespace NHibernate.Search.Engine
             set { cache = value; }
         }
 
+        public string Name { get; set; }
+
         #endregion
 
         #region Public methods

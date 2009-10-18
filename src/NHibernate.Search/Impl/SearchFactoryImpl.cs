@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
+
 using log4net;
+
 using Iesi.Collections.Generic;
+
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
+
 using NHibernate.Cfg;
 using NHibernate.Engine;
-using NHibernate.Mapping;
-using NHibernate.Search.Attributes;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Cfg;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Filter;
+using NHibernate.Search.Mapping;
 using NHibernate.Search.Reader;
 using NHibernate.Search.Store;
 using NHibernate.Search.Store.Optimization;
+using NHibernate.Search.Util;
 using NHibernate.Util;
 
 namespace NHibernate.Search.Impl
@@ -26,11 +29,12 @@ namespace NHibernate.Search.Impl
         private static readonly ILog log = LogManager.GetLogger(typeof(SearchFactoryImpl));
         private static readonly object searchFactoryKey = new object();
 
+        private readonly ISearchMapping mapping;
+
         //it's now a <Configuration, SearchFactory> map
         [ThreadStatic] private static WeakHashtable contexts;
 
-        private readonly Dictionary<System.Type, DocumentBuilder> documentBuilders =
-            new Dictionary<System.Type, DocumentBuilder>();
+        private readonly TypeDictionary<DocumentBuilder> documentBuilders = new TypeDictionary<DocumentBuilder>(false);
 
         // Keep track of the index modifiers per DirectoryProvider since multiple entity can use the same directory provider
         private readonly Dictionary<IDirectoryProvider, object> lockableDirectoryProviders =
@@ -60,6 +64,8 @@ namespace NHibernate.Search.Impl
         {
             CfgHelper.Configure(cfg);
 
+            mapping = SearchMappingFactory.CreateMapping(cfg);
+
             Analyzer analyzer = InitAnalyzer(cfg);
             InitDocumentBuilders(cfg, analyzer);
 
@@ -81,7 +87,7 @@ namespace NHibernate.Search.Impl
             set { backendQueueProcessorFactory = value; }
         }
 
-        public Dictionary<System.Type, DocumentBuilder> DocumentBuilders
+        public IDictionary<System.Type, DocumentBuilder> DocumentBuilders
         {
             get { return documentBuilders; }
         }
@@ -148,60 +154,18 @@ namespace NHibernate.Search.Impl
             return defaultAnalyzer;
         }
 
-        private void BindFilterDef(FullTextFilterDefAttribute defAnn, System.Type mappedClass)
-        {
-            if (filterDefinitions.ContainsKey(defAnn.Name))
-                throw new SearchException("Multiple definitions of FullTextFilterDef.Name = " + defAnn.Name + ":" +
-                                          mappedClass.FullName);
-
-            FilterDef filterDef = new FilterDef();
-            filterDef.Impl = defAnn.Impl;
-            filterDef.Cache = defAnn.Cache;
-            try
-            {
-                Activator.CreateInstance(filterDef.Impl);
-            }
-            catch (Exception e)
-            {
-                throw new SearchException("Unable to create Filter class: " + filterDef.Impl.FullName, e);
-            }
-
-            foreach (MethodInfo method in filterDef.Impl.GetMethods())
-            {
-                if (AttributeUtil.HasAttribute<FactoryAttribute>(method))
-                {
-                    if (filterDef.FactoryMethod != null)
-                        throw new SearchException("Multiple Factory methods found " + defAnn.Name + ":" +
-                                                  filterDef.Impl.FullName + "." + method.Name);
-                    filterDef.FactoryMethod = method;
-                }
-
-                if (AttributeUtil.HasAttribute<KeyAttribute>(method))
-                {
-                    if (filterDef.KeyMethod != null)
-                        throw new SearchException("Multiple Key methods found " + defAnn.Name + ":" +
-                                                  filterDef.Impl.FullName + "." + method.Name);
-                    filterDef.KeyMethod = method;
-                }
-            }
-
-            // Use properties rather than the Java setter logic idea
-            foreach (PropertyInfo prop in filterDef.Impl.GetProperties())
-            {
-                if (AttributeUtil.HasAttribute<FilterParameterAttribute>(prop))
-                {
-                    filterDef.AddSetter(prop);
-                }
-            }
-
-            filterDefinitions[defAnn.Name] = filterDef;
-        }
-
-        private void BindFilterDefs(System.Type mappedClass)
+        private void BindFilterDefs(DocumentMapping mappedClass)
         {
             // We only need one test here as we just support multiple FullTextFilter attributes rather than a collection
-            foreach (FullTextFilterDefAttribute defAnn in AttributeUtil.GetAttributes<FullTextFilterDefAttribute>(mappedClass))
-                BindFilterDef(defAnn, mappedClass);
+            foreach (var filterDef in mappedClass.FullTextFilterDefinitions)
+            {
+                if (filterDefinitions.ContainsKey(filterDef.Name))
+                    throw new SearchException("Multiple definitions of FullTextFilterDef.Name = " + filterDef.Name + ":" +
+                                              mappedClass.MappedClass.FullName);
+
+
+                filterDefinitions[filterDef.Name] = filterDef;
+            }
         }
 
         private void BuildFilterCachingStrategy(IDictionary<string, string> properties)
@@ -233,22 +197,18 @@ namespace NHibernate.Search.Impl
         private void InitDocumentBuilders(Configuration cfg, Analyzer analyzer)
         {
             DirectoryProviderFactory factory = new DirectoryProviderFactory();
-            foreach (PersistentClass clazz in cfg.ClassMappings)
+            var classMappings = this.mapping.Build(cfg);
+
+            foreach (var classMapping in classMappings)
             {
-                System.Type mappedClass = clazz.MappedClass;
-                if (mappedClass != null)
-                {
-                    if (AttributeUtil.HasAttribute<IndexedAttribute>(mappedClass))
-                    {
-                        DirectoryProviderFactory.DirectoryProviders providers =
-                            factory.CreateDirectoryProviders(mappedClass, cfg, this);
+                System.Type mappedClass = classMapping.MappedClass;
+                DirectoryProviderFactory.DirectoryProviders providers =
+                    factory.CreateDirectoryProviders(classMapping, cfg, this);
 
-                        DocumentBuilder documentBuilder = new DocumentBuilder(mappedClass, analyzer, providers.Providers, providers.SelectionStrategy);
+                DocumentBuilder documentBuilder = new DocumentBuilder(classMapping, analyzer, providers.Providers, providers.SelectionStrategy);
 
-                        documentBuilders[mappedClass] = documentBuilder;
-                    }
-                    BindFilterDefs(mappedClass);
-                }
+                documentBuilders[mappedClass] = documentBuilder;
+                BindFilterDefs(classMapping);
             }
             factory.StartDirectoryProviders();
         }
@@ -335,7 +295,7 @@ namespace NHibernate.Search.Impl
 
         public void Optimize()
         {
-            Dictionary<System.Type, DocumentBuilder>.KeyCollection clazzes = DocumentBuilders.Keys;
+            var clazzes = DocumentBuilders.Keys;
             foreach (System.Type clazz in clazzes)
                 Optimize(clazz);
         }

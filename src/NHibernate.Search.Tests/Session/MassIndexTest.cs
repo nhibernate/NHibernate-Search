@@ -39,10 +39,10 @@ namespace NHibernate.Search.Tests.Session
             s.Transaction.Begin();
             using (IDbCommand cmd = s.Connection.CreateCommand()) {
                 s.Transaction.Enlist(cmd);
-                cmd.CommandText = "update Email set body='Meet the guys who write the software'";
+                cmd.CommandText = "update Email set Body='Meet the guys who write the software'";
                 cmd.ExecuteNonQuery();
 
-                cmd.CommandText = "insert into Email(id, title, body, header) values( + "
+                cmd.CommandText = "insert into Email(Id, Title, Body, Header) values( + "
                                   + (loop + 1) + ", 'Bob Sponge', 'Meet the guys who create the software', 'nope')";
                 cmd.ExecuteNonQuery();
             }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NHibernate.Search.Mapping.Definition;
 
 namespace NHibernate.Search.Attributes
 {
@@ -7,7 +8,7 @@ namespace NHibernate.Search.Attributes
     /// Specifies a given field bridge implementation
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class FieldBridgeAttribute : Attribute
+    public class FieldBridgeAttribute : Attribute, IFieldBridgeDefinition
     {
         private readonly System.Type impl;
         private readonly Dictionary<string, object> parameters;
