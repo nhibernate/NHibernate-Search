@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.IO;
 using System.Threading;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
@@ -17,16 +16,6 @@ namespace NHibernate.Search.Tests.Worker
         private volatile int reverseWorksCount;
         private volatile int errorsCount;
 
-        private FileInfo BaseIndexDir
-        {
-            get
-            {
-                FileInfo current = new FileInfo(".");
-                FileInfo sub = new FileInfo(current.FullName + "\\indextemp");
-                return sub;
-            }
-        }
-
         protected override IList Mappings
         {
             get
@@ -41,45 +30,7 @@ namespace NHibernate.Search.Tests.Worker
             }
         }
 
-        protected override void Configure(Configuration configuration)
-        {
-            base.Configure(configuration);
-            DeleteBaseIndexDir();
-            FileInfo sub = BaseIndexDir;
-            Directory.CreateDirectory(sub.FullName);
-
-            configuration.SetProperty("hibernate.search.default.indexBase", sub.FullName);
-            configuration.SetProperty("hibernate.search.default.directory_provider", typeof(FSDirectoryProvider).AssemblyQualifiedName);
-            configuration.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
-        }
-
-        protected override void OnTearDown()
-        {
-            base.OnTearDown();
-            if (sessions != null) sessions.Close(); // Close the files in the indexDir
-            DeleteBaseIndexDir();
-        }
-
-        private void DeleteBaseIndexDir()
-        {
-            FileInfo sub = BaseIndexDir;
-            try
-            {
-                Delete(sub);
-            }
-            catch (IOException ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
-            }
-        }
-
-        private void Delete(FileInfo sub)
-        {
-            if (Directory.Exists(sub.FullName))
-                Directory.Delete(sub.FullName, true);
-            else
-                File.Delete(sub.FullName);
-        }
+        #region Tests
 
         [Test]
         public void Concurrency()
@@ -112,6 +63,16 @@ namespace NHibernate.Search.Tests.Worker
             System.Diagnostics.Debug.WriteLine(iteration + " iterations in " + nThreads
                 + " threads: " + new TimeSpan(DateTime.Now.Ticks - start).TotalSeconds + " secs; errorsCount = " + errorsCount);
             Assert.AreEqual(0, errorsCount, "Some iterations failed");
+        }
+
+        #endregion
+
+        protected override void Configure(Configuration configuration)
+        {
+            base.Configure(configuration);
+
+            configuration.SetProperty("hibernate.search.default.directory_provider", typeof(FSDirectoryProvider).AssemblyQualifiedName);
+            configuration.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
         }
 
         private void Work(object state)
@@ -175,14 +136,20 @@ namespace NHibernate.Search.Tests.Worker
                         {
                             ee = s.Get<Employee>(ee.Id);
                             if (ee != null)
+                            {
                                 s.Delete(ee);
+                            }
                         }
+
                         if (er != null)
                         {
                             er = s.Get<Employer>(er.Id);
                             if (er != null)
+                            {
                                 s.Delete(er);
+                            }
                         }
+
                         tx.Commit();
                     }
             }
@@ -226,6 +193,7 @@ namespace NHibernate.Search.Tests.Worker
                 reverseWorksCount++;
 
                 if (ee != null || er != null)
+                {
                     using (ISession s = OpenSession())
                     {
                         ITransaction tx = s.BeginTransaction();
@@ -233,16 +201,23 @@ namespace NHibernate.Search.Tests.Worker
                         {
                             ee = s.Get<Employee>(ee.Id);
                             if (ee != null)
+                            {
                                 s.Delete(ee);
+                            }
                         }
+
                         if (er != null)
                         {
                             er = s.Get<Employer>(er.Id);
                             if (er != null)
+                            {
                                 s.Delete(er);
+                            }
                         }
+
                         tx.Commit();
                     }
+                }
             }
         }
     }

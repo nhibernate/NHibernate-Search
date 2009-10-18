@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" namespace="NHibernate.Search.Tests.Shards" assembly="NHibernate.Search.Tests" default-access="field.camelcase" >
+	<class name="Animal" table="Animal" lazy="false">
+		<id name="Id" column="AnimalId" unsaved-value="0">
+			<generator class="assigned" />
+		</id>
+
+		<property name="Name" column="Name" not-null="true" />
+	</class>
+</hibernate-mapping>

@@ -2,74 +2,24 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Threading;
+
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
-using NHibernate.Cfg;
-using NHibernate.Search.Store;
+
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Optimizer
 {
     [TestFixture]
-    public class OptimizerTestCase : SearchTestCase
+    public class OptimizerTestCase : PhysicalTestCase
     {
         private volatile int worksCount;
         private volatile int reverseWorksCount;
         private volatile int errorsCount;
 
-        private FileInfo BaseIndexDir
-        {
-            get
-            {
-                FileInfo current = new FileInfo(".");
-                FileInfo sub = new FileInfo(current.FullName + "\\indextemp");
-                return sub;
-            }
-        }
-
         protected override IList Mappings
         {
             get { return new string[] { "Optimizer.Worker.hbm.xml", "Optimizer.Construction.hbm.xml" }; }
-        }
-
-        protected override void Configure(Configuration configuration)
-        {
-            base.Configure(configuration);
-            DeleteBaseIndexDir();
-            FileInfo sub = BaseIndexDir;
-            Directory.CreateDirectory(sub.FullName);
-
-            configuration.SetProperty("hibernate.search.default.indexBase", sub.FullName);
-            configuration.SetProperty("hibernate.search.default.directory_provider", typeof(FSDirectoryProvider).AssemblyQualifiedName);
-            configuration.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
-        }
-
-        protected override void OnTearDown()
-        {
-            base.OnTearDown();
-            if (sessions != null) sessions.Close(); // Close the files in the indexDir
-            DeleteBaseIndexDir();
-        }
-
-        private void DeleteBaseIndexDir()
-        {
-            FileInfo sub = BaseIndexDir;
-            try
-            {
-                Delete(sub);
-            }
-            catch (IOException ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
-            }
-        }
-
-        private void Delete(FileInfo sub)
-        {
-            if (Directory.Exists(sub.FullName))
-                Directory.Delete(sub.FullName, true);
-            else
-                File.Delete(sub.FullName);
         }
 
         [Test]
@@ -213,6 +163,7 @@ namespace NHibernate.Search.Tests.Optimizer
                 reverseWorksCount++;
 
                 if (w != null || c != null)
+                {
                     using (ISession s = OpenSession())
                     {
                         ITransaction tx = s.BeginTransaction();
@@ -220,16 +171,23 @@ namespace NHibernate.Search.Tests.Optimizer
                         {
                             w = s.Get<Worker>(w.Id);
                             if (w != null)
+                            {
                                 s.Delete(w);
+                            }
                         }
+
                         if (c != null)
                         {
                             c = s.Get<Construction>(c.Id);
                             if (c != null)
+                            {
                                 s.Delete(c);
+                            }
                         }
+
                         tx.Commit();
                     }
+                }
             }
         }
     }

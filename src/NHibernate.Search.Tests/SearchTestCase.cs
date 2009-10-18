@@ -1,5 +1,5 @@
 using Lucene.Net.Analysis;
-using Lucene.Net.Store;
+
 using NHibernate.Cfg;
 using NHibernate.Event;
 using NHibernate.Impl;
@@ -11,30 +11,19 @@ namespace NHibernate.Search.Tests
 {
     public abstract class SearchTestCase : TestCase
     {
-        private FullTextIndexEventListener GetLuceneEventListener()
+        protected override string MappingsAssembly
         {
-            IPostInsertEventListener[] listeners = ((SessionFactoryImpl) sessions).EventListeners.PostInsertEventListeners;
-            FullTextIndexEventListener listener = null;
-
-            // HACK: this sucks since we mandante the event listener use
-            foreach (IPostInsertEventListener candidate in listeners)
-            {
-                if (typeof(FullTextIndexEventListener).IsAssignableFrom(candidate.GetType()))
-                {
-                    listener = (FullTextIndexEventListener) candidate;
-                    break;
-                }
-            }
-
-            if (listener == null)
-            {
-                throw new HibernateException("Lucene event listener not initialized");
-            }
-
-            return listener;
+            get { return "NHibernate.Search.Tests"; }
         }
 
-        protected Directory GetDirectory(System.Type clazz)
+        public static void SetListener(Configuration configure)
+        {
+            configure.SetListener(ListenerType.PostUpdate, new FullTextIndexEventListener());
+            configure.SetListener(ListenerType.PostInsert, new FullTextIndexEventListener());
+            configure.SetListener(ListenerType.PostDelete, new FullTextIndexEventListener());
+        }
+
+        protected Lucene.Net.Store.Directory GetDirectory(System.Type clazz)
         {
             return GetLuceneEventListener().SearchFactory.GetDirectoryProviders(clazz)[0].Directory;
         }
@@ -46,16 +35,27 @@ namespace NHibernate.Search.Tests
             SetListener(cfg);
         }
 
-        public static void SetListener(Configuration configure)
+        private FullTextIndexEventListener GetLuceneEventListener()
         {
-            configure.SetListener(ListenerType.PostUpdate, new FullTextIndexEventListener());
-            configure.SetListener(ListenerType.PostInsert, new FullTextIndexEventListener());
-            configure.SetListener(ListenerType.PostDelete, new FullTextIndexEventListener());
-        }
+            IPostInsertEventListener[] listeners = ((SessionFactoryImpl)sessions).EventListeners.PostInsertEventListeners;
+            FullTextIndexEventListener listener = null;
 
-        protected override string MappingsAssembly
-        {
-            get { return "NHibernate.Search.Tests"; }
+            // HACK: this sucks since we mandate the event listener use
+            foreach (IPostInsertEventListener candidate in listeners)
+            {
+                if (typeof(FullTextIndexEventListener).IsAssignableFrom(candidate.GetType()))
+                {
+                    listener = (FullTextIndexEventListener)candidate;
+                    break;
+                }
+            }
+
+            if (listener == null)
+            {
+                throw new HibernateException("Lucene event listener not initialized");
+            }
+
+            return listener;
         }
     }
 }

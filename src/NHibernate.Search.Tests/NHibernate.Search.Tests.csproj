@@ -134,6 +134,7 @@
     </Compile>
     <Compile Include="Optimizer\OptimizerTestCase.cs" />
     <Compile Include="Optimizer\Worker.cs" />
+    <Compile Include="PhysicalTestCase.cs" />
     <Compile Include="PurgeTest.cs" />
     <Compile Include="Query\AlternateBook.cs" />
     <Compile Include="Query\Author.cs" />
@@ -156,6 +157,9 @@
     <Compile Include="SearchTestCase.cs" />
     <Compile Include="Session\Email.cs" />
     <Compile Include="Session\MassIndexTest.cs" />
+    <Compile Include="Shards\Animal.cs" />
+    <Compile Include="Shards\Furniture.cs" />
+    <Compile Include="Shards\ShardsTest.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestConfigurationHelper.cs" />
     <Compile Include="Worker\AsyncWorkerTest.cs" />
@@ -284,12 +288,17 @@
   <ItemGroup>
     <Content Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
     <Content Include="Filter\Soap.hbm.xml" />
+    <EmbeddedResource Include="Shards\Animal.hbm.xml">
+      <SubType>Embedded Resource</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Shards\Furniture.hbm.xml">
+      <SubType>Embedded Resource</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Filter\Driver.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NHSpecificTest\" />
     <Folder Include="Properties\" />
-    <Folder Include="Shards\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

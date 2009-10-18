@@ -327,7 +327,8 @@ namespace NHibernate.Search.Store
                         string finalKeyName = suffixedKey.Substring(nextDoc + 1);
 
                         // Ignore sharding strategy properties
-                        if (!finalKeyName.StartsWith(SHARDING_STRATEGY))
+                        // NB Java has finalKeyName here, but we have just stripped the sharding bit.
+                        if (!suffixedKey.StartsWith(SHARDING_STRATEGY))
                         {
                             EnsureListSize(indexSpecificProps, index + 1);
                             IDictionary<string, string> propertiesForIndex = indexSpecificProps[index];

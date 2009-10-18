@@ -1,78 +1,29 @@
 using System;
 using System.Collections;
-using System.IO;
 using System.Threading;
-using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
-using NHibernate.Cfg;
-using NHibernate.Search.Store;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Reader
 {
     [TestFixture]
-    public class ReaderPerfTestCase : SearchTestCase
+    public class ReaderPerfTestCase : PhysicalTestCase
     {
         public bool insert = true;
         private volatile int worksCount;
         private volatile int reverseWorksCount;
         private volatile int errorsCount;
 
-        private FileInfo BaseIndexDir
-        {
-            get
-            {
-                FileInfo current = new FileInfo(".");
-                FileInfo sub = new FileInfo(current.FullName + "\\indextemp");
-                return sub;
-            }
-        }
+        #region Property methods
 
         protected override IList Mappings
         {
             get { return new string[] { "Reader.Detective.hbm.xml", "Reader.Suspect.hbm.xml" }; }
         }
 
-        protected override void Configure(Configuration configuration)
-        {
-            base.Configure(configuration);
-            DeleteBaseIndexDir();
-            FileInfo sub = BaseIndexDir;
-            Directory.CreateDirectory(sub.FullName);
+        #endregion
 
-            configuration.SetProperty("hibernate.search.default.indexBase", sub.FullName);
-            configuration.SetProperty("hibernate.search.default.directory_provider", typeof(FSDirectoryProvider).AssemblyQualifiedName);
-            configuration.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
-            // Note: Hibernate.Search 3.0 contains more stuff that seems wrong. Moreover, they were removed in v3.1
-        }
-
-        protected override void OnTearDown()
-        {
-            base.OnTearDown();
-            if (sessions != null) sessions.Close(); // Close the files in the indexDir
-            DeleteBaseIndexDir();
-        }
-
-        private void DeleteBaseIndexDir()
-        {
-            FileInfo sub = BaseIndexDir;
-            try
-            {
-                Delete(sub);
-            }
-            catch (IOException ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex); // "The process cannot access the file '_0.cfs' because it is being used by another process."
-            }
-        }
-
-        private void Delete(FileInfo sub)
-        {
-            if (Directory.Exists(sub.FullName))
-                Directory.Delete(sub.FullName, true);
-            else
-                File.Delete(sub.FullName);
-        }
+        #region Tests
 
         [Test]
         public void Concurrency()
@@ -125,7 +76,7 @@ namespace NHibernate.Search.Tests.Reader
             while (workerThreads != workerThreadsAvailable
                 || worksCount < iteration || reverseWorksCount < iteration);
 
-            System.Diagnostics.Debug.WriteLine(iteration + " iterations in " + nThreads
+            System.Diagnostics.Debug.WriteLine(GetType().Name + ": " + iteration + " iterations in " + nThreads
                 + " threads: " + new TimeSpan(DateTime.Now.Ticks - start).TotalSeconds + " secs; errorsCount = " + errorsCount);
 
             // Clean up
@@ -138,6 +89,10 @@ namespace NHibernate.Search.Tests.Reader
 
             Assert.AreEqual(0, errorsCount, "Some iterations failed");
         }
+
+        #endregion
+
+        #region Helper methods
 
         private void Work(object state)
         {
@@ -170,8 +125,8 @@ namespace NHibernate.Search.Tests.Reader
                     int firstResult = random.Next(query.ResultSize - 15);
                     query.SetFirstResult(firstResult);
                     query.SetMaxResults(10);
-                    System.Collections.IList result = query.List();
-                    System.Object object_Renamed = result[0];
+                    IList result = query.List();
+                    object object_Renamed = result[0];
                     if (insert && object_Renamed is Detective)
                     {
                         Detective detective = (Detective)object_Renamed;
@@ -257,5 +212,7 @@ namespace NHibernate.Search.Tests.Reader
             }
             return Search.CreateFullTextSession(s).CreateFullTextQuery(luceneQuery);
         }
+
+        #endregion
     }
 }

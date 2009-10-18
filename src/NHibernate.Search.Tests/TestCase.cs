@@ -17,10 +17,11 @@ using NUnit.Framework;
 
 namespace NHibernate.Test
 {
+    using System.IO;
+
     public abstract class TestCase
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(TestCase));
-
         private const bool OutputDdl = false;
 
         protected Configuration cfg;
@@ -48,15 +49,6 @@ namespace NHibernate.Test
             get { return "NHibernate.DomainModel"; }
         }
 
-        protected virtual bool AppliesTo(Dialect.Dialect dialect)
-        {
-            return true;
-        }
-
-        protected virtual void Configure(Configuration configuration)
-        {
-        }
-
         protected virtual string CacheConcurrencyStrategy
         {
             get { return "nonstrict-read-write"; }
@@ -74,6 +66,8 @@ namespace NHibernate.Test
             // Configure log4net here since configuration through an attribute doesn't always work.
             XmlConfigurator.Configure();
         }
+
+        #region Public methods
 
         /// <summary>
         /// Creates the tables used in this TestCase
@@ -115,10 +109,6 @@ namespace NHibernate.Test
             Cleanup();
         }
 
-        protected virtual void OnSetUp()
-        {
-        }
-
         /// <summary>
         /// Set up the test. This method is not overridable, but it calls
         /// <see cref="OnSetUp" /> which is.
@@ -127,10 +117,6 @@ namespace NHibernate.Test
         public void SetUp()
         {
             OnSetUp();
-        }
-
-        protected virtual void OnTearDown()
-        {
         }
 
         /// <summary>
@@ -152,6 +138,129 @@ namespace NHibernate.Test
                 Assert.Fail("Test didn't clean up after itself");
             }
         }
+
+        #endregion
+
+        #region Protected methods
+
+        protected virtual void Configure(Configuration configuration)
+        {
+        }
+
+        protected virtual void OnSetUp()
+        {
+        }
+
+        protected virtual void OnTearDown()
+        {
+        }
+
+        protected virtual bool AppliesTo(Dialect.Dialect dialect)
+        {
+            return true;
+        }
+
+        protected void Delete(FileInfo sub)
+        {
+            if (Directory.Exists(sub.FullName))
+            {
+                Directory.Delete(sub.FullName, true);
+            }
+            else
+            {
+                File.Delete(sub.FullName);
+            }
+        }
+
+        protected virtual void BuildSessionFactory()
+        {
+            sessions = cfg.BuildSessionFactory();
+            ISessionFactoryImplementor sessionsImpl = sessions as ISessionFactoryImplementor;
+            connectionProvider = sessionsImpl == null
+                                         ? null
+                                         : sessionsImpl.ConnectionProvider as DebugConnectionProvider;
+        }
+
+        protected int ExecuteStatement(string sql)
+        {
+            if (cfg == null)
+            {
+                cfg = new Configuration();
+            }
+
+            using (IConnectionProvider prov = ConnectionProviderFactory.NewConnectionProvider(cfg.Properties))
+            {
+                IDbConnection conn = prov.GetConnection();
+
+                try
+                {
+                    using (IDbTransaction tran = conn.BeginTransaction())
+                    {
+                        using (IDbCommand comm = conn.CreateCommand())
+                        {
+                            comm.CommandText = sql;
+                            comm.Transaction = tran;
+                            comm.CommandType = CommandType.Text;
+                            int result = comm.ExecuteNonQuery();
+                            tran.Commit();
+                            return result;
+                        }
+                    }
+                }
+                finally
+                {
+                    prov.CloseConnection(conn);
+                }
+            }
+        }
+
+        protected virtual ISession OpenSession()
+        {
+            ISession session = sessions.OpenSession();
+            lastOpenedSession = session;
+
+            // Don't return lastOpenedSession because it might have already been changed by another concurrent thread
+            return session;
+        }
+
+        protected void ApplyCacheSettings(Configuration configuration)
+        {
+            if (CacheConcurrencyStrategy == null)
+            {
+                return;
+            }
+
+            foreach (PersistentClass clazz in configuration.ClassMappings)
+            {
+                bool hasLob = false;
+                foreach (Property prop in clazz.PropertyClosureIterator)
+                {
+                    if (prop.Value.IsSimpleValue)
+                    {
+                        IType type = ((SimpleValue) prop.Value).Type;
+                        if (type == NHibernateUtil.BinaryBlob)
+                        {
+                            hasLob = true;
+                        }
+                    }
+                }
+
+                if (!hasLob && !clazz.IsInherited)
+                {
+                    configuration.SetCacheConcurrencyStrategy(
+                            clazz.MappedClass.AssemblyQualifiedName, CacheConcurrencyStrategy);
+                }
+            }
+
+            /*foreach (Mapping.Collection coll in configuration.CollectionMappings)
+			{
+				configuration.SetCacheConcurrencyStrategy(coll.Role, CacheConcurrencyStrategy);
+			}*/
+        }
+
+        #endregion
+
+        #region Private methods
 
         private bool CheckSessionWasClosed()
         {
@@ -242,90 +351,6 @@ namespace NHibernate.Test
             cfg = null;
         }
 
-        protected virtual void BuildSessionFactory()
-        {
-            sessions = cfg.BuildSessionFactory();
-            ISessionFactoryImplementor sessionsImpl = sessions as ISessionFactoryImplementor;
-            connectionProvider = sessionsImpl == null
-                                         ? null
-                                         : sessionsImpl.ConnectionProvider as DebugConnectionProvider;
-        }
-
-        protected int ExecuteStatement(string sql)
-        {
-            if (cfg == null)
-            {
-                cfg = new Configuration();
-            }
-
-            using (IConnectionProvider prov = ConnectionProviderFactory.NewConnectionProvider(cfg.Properties))
-            {
-                IDbConnection conn = prov.GetConnection();
-
-                try
-                {
-                    using (IDbTransaction tran = conn.BeginTransaction())
-                    {
-                        using (IDbCommand comm = conn.CreateCommand())
-                        {
-                            comm.CommandText = sql;
-                            comm.Transaction = tran;
-                            comm.CommandType = CommandType.Text;
-                            int result = comm.ExecuteNonQuery();
-                            tran.Commit();
-                            return result;
-                        }
-                    }
-                }
-                finally
-                {
-                    prov.CloseConnection(conn);
-                }
-            }
-        }
-
-        protected virtual ISession OpenSession()
-        {
-            ISession session = sessions.OpenSession();
-            lastOpenedSession = session;
-
-            // Don't return lastOpenedSession because it might have already been changed by another concurrent thread
-            return session;
-        }
-
-        protected void ApplyCacheSettings(Configuration configuration)
-        {
-            if (CacheConcurrencyStrategy == null)
-            {
-                return;
-            }
-
-            foreach (PersistentClass clazz in configuration.ClassMappings)
-            {
-                bool hasLob = false;
-                foreach (Property prop in clazz.PropertyClosureIterator)
-                {
-                    if (prop.Value.IsSimpleValue)
-                    {
-                        IType type = ((SimpleValue) prop.Value).Type;
-                        if (type == NHibernateUtil.BinaryBlob)
-                        {
-                            hasLob = true;
-                        }
-                    }
-                }
-
-                if (!hasLob && !clazz.IsInherited)
-                {
-                    configuration.SetCacheConcurrencyStrategy(
-                            clazz.MappedClass.AssemblyQualifiedName, CacheConcurrencyStrategy);
-                }
-            }
-
-            /*foreach (Mapping.Collection coll in configuration.CollectionMappings)
-			{
-				configuration.SetCacheConcurrencyStrategy(coll.Role, CacheConcurrencyStrategy);
-			}*/
-        }
+        #endregion
     }
 }

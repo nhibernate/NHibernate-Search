@@ -22,11 +22,13 @@ namespace NHibernate.Search.Tests.Session
             ITransaction tx = s.BeginTransaction();
             int loop = 4;
             for (int i = 0; i < loop; i++)
+            {
                 s.Save(new Email(i + 1, "JBoss World Berlin", "Meet the guys who wrote the software"));
+            }
             tx.Commit();
             s.Close();
 
-            //check non created object does get found!!1
+            // check non created object does get found!!1
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
             QueryParser parser = new QueryParser("id", new StopAnalyzer());
@@ -37,7 +39,8 @@ namespace NHibernate.Search.Tests.Session
 
             s = new FullTextSessionImpl(OpenSession());
             s.Transaction.Begin();
-            using (IDbCommand cmd = s.Connection.CreateCommand()) {
+            using (IDbCommand cmd = s.Connection.CreateCommand()) 
+            {
                 s.Transaction.Enlist(cmd);
                 cmd.CommandText = "update Email set Body='Meet the guys who write the software'";
                 cmd.ExecuteNonQuery();
@@ -57,24 +60,31 @@ namespace NHibernate.Search.Tests.Session
             Assert.IsEmpty(result);
             result = s.CreateCriteria(typeof (Email)).List();
             for (int i = 0; i < loop/2; i++)
+            {
                 s.Index(result[i]);
+            }
             tx.Commit(); //do the process
+
             s.Index(result[(loop/2)]); //do the process out of tx
+
             tx = s.BeginTransaction();
-            for (int i = loop/2 + 1; i < loop; i++)
+            for (int i = loop / 2 + 1; i < loop; i++)
+            {
                 s.Index(result[i]);
+            }
             tx.Commit(); //do the process
             s.Close();
 
             s = Search.CreateFullTextSession(OpenSession());
             tx = s.BeginTransaction();
-            //object never indexed
+
+            // object never indexed
             Email email = (Email) s.Get(typeof (Email), loop + 1);
             s.Index(email);
             tx.Commit();
             s.Close();
 
-            //check non indexed object get indexed by s.index
+            // check non indexed object get indexed by s.index
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
             result = s.CreateFullTextQuery(parser.Parse("Body:create")).List();
