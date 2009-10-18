@@ -197,9 +197,9 @@ namespace NHibernate.Search.Mapping.AttributeBased
                         throw new SearchException("Bridge for document id does not implement TwoWayFieldBridge: " + member.Name);
                     }
 
-                    documentMapping.DocumentId = new DocumentIdMapping(documentIdName, (ITwoWayFieldBridge)bridge, getter) {
-                        Boost = boost
-                    };
+                    documentMapping.DocumentId = new DocumentIdMapping(
+                        documentIdName, member.Name, (ITwoWayFieldBridge)bridge, getter
+                    ) { Boost = boost };
                 }
                 else
                 {

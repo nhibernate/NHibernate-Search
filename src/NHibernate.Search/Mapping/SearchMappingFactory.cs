@@ -15,18 +15,22 @@ namespace NHibernate.Search.Mapping
             System.Type mappingClass = GetMappingClass(cfg.GetProperty(Environment.MappingClass));
 
             object instance;
-            try {
+            try
+            {
                 instance = Activator.CreateInstance(mappingClass);
             }
-            catch (Exception ex) {
-                throw new SearchException("Failed to instantiate lucene analyzer with type " + mappingClass.FullName, ex);
+            catch (Exception ex)
+            {
+                throw new SearchException(
+                    "Could not create search mapping class '" + mappingClass.FullName + "'.", ex
+                );
             }
 
             if (!(instance is ISearchMapping))
             {
                 throw new SearchException(string.Format(
-                    "Lucene analyzer does not implement {0}: {1}",
-                    typeof(ISearchMapping).FullName, mappingClass.FullName
+                    "Search mapping class '{0}' does not implement '{1}'.",
+                    mappingClass.FullName, typeof(ISearchMapping).FullName
                 ));
             }
 

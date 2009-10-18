@@ -91,7 +91,7 @@ namespace NHibernate.Search.Engine
 
         public string IdentifierName
         {
-            get { return idMapping.Name; }
+            get { return idMapping.PropertyName; }
         }
 
         #endregion
@@ -192,12 +192,12 @@ namespace NHibernate.Search.Engine
 
         public Term GetTerm(object id)
         {
-            return new Term(IdentifierName, IdBridge.ObjectToString(id));
+            return new Term(GetIdKeywordName(), IdBridge.ObjectToString(id));
         }
 
         public String GetIdKeywordName()
         {
-            return IdentifierName;
+            return idMapping.Name;
         }
 
         public static System.Type GetDocumentClass(Document document)
