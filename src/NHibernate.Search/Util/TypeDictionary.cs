@@ -76,14 +76,12 @@ namespace NHibernate.Search.Util {
 
         public TValue this[Type key]
         {
-            get {
-                TValue value;
-                var found = this.TryGetValue(key, out value);
-                if (!found)
-                    throw new KeyNotFoundException();
-
-                return value;
-            }
+			get
+			{
+				TValue value;
+				TryGetValue(key, out value);
+				return value;
+			}
             set { inner[key] = value; }
         }
 
