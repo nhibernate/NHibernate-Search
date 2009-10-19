@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using log4net;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
@@ -241,7 +242,7 @@ namespace NHibernate.Search.Backend
             {
                 Analyzer analyzer = entity != null
                                         ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
-                                        : new SimpleAnalyzer();
+                                        : new StandardAnalyzer();
                 IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false);
 
                 LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);

@@ -29,7 +29,7 @@ namespace NHibernate.Search.Impl
             this.sessionImplementor = (ISessionImplementor) session;
         }
 
-        private ISearchFactory SearchFactory
+    	public ISearchFactory SearchFactory
         {
             get
             {
