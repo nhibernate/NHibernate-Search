@@ -308,6 +308,7 @@ namespace NHibernate.Search.Impl
             List<LuceneWork> queue = new List<LuceneWork>();
             queue.Add(new OptimizeLuceneWork(entityType));
             WaitCallback cb = BackendQueueProcessorFactory.GetProcessor(queue);
+            cb(null);
         }
 
         public Dictionary<IDirectoryProvider, object> GetLockableDirectoryProviders()
