@@ -14,13 +14,23 @@ namespace NHibernate.Search.Tests.Query
     [TestFixture]
     public class ProjectionQueryTest : SearchTestCase
     {
+        protected override IList Mappings
+        {
+            get { return new string[]
+                             {
+                                     "Query.Author.hbm.xml",                                      
+                                     "Query.Book.hbm.xml", 
+                                     "Query.Employee.hbm.xml"
+                             }; }
+        }
+
         #region Tests
 
-        [Test]
-        [Ignore(".NET doesn't have scrollable resultsets")]
-        public void LuceneObjectsProjectionWithScroll()
-        {
-        }
+        //[Test]
+        //[Ignore(".NET doesn't have scrollable resultsets")]
+        //public void LuceneObjectsProjectionWithScroll()
+        //{
+        //}
 
         [Test]
         public void ResultTransformToDelimString()
@@ -92,45 +102,6 @@ namespace NHibernate.Search.Tests.Query
             s.Delete("from System.Object");
             tx.Commit();
             s.Close();
-        }
-
-        private void checkProjectionFirst(object[] projection, ISession s)
-        {
-            Assert.AreEqual(1000, projection[0], "id incorrect");
-            Assert.AreEqual("Griffin", projection[1], "lastname incorrect");
-            Assert.AreEqual("ITech", projection[2], "dept incorrect");
-            Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
-            Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
-            Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
-            Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
-            Assert.AreEqual(1000, projection[7], "legacy ID incorrect");
-        }
-
-        private void checkProjectionLast(Object[] projection, ISession s)
-        {
-            Assert.AreEqual(1004, projection[0], "id incorrect");
-            Assert.AreEqual("Whetbrook", projection[1], "lastname incorrect");
-            Assert.AreEqual("ITech", projection[2], "dept incorrect");
-            Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
-            Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
-            Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
-            Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
-            Assert.AreEqual(1004, projection[7], "legacy ID incorrect");
-        }
-
-        private void checkProjection2(Object[] projection, ISession s)
-        {
-            Assert.AreEqual(1003, projection[0], "id incorrect");
-            Assert.AreEqual("Stejskal", projection[1], "lastname incorrect");
-            Assert.AreEqual("ITech", projection[2], "dept incorrect");
-            Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
-            Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
-            Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
-            Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
-            Assert.AreEqual(1003, projection[7], "legacy ID incorrect");
         }
 
         [Test]
@@ -245,7 +216,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual("Accounting", projection[7], "dept incorrect");
             Assert.IsNotNull(projection[8], "Lucene internal doc id");
 
-            //cleanup
+            // cleanup
             s.Delete("from System.Object");
             tx.Commit();
             s.Close();
@@ -254,6 +225,48 @@ namespace NHibernate.Search.Tests.Query
         #endregion
 
         #region Helpers
+
+        // Used by scroll test
+        private void checkProjectionFirst(object[] projection, ISession s)
+        {
+            Assert.AreEqual(1000, projection[0], "id incorrect");
+            Assert.AreEqual("Griffin", projection[1], "lastname incorrect");
+            Assert.AreEqual("ITech", projection[2], "dept incorrect");
+            Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
+            Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
+            Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
+            Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.AreEqual(1000, projection[7], "legacy ID incorrect");
+        }
+
+        // Used by scroll test
+        private void checkProjectionLast(Object[] projection, ISession s)
+        {
+            Assert.AreEqual(1004, projection[0], "id incorrect");
+            Assert.AreEqual("Whetbrook", projection[1], "lastname incorrect");
+            Assert.AreEqual("ITech", projection[2], "dept incorrect");
+            Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
+            Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
+            Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
+            Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.AreEqual(1004, projection[7], "legacy ID incorrect");
+        }
+
+        // Used by scroll test
+        private void checkProjection2(Object[] projection, ISession s)
+        {
+            Assert.AreEqual(1003, projection[0], "id incorrect");
+            Assert.AreEqual("Stejskal", projection[1], "lastname incorrect");
+            Assert.AreEqual("ITech", projection[2], "dept incorrect");
+            Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
+            Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
+            Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
+            Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.AreEqual(1003, projection[7], "legacy ID incorrect");
+        }
 
         private void PrepEmployeeIndex(IFullTextSession s)
         {
@@ -270,11 +283,6 @@ namespace NHibernate.Search.Tests.Query
             s.Save(e5);
 
             tx.Commit();
-        }
-
-        protected override IList Mappings
-        {
-            get { return new string[] {"Query.Author.hbm.xml", "Query.Book.hbm.xml", "Query.Employee.hbm.xml"}; }
         }
 
         #endregion

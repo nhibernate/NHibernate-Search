@@ -5,8 +5,9 @@
 				   default-access="field.camelcase">
 	<class name="Music">
 		<id name="Id">
-			<generator class="identity" />
+			<generator class="native" />
 		</id>
+		<property name="Title" />
 		<set name="Authors" cascade="all" >
 			<key column="MusicId" />
 			<many-to-many column="AuthorId" class="Author"  />

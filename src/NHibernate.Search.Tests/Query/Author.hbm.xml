@@ -4,7 +4,7 @@
 				   assembly="NHibernate.Search.Tests">
 	<class name="Author">
 		<id name="Id">
-			<generator class="identity" />
+			<generator class="native" />
 		</id>
 		<property name="Name"/>
 	</class>
