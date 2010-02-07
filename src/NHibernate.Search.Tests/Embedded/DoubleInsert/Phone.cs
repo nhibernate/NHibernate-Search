@@ -4,19 +4,20 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 {
     using Attributes;
 
+    [Indexed]
     public class Phone
     {
+        [DocumentId]
         private long id;
 
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string number;
 
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string type;
 
         private DateTime createdOn;
-
-        private DateTime lastUpdateOn;
+        private DateTime lastUpdatedOn;
 
         [IndexedEmbedded]
         private Contact contact;
@@ -35,7 +36,10 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 
         public string Type
         {
-            get { return type; }
+            get
+            {
+                return string.IsNullOrEmpty(type) ? "N/A" : type;
+            }
             set { type = value; }
         }
 
@@ -45,10 +49,10 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
             set { createdOn = value; }
         }
 
-        public DateTime LastUpdateOn
+        public DateTime LastUpdatedOn
         {
-            get { return lastUpdateOn; }
-            set { lastUpdateOn = value; }
+            get { return lastUpdatedOn; }
+            set { lastUpdatedOn = value; }
         }
 
         public Contact Contact

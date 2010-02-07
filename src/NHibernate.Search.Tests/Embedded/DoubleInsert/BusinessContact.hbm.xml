@@ -2,7 +2,7 @@
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
 				   namespace="NHibernate.Search.Tests.Embedded.DoubleInsert"
 				   assembly="NHibernate.Search.Tests">
-	<subclass name="BusinessContact" extends="Contact" discriminator-value="Business">
+	<subclass name="BusinessContact" extends="Contact" discriminator-value="Business" lazy="false">
 		<property name="BusinessName" />
 		<property name="Url" />
 	</subclass>

@@ -286,7 +286,8 @@
     <EmbeddedResource Include="DocumentTop.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
+    <EmbeddedResource Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
+    <EmbeddedResource Include="Embedded\DoubleInsert\Phone.hbm.xml" />
     <Content Include="Filter\Soap.hbm.xml" />
     <EmbeddedResource Include="Shards\Animal.hbm.xml">
       <SubType>Embedded Resource</SubType>

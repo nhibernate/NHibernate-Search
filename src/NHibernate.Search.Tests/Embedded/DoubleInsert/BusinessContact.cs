@@ -2,6 +2,7 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 {
     using Attributes;
 
+    [Indexed]
     public class BusinessContact : Contact
     {
         [Field(Index = Index.Tokenized, Store = Store.Yes)] 

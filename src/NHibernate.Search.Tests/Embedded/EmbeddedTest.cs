@@ -1,38 +1,41 @@
 using System.Collections;
+
 using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Index;
 using Lucene.Net.QueryParsers;
-using Lucene.Net.Search;
-//using NHibernate.Cfg;
+
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Embedded
 {
-    using System;
-
+    /// <summary>
+    /// The embedded test.
+    /// </summary>
     [TestFixture]
     public class EmbeddedTest : SearchTestCase
     {
         #region Helper methods
 
-        //protected override void Configure(Configuration configuration)
-        //{
-        //    base.Configure(configuration);
-        //    // TODO: Set up listeners!
-        //}
+        // protected override void Configure(Configuration configuration)
+        // {
+        // base.Configure(configuration);
+        // // TODO: Set up listeners!
+        // }
 
+        /// <summary>
+        /// Gets Mappings.
+        /// </summary>
         protected override IList Mappings
         {
             get
             {
-                return new string[]
+                return new[]
                            {
-                               "Embedded.Tower.hbm.xml",
-                               "Embedded.Address.hbm.xml",
-                               "Embedded.Product.hbm.xml",
-                               "Embedded.Order.hbm.xml",
-                               "Embedded.Author.hbm.xml",
-                               "Embedded.Country.hbm.xml"
+                           "Embedded.Tower.hbm.xml", 
+                           "Embedded.Address.hbm.xml", 
+                           "Embedded.Product.hbm.xml", 
+                           "Embedded.Order.hbm.xml", 
+                           "Embedded.Author.hbm.xml", 
+                           "Embedded.Country.hbm.xml"
                            };
             }
         }
@@ -41,6 +44,9 @@ namespace NHibernate.Search.Tests.Embedded
 
         #region Tests
 
+        /// <summary>
+        /// The embedded indexing.
+        /// </summary>
         [Test]
         public void EmbeddedIndexing()
         {
@@ -63,43 +69,44 @@ namespace NHibernate.Search.Tests.Embedded
             s.Persist(tower);
             tx.Commit();
 
-		    IFullTextSession session = Search.CreateFullTextSession( s );
-		    QueryParser parser = new QueryParser( "id", new StandardAnalyzer() );
+            IFullTextSession session = Search.CreateFullTextSession(s);
+            QueryParser parser = new QueryParser("id", new StandardAnalyzer());
 
-            Lucene.Net.Search.Query query = parser.Parse( "address.street:place" );
-		    IList result = session.CreateFullTextQuery( query ).List();
-		    Assert.AreEqual( 1, result.Count, "unable to find property in embedded" );
+            Lucene.Net.Search.Query query = parser.Parse("address.street:place");
+            IList result = session.CreateFullTextQuery(query).List();
+            Assert.AreEqual(1, result.Count, "unable to find property in embedded");
 
-		    query = parser.Parse( "address.ownedBy_name:renting" );
-		    result = session.CreateFullTextQuery( query).List();
-		    Assert.AreEqual(  1, result.Count, "unable to find property in embedded" );
+            query = parser.Parse("address.ownedBy_name:renting");
+            result = session.CreateFullTextQuery(query).List();
+            Assert.AreEqual(1, result.Count, "unable to find property in embedded");
 
-		    query = parser.Parse( "address.id:" + a.Id );
-		    result = session.CreateFullTextQuery( query ).List();
-		    Assert.AreEqual( 1, result.Count, "unable to find property by id of embedded" );
+            query = parser.Parse("address.id:" + a.Id);
+            result = session.CreateFullTextQuery(query).List();
+            Assert.AreEqual(1, result.Count, "unable to find property by id of embedded");
 
-		    query = parser.Parse( "address.country.name:" + a.Country.Name );
-		    result = session.CreateFullTextQuery( query ).List();
-		    Assert.AreEqual(  1, result.Count, "unable to find property with 2 levels of embedded" );
+            query = parser.Parse("address.country.name:" + a.Country.Name);
+            result = session.CreateFullTextQuery(query).List();
+            Assert.AreEqual(1, result.Count, "unable to find property with 2 levels of embedded");
 
-		    s.Clear();
+            s.Clear();
 
-		    tx = s.BeginTransaction();
-		    Address address = s.Get<Address>( a.Id );
-		    address.OwnedBy.Name = "Buckhead community" ;
+            tx = s.BeginTransaction();
+            Address address = s.Get<Address>(a.Id);
+            address.OwnedBy.Name = "Buckhead community";
+
             // NB Not in the Java?
             s.Persist(address);
-		    tx.Commit();
+            tx.Commit();
 
-		    s.Clear();
+            s.Clear();
 
-		    session = Search.CreateFullTextSession( s );
+            session = Search.CreateFullTextSession(s);
 
-		    query = parser.Parse( "address.ownedBy_name:buckhead" );
-		    result = session.CreateFullTextQuery( query ).List();
-		    Assert.AreEqual( 1, result.Count,"change in embedded not reflected in root index" );
+            query = parser.Parse("address.ownedBy_name:buckhead");
+            result = session.CreateFullTextQuery(query).List();
+            Assert.AreEqual(1, result.Count, "change in embedded not reflected in root index");
 
-		    s.Clear();
+            s.Clear();
 
             // Tidy up
             tx = s.BeginTransaction();
@@ -111,6 +118,9 @@ namespace NHibernate.Search.Tests.Embedded
             s.Close();
         }
 
+        /// <summary>
+        /// The contained in.
+        /// </summary>
         [Test]
         public void ContainedIn()
         {
@@ -130,40 +140,40 @@ namespace NHibernate.Search.Tests.Embedded
             s.Persist(tower);
             tx.Commit();
 
-		    s.Clear();
+            s.Clear();
 
-		    tx = s.BeginTransaction();
-		    Address address =  s.Get<Address>(a.Id );
-		    address.Street = "Peachtree Road NE" ;
-		    tx.Commit();
+            tx = s.BeginTransaction();
+            Address address = s.Get<Address>(a.Id);
+            address.Street = "Peachtree Road NE";
+            tx.Commit();
 
-		    s.Clear();
+            s.Clear();
 
-		    IFullTextSession session = Search.CreateFullTextSession( s );
-		    QueryParser parser = new QueryParser( "id", new StandardAnalyzer() );
+            IFullTextSession session = Search.CreateFullTextSession(s);
+            QueryParser parser = new QueryParser("id", new StandardAnalyzer());
 
-            Lucene.Net.Search.Query query = parser.Parse( "address.street:peachtree" );
-		    IList result = session.CreateFullTextQuery( query).List();
-		    Assert.AreEqual( 1, result.Count, "change in embedded not reflected in root index" );
+            Lucene.Net.Search.Query query = parser.Parse("address.street:peachtree");
+            IList result = session.CreateFullTextQuery(query).List();
+            Assert.AreEqual(1, result.Count, "change in embedded not reflected in root index");
 
-		    s.Clear();
+            s.Clear();
 
-		    tx = s.BeginTransaction();
-		    address = s.Get<Address>( a.Id );
+            tx = s.BeginTransaction();
+            address = s.Get<Address>(a.Id);
             IEnumerator en = address.Towers.GetEnumerator();
             en.MoveNext();
             Tower tower1 = (Tower) en.Current;
-		    tower1.Address = null ;
-		    address.Towers.Remove( tower1 );
-		    tx.Commit();
+            tower1.Address = null;
+            address.Towers.Remove(tower1);
+            tx.Commit();
 
-		    s.Clear();
+            s.Clear();
 
-		    session = Search.CreateFullTextSession( s );
+            session = Search.CreateFullTextSession(s);
 
-		    query = parser.Parse( "address.street:peachtree" );
-		    result = session.CreateFullTextQuery( query ).List();
-		    Assert.AreEqual( 0, result.Count,"breaking link fails" );
+            query = parser.Parse("address.street:peachtree");
+            result = session.CreateFullTextQuery(query).List();
+            Assert.AreEqual(0, result.Count, "breaking link fails");
 
             // Tidy up
             tx = s.BeginTransaction();

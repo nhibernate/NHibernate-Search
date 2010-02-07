@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 {
     using Attributes;
 
+    [Indexed]
     public class PersonalContact : Contact
     {
         private static readonly long serialVersionUID = 1L;

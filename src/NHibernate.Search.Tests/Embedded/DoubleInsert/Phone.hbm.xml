@@ -2,17 +2,12 @@
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
 				   namespace="NHibernate.Search.Tests.Embedded.DoubleInsert"
 				   assembly="NHibernate.Search.Tests">
-	<class name="Address" table="T_ADDRESS" lazy="false">
-		<id name="Id" column="A_ADDRESS_ID">
+	<class name="Phone" table="T_PHONE" lazy="false">
+		<id name="Id" column="P_PHONE_ID">
 			<generator class="native" />
 		</id>
-		<property name="Address1" />
-		<property name="Address2" />
-		<property name="Town" />
-		<property name="County" />
-		<property name="Country" />
-		<property name="Postcode" />
-		<property name="Active" />
+		<property name="Number" />
+		<property name="Type" />
 		<property name="CreatedOn" />
 		<property name="LastUpdatedOn" />
 		<many-to-one name="Contact" class="Contact" />
