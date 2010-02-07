@@ -73,6 +73,7 @@
     <Compile Include="Attributes\KeyAttribute.cs" />
     <Compile Include="Attributes\Resolution.cs" />
     <Compile Include="Attributes\Store.cs" />
+    <Compile Include="Backend\ParameterSet.cs" />
     <Compile Include="Util\TypeDictionary.cs" />
     <Compile Include="Mapping\AttributeBased\AttributeSearchMappingBuilder.cs" />
     <Compile Include="Mapping\ClassBridgeMapping.cs" />

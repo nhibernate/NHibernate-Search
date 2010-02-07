@@ -217,6 +217,16 @@ namespace NHibernate.Search.Impl
 
         #region Public methods
 
+        public void AddOptimizerStrategy(IDirectoryProvider provider, IOptimizerStrategy optimizerStrategy)
+        {
+            dirProviderOptimizerStrategy[provider] = optimizerStrategy;
+        }
+
+        public void AddIndexingParameters(IDirectoryProvider provider, LuceneIndexingParameters indexingParameters)
+        {
+            dirProviderIndexingParams[provider] = indexingParameters;
+        }
+
         public void Close()
         {
             if (Interlocked.Exchange(ref stopped, 1) == 0)
@@ -235,7 +245,10 @@ namespace NHibernate.Search.Impl
         public static SearchFactoryImpl GetSearchFactory(Configuration cfg)
         {
             if (contexts == null)
+            {
                 contexts = new WeakHashtable();
+            }
+
             SearchFactoryImpl searchFactory = (SearchFactoryImpl) contexts[cfg];
             if (searchFactory == null)
             {
@@ -272,7 +285,9 @@ namespace NHibernate.Search.Impl
         public void RegisterDirectoryProviderForLocks(IDirectoryProvider provider)
         {
             if (lockableDirectoryProviders.ContainsKey(provider) == false)
+            {
                 lockableDirectoryProviders.Add(provider, new object());
+            }
         }
 
         public FilterDef GetFilterDefinition(string name)
@@ -285,10 +300,17 @@ namespace NHibernate.Search.Impl
             return dirProviderOptimizerStrategy[provider];
         }
 
+        public LuceneIndexingParameters GetIndexingParameters(IDirectoryProvider provider)
+        {
+            return dirProviderIndexingParams[provider];
+        }
+
         public IDirectoryProvider[] GetDirectoryProviders(System.Type entity)
         {
             if (!documentBuilders.ContainsKey(entity))
+            {
                 return null;
+            }
             DocumentBuilder documentBuilder = documentBuilders[entity];
             return documentBuilder.DirectoryProviders;
         }
@@ -297,13 +319,17 @@ namespace NHibernate.Search.Impl
         {
             var clazzes = DocumentBuilders.Keys;
             foreach (System.Type clazz in clazzes)
+            {
                 Optimize(clazz);
+            }
         }
 
         public void Optimize(System.Type entityType)
         {
             if (!DocumentBuilders.ContainsKey(entityType))
+            {
                 throw new SearchException("Entity not indexed " + entityType);
+            }
 
             List<LuceneWork> queue = new List<LuceneWork>();
             queue.Add(new OptimizeLuceneWork(entityType));
@@ -316,24 +342,9 @@ namespace NHibernate.Search.Impl
             return lockableDirectoryProviders;
         }
 
-        public void AddOptimizerStrategy(IDirectoryProvider provider, IOptimizerStrategy optimizerStrategy)
-        {
-            dirProviderOptimizerStrategy[provider] = optimizerStrategy;
-        }
-
         public IFilterCachingStrategy GetFilterCachingStrategy()
         {
             return filterCachingStrategy;
-        }
-
-        public LuceneIndexingParameters GetIndexingParameters(IDirectoryProvider provider)
-        {
-            return dirProviderIndexingParams[provider];
-        }
-
-        public void AddIndexingParameters(IDirectoryProvider provider, LuceneIndexingParameters indexingParameters)
-        {
-            dirProviderIndexingParams[provider] = indexingParameters;
         }
 
         #endregion

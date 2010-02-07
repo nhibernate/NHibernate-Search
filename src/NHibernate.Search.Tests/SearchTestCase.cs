@@ -35,6 +35,8 @@ namespace NHibernate.Search.Tests
         {
             cfg.SetProperty("hibernate.search.default.directory_provider", typeof(RAMDirectoryProvider).AssemblyQualifiedName);
             cfg.SetProperty(Environment.AnalyzerClass, typeof(StopAnalyzer).AssemblyQualifiedName);
+            cfg.SetProperty("hibernate.search.default.transaction.merge_factor", "100");
+            cfg.SetProperty("hibernate.search.default.batch.max_buffered_docs", "1000");
             SetListener(cfg);
         }
 

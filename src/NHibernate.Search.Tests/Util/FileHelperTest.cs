@@ -1,10 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Util
 {
-    class FileHelperTest
+    [TestFixture]
+    [Category("Not Implemented")]
+    [Explicit]
+    public class FileHelperTest
     {
     }
 }

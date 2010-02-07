@@ -155,8 +155,8 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchMergeFactor = value;
-                        indexingParams.TransactionMergeFactor = value;
+                        indexingParams.BatchIndexParameters.MergeFactor = value;
+                        indexingParams.TransactionIndexParameters.MergeFactor = value;
                     });
 
             ConfigureProp(
@@ -164,8 +164,8 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchMaxMergeDocs = value;
-                        indexingParams.TransactionMaxMergeDocs = value;
+                        indexingParams.BatchIndexParameters.MaxMergeDocs = value;
+                        indexingParams.TransactionIndexParameters.MaxMergeDocs = value;
                     });
 
             ConfigureProp(
@@ -173,8 +173,8 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchMaxBufferedDocs = value;
-                        indexingParams.TransactionMaxBufferedDocs = value;
+                        indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
+                        indexingParams.TransactionIndexParameters.MaxBufferedDocs = value;
                     });
 
             ConfigureProp(
@@ -182,8 +182,8 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchRamBufferSizeMb = value;
-                        indexingParams.TransactionRamBufferSizeMb = value;
+                        indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
+                        indexingParams.TransactionIndexParameters.RamBufferSizeMb = value;
                     });
 
             ConfigureProp(
@@ -191,7 +191,7 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchMergeFactor = value;
+                        indexingParams.BatchIndexParameters.MergeFactor = value;
                     });
 
             ConfigureProp(
@@ -199,7 +199,7 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchMaxMergeDocs = value;
+                        indexingParams.BatchIndexParameters.MaxMergeDocs = value;
                     });
 
             ConfigureProp(
@@ -207,7 +207,7 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchMaxBufferedDocs = value;
+                        indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
                     });
 
             ConfigureProp(
@@ -215,7 +215,7 @@ namespace NHibernate.Search.Store
                     indexProps,
                     delegate(int value)
                     {
-                        indexingParams.BatchRamBufferSizeMb = value;
+                        indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
                     });
 
             searchFactoryImplementor.AddIndexingParameters(provider, indexingParams);
