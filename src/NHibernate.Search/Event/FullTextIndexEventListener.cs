@@ -98,9 +98,9 @@ namespace NHibernate.Search.Event
 
         #endregion
 
-        #region Private methods
+        #region Protected methods
 
-        private bool EntityIsIndexed(object entity)
+        protected bool EntityIsIndexed(object entity)
         {
             DocumentBuilder builder;
             searchFactory.DocumentBuilders.TryGetValue(entity.GetType(), out builder);

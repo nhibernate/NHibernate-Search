@@ -67,7 +67,6 @@ namespace NHibernate.Search.Tests.Embedded
             p2.Orders.Add("Emmanuel", o);
             p2.Orders.Add("Gavin", o2);
 
-
             s = OpenSession();
             tx = s.BeginTransaction();
             s.Persist(a);
@@ -114,30 +113,34 @@ namespace NHibernate.Search.Tests.Embedded
         {
             IFullTextSession session = Search.CreateFullTextSession(s);
             
-            //PhraseQuery
-            TermQuery  query = new TermQuery(new Term("orders.orderNumber", "ZERTYD"));
-            IList result = session.CreateFullTextQuery(query).List();
+            // PhraseQuery
+            TermQuery query = new TermQuery(new Term("orders.orderNumber", "ZERTYD"));
+            IList result = session.CreateFullTextQuery(query, typeof(Product)).List();
             Assert.AreEqual(1, result.Count, "collection of untokenized ignored");
+
             query = new TermQuery(new Term("orders.orderNumber", "ACVBNM"));
-            result = session.CreateFullTextQuery(query).List();
+            result = session.CreateFullTextQuery(query, typeof(Product)).List();
             Assert.AreEqual(1, result.Count, "collection of untokenized ignored");
         }
 
         [Test]
-        [Ignore]
         public void CanLookupEntityByUpdatedValueInSet()
         {
             Product p = s.Get<Product>(p1.Id);
             p.Authors.Add(s.Get<Author>(a4.Id));
             tx.Commit();
 
-            QueryParser parser = new MultiFieldQueryParser(new string[] { "name", "authors.name" }, new StandardAnalyzer());
-            IFullTextSession session = Search.CreateFullTextSession(s);
-            Query query = parser.Parse("Proust");
-            IList result = session.CreateFullTextQuery(query).List();
-            //HSEARCH-56
-            Assert.AreEqual(1, result.Count, "update of collection of embedded ignored");
+            s.Clear();
 
+            tx = s.BeginTransaction();
+
+            IFullTextSession session = Search.CreateFullTextSession(s);
+            QueryParser parser = new MultiFieldQueryParser(new string[] { "name", "authors.name" }, new StandardAnalyzer());
+            Query query = parser.Parse("Proust");
+            IList result = session.CreateFullTextQuery(query, typeof(Product)).List();
+
+            // HSEARCH-56
+            Assert.AreEqual(1, result.Count, "update of collection of embedded ignored");
         }
     }
 }

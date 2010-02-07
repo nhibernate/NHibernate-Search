@@ -21,6 +21,9 @@ namespace NHibernate.Search.Tests
             configure.SetListener(ListenerType.PostUpdate, new FullTextIndexEventListener());
             configure.SetListener(ListenerType.PostInsert, new FullTextIndexEventListener());
             configure.SetListener(ListenerType.PostDelete, new FullTextIndexEventListener());
+            configure.SetListener(ListenerType.PostCollectionRecreate, new FullTextIndexCollectionEventListener());
+            configure.SetListener(ListenerType.PostCollectionRemove, new FullTextIndexCollectionEventListener());
+            configure.SetListener(ListenerType.PostCollectionUpdate, new FullTextIndexCollectionEventListener());
         }
 
         protected Lucene.Net.Store.Directory GetDirectory(System.Type clazz)
