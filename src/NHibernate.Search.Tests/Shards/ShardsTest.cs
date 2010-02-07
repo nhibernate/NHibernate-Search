@@ -14,12 +14,15 @@ using NUnit.Framework;
 namespace NHibernate.Search.Tests.Shards
 {
     [TestFixture]
-    [Ignore("Broken")]
     public class ShardsTest : PhysicalTestCase
     {
         protected override IList Mappings
         {
-            get { return new[] {"Shards.Animal.hbm.xml", "Shards.Furniture.hbm.xml"}; }
+            get { return new[]
+                             {
+                             "Shards.Animal.hbm.xml", 
+                             "Shards.Furniture.hbm.xml"
+                             }; }
         }
 
         #region Tests
@@ -30,8 +33,8 @@ namespace NHibernate.Search.Tests.Shards
             IDirectoryProvider[] dps = new IDirectoryProvider[] {new RAMDirectoryProvider(), new RAMDirectoryProvider()};
             IdHashShardingStrategy shardingStrategy = new IdHashShardingStrategy();
             shardingStrategy.Initialize(null, dps);
-            Assert.IsTrue(dps[1] == shardingStrategy.GetDirectoryProviderForAddition(typeof(Animal), 1, "1", null));
-            Assert.IsTrue(dps[0] == shardingStrategy.GetDirectoryProviderForAddition(typeof(Animal), 2, "2", null));
+            Assert.AreSame(dps[1], shardingStrategy.GetDirectoryProviderForAddition(typeof(Animal), 1, "1", null));
+            Assert.AreSame(dps[0], shardingStrategy.GetDirectoryProviderForAddition(typeof(Animal), 2, "2", null));
         }
 
         [Test]
@@ -72,11 +75,9 @@ namespace NHibernate.Search.Tests.Shards
             Assert.AreEqual(3, results.Count, "Mixing shared and non sharded properties fails");
             results = fts.CreateFullTextQuery(parser.Parse("name:mouse OR name:bear OR color:blue")).List();
             Assert.AreEqual(3, results.Count, "Mixing shared and non sharded properties fails with indexreader reuse");
-            foreach (object o in results)
-            {
-                s.Delete(o);
-            }
 
+            // cleanup
+            s.Delete("from System.Object");
             tx.Commit();
             s.Close();
         }
@@ -98,7 +99,7 @@ namespace NHibernate.Search.Tests.Shards
 
             s.Clear();
 
-            IndexReader reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "Animal00"));
+            IndexReader reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "\\Animal00"));
             try
             {
                 int num = reader.NumDocs();
@@ -109,7 +110,7 @@ namespace NHibernate.Search.Tests.Shards
                 reader.Close();
             }
 
-            reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "Animal.1"));
+            reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "\\Animal.1"));
             try
             {
                 int num = reader.NumDocs();
@@ -127,7 +128,7 @@ namespace NHibernate.Search.Tests.Shards
 
             s.Clear();
 
-            reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "Animal.1"));
+            reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "\\Animal.1"));
             try
             {
                 int num = reader.NumDocs();
@@ -148,11 +149,9 @@ namespace NHibernate.Search.Tests.Shards
 
             IList results = fts.CreateFullTextQuery(parser.Parse("name:mouse OR name:bear")).List();
             Assert.AreEqual(2, results.Count, "Either double insert, single update, or query fails with shards");
-            foreach (object o in results)
-            {
-                s.Delete(o);
-            }
 
+            // cleanup
+            s.Delete("from System.Object");
             tx.Commit();
             s.Close();
         }

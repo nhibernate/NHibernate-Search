@@ -12,7 +12,9 @@ namespace NHibernate.Search.Store
         {
             directoryProvider = providers;
             if (providers.GetUpperBound(0) > 1)
+            {
                 throw new AssertionFailure("Using SingleDirectoryProviderSelectionStrategy with multiple DirectoryProviders");
+            }
         }
 
         public IDirectoryProvider[] GetDirectoryProvidersForAllShards()

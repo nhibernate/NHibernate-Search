@@ -10,6 +10,8 @@ using NHibernate.Util;
 
 namespace NHibernate.Search.Store
 {
+    using System.Collections;
+
     /// <summary>
     /// Creates a Lucene directory provider.
     /// <para>
@@ -28,8 +30,6 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class DirectoryProviderFactory
     {
-        public List<IDirectoryProvider> providers = new List<IDirectoryProvider>();
-
         private const string LUCENE_DEFAULT = LUCENE_PREFIX + "default.";
         private const string LUCENE_PREFIX = "hibernate.search.";
         private const string DEFAULT_DIRECTORY_PROVIDER = "NHibernate.Search.Store.FSDirectoryProvider, NHibernate.Search";
@@ -45,6 +45,8 @@ namespace NHibernate.Search.Store
 
         private const string SHARDING_STRATEGY = "sharding_strategy";
         private const string NBR_OF_SHARDS = SHARDING_STRATEGY + ".nbr_of_shards";
+
+        private readonly List<IDirectoryProvider> providers = new List<IDirectoryProvider>();
 
         #region Public methods
 
@@ -289,7 +291,9 @@ namespace NHibernate.Search.Store
         private static IDictionary<string, string>[] GetDirectoryProperties(Configuration cfg, string directoryProviderName)
         {
             if (string.IsNullOrEmpty(directoryProviderName))
+            {
                 throw new ArgumentException("Value should be not null and not empty.", "directoryProviderName");
+            }
 
             IDictionary<string, string> props = cfg.Properties;
             string indexName = LUCENE_PREFIX + directoryProviderName;
@@ -318,7 +322,7 @@ namespace NHibernate.Search.Store
                         }
                     }
 
-                    if (index != -1)
+                    if (index == -1)
                     {
                         indexSpecificDefaultProps[suffixedKey] = entry.Value;
                     }
@@ -327,8 +331,7 @@ namespace NHibernate.Search.Store
                         string finalKeyName = suffixedKey.Substring(nextDoc + 1);
 
                         // Ignore sharding strategy properties
-                        // NB Java has finalKeyName here, but we have just stripped the sharding bit.
-                        if (!suffixedKey.StartsWith(SHARDING_STRATEGY))
+                        if (!finalKeyName.StartsWith(SHARDING_STRATEGY))
                         {
                             EnsureListSize(indexSpecificProps, index + 1);
                             IDictionary<string, string> propertiesForIndex = indexSpecificProps[index];
@@ -357,17 +360,17 @@ namespace NHibernate.Search.Store
                 }
             }
 
-            // Original java doesn't copy properties from the defaults!
-            foreach (KeyValuePair<string, string> prop in defaultProperties)
+            if (nbrOfShards <= 0 && indexSpecificProps.Count == 0)
             {
-                if (!indexSpecificDefaultProps.ContainsKey(prop.Key))
+                // Original java doesn't copy properties from the defaults!
+                foreach (KeyValuePair<string, string> prop in defaultProperties)
                 {
-                    indexSpecificDefaultProps.Add(prop);
+                    if (!indexSpecificDefaultProps.ContainsKey(prop.Key))
+                    {
+                        indexSpecificDefaultProps.Add(prop);
+                    }
                 }
-            }
 
-            if (nbrOfShards <= 0 && indexSpecificDefaultProps.Count == 0)
-            {
                 // No Shard (A sharded subindex has to have at least one property)
                 return new IDictionary<string, string>[] { indexSpecificDefaultProps };
             }
@@ -382,13 +385,24 @@ namespace NHibernate.Search.Store
                 {
                     indexSpecificProps[index] = new Dictionary<string, string>(indexSpecificDefaultProps);
                 }
+            }
 
-                // Original java doesn't copy properties from the defaults!
+            // Original java doesn't copy properties from the defaults!
+            foreach (KeyValuePair<string, string> prop in defaultProperties)
+            {
+                if (!indexSpecificDefaultProps.ContainsKey(prop.Key))
+                {
+                    indexSpecificDefaultProps.Add(prop);
+                }
+            }
+
+            foreach (IDictionary<string, string> isp in indexSpecificProps)
+            {
                 foreach (KeyValuePair<string, string> prop in indexSpecificDefaultProps)
                 {
-                    if (!indexSpecificProps[index].ContainsKey(prop.Key))
+                    if (!isp.ContainsKey(prop.Key))
                     {
-                        indexSpecificProps[index].Add(prop);
+                       isp.Add(prop);
                     }
                 }
             }
