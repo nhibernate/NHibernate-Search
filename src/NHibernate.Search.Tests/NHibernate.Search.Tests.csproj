@@ -126,6 +126,7 @@
     <Compile Include="Inheritance\Animal.cs" />
     <Compile Include="Inheritance\InheritanceTest.cs" />
     <Compile Include="Inheritance\Mammal.cs" />
+    <Compile Include="Inheritance\ProxyObjectInheritanceTest.cs" />
     <Compile Include="ListenerCfg\ListenerRegistrationTests.cs" />
     <Compile Include="LuceneWorker\Document.cs" />
     <Compile Include="LuceneWorker\LuceneWorker.cs" />

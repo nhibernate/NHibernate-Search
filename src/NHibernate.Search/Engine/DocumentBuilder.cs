@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Reflection;
 using Iesi.Collections.Generic;
 using log4net;
 using Lucene.Net.Analysis;
@@ -16,12 +15,13 @@ using NHibernate.Search.Mapping;
 using NHibernate.Search.Store;
 using NHibernate.Search.Util;
 using NHibernate.Util;
-using FieldInfo=System.Reflection.FieldInfo;
 
 namespace NHibernate.Search.Engine
 {
-    using Type=System.Type;
+    using Proxy;
 
+    using Type = System.Type;
+    
     /// <summary>
     /// Set up and provide a manager for indexes classes
     /// </summary>
@@ -120,7 +120,7 @@ namespace NHibernate.Search.Engine
             switch (workType)
             {
                 case WorkType.Add:
-                    queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id)));
+                    queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id, entityClass)));
                     searchForContainers = true;
                     break;
 
@@ -143,13 +143,13 @@ namespace NHibernate.Search.Engine
                      * double file opening.
                     */
                     queue.Add(new DeleteLuceneWork(id, idString, entityClass));
-                    queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id)));
+                    queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id, entityClass)));
                     searchForContainers = true;
                     break;
 
                 case WorkType.Index:
                     queue.Add(new DeleteLuceneWork(id, idString, entityClass));
-                    LuceneWork work = new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id));
+                    LuceneWork work = new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id, entityClass));
                     work.IsBatch = true;
                     queue.Add(work);
                     searchForContainers = true;
@@ -170,10 +170,10 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        public Document GetDocument(object instance, object id)
+        public Document GetDocument(object instance, object id, Type entityType)
         {
             Document doc = new Document();
-            System.Type instanceClass = instance.GetType();
+
             if (rootClassMapping.Boost != null)
             {
                 doc.SetBoost(rootClassMapping.Boost.Value);
@@ -181,7 +181,7 @@ namespace NHibernate.Search.Engine
 
             // TODO: Check if that should be an else?
             {
-                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(instanceClass), Field.Store.YES, Field.Index.UN_TOKENIZED);
+                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entityType), Field.Store.YES, Field.Index.UN_TOKENIZED);
                 doc.Add(classField);
                 idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES, Field.Index.UN_TOKENIZED, idMapping.Boost);
             }
@@ -587,9 +587,8 @@ namespace NHibernate.Search.Engine
 
         private static object Unproxy(object value)
         {
-            // NB Not sure if we need to do anything for C#
-            //return NHibernateUtil.Unproxy(value);
-            return value;
+            var proxy = value as INHibernateProxy;
+            return proxy == null ? value : proxy.HibernateLazyInitializer.GetImplementation();
         }
 
         #endregion
