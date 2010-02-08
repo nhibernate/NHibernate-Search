@@ -152,7 +152,10 @@ namespace NHibernate.Search.Backend
 
             LockProvider(provider);
 
-            if (modificationOperation) dpStatistics[provider].Operations++;
+            if (modificationOperation)
+            {
+                dpStatistics[provider].Operations++;
+            }
 
             try
             {
@@ -182,8 +185,6 @@ namespace NHibernate.Search.Backend
 
             return null;
         }
-
- 
 
         public void Optimize(IDirectoryProvider provider)
         {
@@ -230,27 +231,27 @@ namespace NHibernate.Search.Backend
 
             // TODO release lock of all indexes that do not need optimization early
             // don't optimze if there is a failure
-            //if (raisedException == null)
-            //{
-            //    foreach (IDirectoryProvider provider in lockedProviders)
-            //    {
-            //        var stats = dpStatistics[provider];
-            //        if (!stats.OptimizationForced)
-            //        {
-            //            IOptimizerStrategy optimizerStrategy = searchFactoryImplementor.GetOptimizerStrategy(provider);
-            //            optimizerStrategy.AddTransaction(stats.Operations);
-            //            try
-            //            {
-            //                optimizerStrategy.Optimize(this);
-            //            }
-            //            catch (SearchException e)
-            //            {
-            //                raisedException = new SearchException("Exception whilst optimizing directoryProvider: " + provider.Directory, e);
-            //                break; // No point in continuing
-            //            }
-            //        }
-            //    }
-            //}
+            if (raisedException == null)
+            {
+                foreach (IDirectoryProvider provider in lockedProviders)
+                {
+                    var stats = dpStatistics[provider];
+                    if (!stats.OptimizationForced)
+                    {
+                        IOptimizerStrategy optimizerStrategy = searchFactoryImplementor.GetOptimizerStrategy(provider);
+                        optimizerStrategy.AddTransaction(stats.Operations);
+                        try
+                        {
+                            optimizerStrategy.Optimize(this);
+                        }
+                        catch (SearchException e)
+                        {
+                            raisedException = new SearchException("Exception whilst optimizing directoryProvider: " + provider.Directory, e);
+                            break; // No point in continuing
+                        }
+                    }
+                }
+            }
 
             foreach (IndexWriter writer in writers.Values)
             {

@@ -37,30 +37,32 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                     IIndexShardingStrategy shardingStrategy = documentBuilder.DirectoryProvidersSelectionStrategy;
                     if (work is PurgeAllLuceneWork)
                     {
-                        IDirectoryProvider[] providers =
-                            shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
+                        IDirectoryProvider[] providers = shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
                         foreach (IDirectoryProvider provider in providers)
+                        {
                             queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
+                        }
                     }
                     else if (work is AddLuceneWork)
                     {
-                        IDirectoryProvider provider =
-                            shardingStrategy.GetDirectoryProviderForAddition(work.EntityClass, work.Id, work.IdInString,
-                                                                             work.Document);
+                        IDirectoryProvider provider = shardingStrategy.GetDirectoryProviderForAddition(work.EntityClass, work.Id, work.IdInString, work.Document);
                         queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
                     }
                     else if (work is DeleteLuceneWork)
                     {
-                        IDirectoryProvider[] providers =
-                            shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
+                        IDirectoryProvider[] providers = shardingStrategy.GetDirectoryProvidersForDeletion(work.EntityClass, work.Id, work.IdInString);
                         foreach (IDirectoryProvider provider in providers)
+                        {
                             queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
+                        }
                     }
                     else if (work is OptimizeLuceneWork)
                     {
                         IDirectoryProvider[] providers = shardingStrategy.GetDirectoryProvidersForAllShards();
                         foreach (IDirectoryProvider provider in providers)
+                        {
                             queueWithFlatDPs.Add(new LuceneWorker.WorkWithPayload(work, provider));
+                        }
                     }
                     else
                     {

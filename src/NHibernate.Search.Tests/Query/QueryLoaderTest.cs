@@ -91,7 +91,7 @@ namespace NHibernate.Search.Tests.Query
             // cleanup
             s.Delete("from System.Object");
             tx.Commit();
-            s.Close();           
+            s.Close();
         }
     }
 }

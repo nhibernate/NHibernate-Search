@@ -4,6 +4,7 @@ using NUnit.Framework;
 namespace NHibernate.Search.Tests.Optimizer
 {
     [TestFixture]
+    [Ignore("Does not complete")]
     public class IncrementalOptimizerStrategyTest : OptimizerTestCase
     {
         protected override void Configure(Configuration configuration)

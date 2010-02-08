@@ -5,6 +5,12 @@ namespace NHibernate.Search
     /// </summary>
     public interface IFullTextSession : ISession
     {
+        /// <summary>
+        /// Provide access to the associated search factory, allowing to perform
+        /// index wide operation
+        /// </summary>
+        ISearchFactory SearchFactory { get; }
+
         IFullTextQuery CreateFullTextQuery<TEntity>(string defaultField, string query);
 
         IFullTextQuery CreateFullTextQuery<TEntity>(string query);
@@ -37,11 +43,5 @@ namespace NHibernate.Search
         /// </summary>
         /// <param name="clazz"></param>
         void PurgeAll(System.Type clazz);
-
-		/// <summary>
-		/// Provide access to the associated search factory, allowing to perform
-		/// index wide operation
-		/// </summary>
-		ISearchFactory SearchFactory { get; }
     }
 }

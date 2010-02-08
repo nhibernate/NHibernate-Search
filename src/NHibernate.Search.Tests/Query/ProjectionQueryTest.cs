@@ -222,6 +222,16 @@ namespace NHibernate.Search.Tests.Query
             s.Close();
         }
 
+        // Implementing these would increase test coverage
+
+        public void ProjectionWithEmbedded()
+        {            
+        }
+
+        public void ProjectUnstoredField()
+        {            
+        }
+
         #endregion
 
         #region Helpers

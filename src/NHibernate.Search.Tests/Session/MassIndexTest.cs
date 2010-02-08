@@ -16,6 +16,53 @@ namespace NHibernate.Search.Tests.Session
         }
 
         [Test]
+        public void BatchSize()
+        {
+            IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+            ITransaction tx = s.BeginTransaction();
+            int loop = 14;
+            for (int i = 0; i < loop; i++)
+            {
+                using (IDbCommand cmd = s.Connection.CreateCommand())
+                {
+                    s.Transaction.Enlist(cmd);
+                    cmd.CommandText = "insert into Email(Id, Title, Body, Header) values( + " + (i + 1)
+                                      + ", 'Bob Sponge', 'Meet the guys who create the software', 'nope')";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            tx.Commit();
+            s.Close();
+
+            s = new FullTextSessionImpl(OpenSession());
+            tx = s.BeginTransaction();
+            int index = 0;
+
+            foreach (object entity in s.CreateCriteria(typeof(Email)).List())
+            {
+                index++;
+                s.Index(entity);
+
+                // NB Java uses a scrollable result, so clear works for them, but not for us I think
+                //if (index % 5 == 0)
+                //{
+                //    s.Clear();
+                //}
+            }
+            tx.Commit();
+            s.Clear();
+
+            tx = s.BeginTransaction();
+            QueryParser parser = new QueryParser("id", new StopAnalyzer());
+            IList result = s.CreateFullTextQuery(parser.Parse("Body:create")).List();
+            Assert.AreEqual(14, result.Count);
+
+            s.Delete("from System.Object");
+            tx.Commit();
+            s.Close();
+        }
+
+        [Test]
         public void Transactional() 
         {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());

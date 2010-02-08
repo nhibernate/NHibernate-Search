@@ -39,7 +39,7 @@ namespace NHibernate.Search.Store
         private const string MAX_MERGE_DOCS = "max_merge_docs";
         private const string MAX_BUFFERED_DOCS = "max_buffered_docs";
         private const string RAM_BUFFER_SIZE = "ram_buffer_size";
-
+        private const string TERM_INDEX_INTERVAL = "term_index_interval";
         private const string BATCH = "batch.";
         private const string TRANSACTION = "transaction.";
 
@@ -187,6 +187,15 @@ namespace NHibernate.Search.Store
                     });
 
             ConfigureProp(
+                    TRANSACTION + TERM_INDEX_INTERVAL,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.TermIndexInterval = value;
+                        indexingParams.TransactionIndexParameters.TermIndexInterval = value;
+                    });
+
+            ConfigureProp(
                     BATCH + MERGE_FACTOR,
                     indexProps,
                     delegate(int value)
@@ -216,6 +225,14 @@ namespace NHibernate.Search.Store
                     delegate(int value)
                     {
                         indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
+                    });
+
+            ConfigureProp(
+                    BATCH + TERM_INDEX_INTERVAL,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.TermIndexInterval = value;
                     });
 
             searchFactoryImplementor.AddIndexingParameters(provider, indexingParams);

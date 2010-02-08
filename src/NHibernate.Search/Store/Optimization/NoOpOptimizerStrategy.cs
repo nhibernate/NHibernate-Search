@@ -6,17 +6,17 @@ namespace NHibernate.Search.Store.Optimization
 {
     public class NoOpOptimizerStrategy : IOptimizerStrategy
     {
+        public bool NeedOptimization
+        {
+            get { return false; }
+        }
+
         public void Initialize(IDirectoryProvider directoryProvider, IDictionary<string, string> indexProperties, ISearchFactoryImplementor searchFactoryImplementor)
         {
         }
 
         public void OptimizationForced()
         {
-        }
-
-        public bool NeedOptimization
-        {
-            get { return false; }
         }
 
         public void AddTransaction(long theOperations)
