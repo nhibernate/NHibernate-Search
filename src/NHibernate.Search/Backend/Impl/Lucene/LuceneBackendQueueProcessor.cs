@@ -70,7 +70,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                     }
                 }
 
-                DeadLockFreeQueue(queueWithFlatDPs, searchFactoryImplementor);
+                DeadLockFreeQueue(queueWithFlatDPs);
                 CheckForBatchIndexing(workspace);
                 foreach (LuceneWorker.WorkWithPayload luceneWork in queueWithFlatDPs)
                 {
@@ -95,32 +95,30 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         /// We rely on the both the DocumentBuilder.GetHashCode() and the GetWorkHashCode() to 
         /// sort them by predictive order at all times, and to put deletes before adds
         /// </summary>
-        private static void DeadLockFreeQueue(List<LuceneWorker.WorkWithPayload> queue,
-                                              ISearchFactoryImplementor searchFactoryImplementor)
+        private static void DeadLockFreeQueue(List<LuceneWorker.WorkWithPayload> queue)
         {
             queue.Sort(delegate(LuceneWorker.WorkWithPayload x, LuceneWorker.WorkWithPayload y)
             {
-                long h1 = GetWorkHashCode(x, searchFactoryImplementor);
-                long h2 = GetWorkHashCode(y, searchFactoryImplementor);
+                long h1 = GetWorkHashCode(x);
+                long h2 = GetWorkHashCode(y);
                 return h1 < h2 ? -1 : h1 == h2 ? 0 : 1;
             });
         }
 
-        private static long GetWorkHashCode(LuceneWorker.WorkWithPayload luceneWork,
-                                            ISearchFactoryImplementor searchFactoryImplementor)
+        private static long GetWorkHashCode(LuceneWorker.WorkWithPayload luceneWork)
         {
             IDirectoryProvider provider = luceneWork.Provider;
-            int h = provider.GetHashCode();
-            h = 31 * h + provider.GetHashCode();
-            long extendedHash = h; //to be sure extendedHash + 1 < extendedHash + 2 is always true
+            int h = provider.GetType().GetHashCode();
+            h = (31 * h) + provider.GetHashCode();
+            long extendedHash = h; // to be sure extendedHash + 1 < extendedHash + 2 is always true
             if (luceneWork.Work is AddLuceneWork)
             {
-                extendedHash += 1; //addwork after deleteWork
+                extendedHash += 1; // addwork after deleteWork
             }
 
             if (luceneWork.Work is OptimizeLuceneWork)
             {
-                extendedHash += 2; //optimize after everything
+                extendedHash += 2; // optimize after everything
             }
 
             return extendedHash;

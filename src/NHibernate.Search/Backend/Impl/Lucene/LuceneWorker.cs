@@ -29,15 +29,25 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         public void PerformWork(WorkWithPayload luceneWork)
         {
             if (luceneWork.Work is AddLuceneWork)
+            {
                 PerformWork((AddLuceneWork) luceneWork.Work, luceneWork.Provider);
+            }
             else if (luceneWork.Work is DeleteLuceneWork)
+            {
                 PerformWork((DeleteLuceneWork) luceneWork.Work, luceneWork.Provider);
+            }
             else if (luceneWork.Work is OptimizeLuceneWork)
+            {
                 PerformWork((OptimizeLuceneWork) luceneWork.Work, luceneWork.Provider);
+            }
             else if (luceneWork.Work is PurgeAllLuceneWork)
-                PerformWork((PurgeAllLuceneWork) luceneWork.Work, luceneWork.Provider);
+            {
+                PerformWork((PurgeAllLuceneWork)luceneWork.Work, luceneWork.Provider);
+            }
             else
+            {
                 throw new AssertionFailure("Unknown work type: " + luceneWork.GetType());
+            }
         }
 
         public void PerformWork(AddLuceneWork work, IDirectoryProvider provider)
@@ -54,7 +64,9 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         {
             System.Type entity = work.EntityClass;
             if (log.IsDebugEnabled)
+            {
                 log.Debug("Optimize Lucene index: " + entity);
+            }
             IndexWriter writer = workspace.GetIndexWriter(provider, entity, false);
 
             try
@@ -72,7 +84,9 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         {
             System.Type entity = work.EntityClass;
             if (log.IsDebugEnabled)
+            {
                 log.Debug("PurgeAll Lucene index: " + entity);
+            }
 
             IndexReader reader = workspace.GetIndexReader(provider, entity);
             try
@@ -112,7 +126,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         private void Remove(System.Type entity, object id, IDirectoryProvider provider)
         {
             /*
-            * even with Lucene 2.1, use of indexWriter to delte is not an option
+            * even with Lucene 2.1, use of indexWriter to delete is not an option
             * We can only delete by term, and the index doesn't have a termt that
             * uniquely identify the entry. See logic below
             */
