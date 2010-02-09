@@ -221,7 +221,7 @@ namespace NHibernate.Search.Store
 
             #region Public methods
 
-            [MethodImpl(MethodImplOptions.Synchronized)]
+            //[MethodImpl(MethodImplOptions.Synchronized)]
             public void Run()
             {
                 // TODO get rid of current and use the marker file instead?

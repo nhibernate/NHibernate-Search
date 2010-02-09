@@ -251,7 +251,7 @@ namespace NHibernate.Search.Store
                 get { return inProgress; }
             }
 
-            [MethodImpl(MethodImplOptions.Synchronized)]
+            //[MethodImpl(MethodImplOptions.Synchronized)]
             public void Run()
             {
                 DateTime start = DateTime.Now;
