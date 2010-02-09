@@ -20,14 +20,18 @@ namespace NHibernate.Search.Bridge
 
         public void Set(String name, Object value, Document document, Field.Store store, Field.Index index, float? boost)
         {
-            String indexedString = stringBridge.ObjectToString(value);
-            //Do not add fields on empty strings, seems a sensible default in most situations
-            //TODO if Store, probably also save empty ones
+            string indexedString = stringBridge.ObjectToString(value);
+
+            // Do not add fields on empty strings, seems a sensible default in most situations
+            // TODO if Store, probably also save empty ones
             if (StringHelper.IsNotEmpty(indexedString))
             {
                 Field field = new Field(name, indexedString, store, index);
                 if (boost != null)
+                {
                     field.SetBoost(boost.Value);
+                }
+
                 document.Add(field);
             }
         }

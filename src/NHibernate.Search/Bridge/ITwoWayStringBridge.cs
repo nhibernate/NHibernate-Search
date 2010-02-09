@@ -1,9 +1,7 @@
-using System;
-
 namespace NHibernate.Search.Bridge
 {
     /// <summary>
-    /// IStringBridge allowing a translation from the String back to the Object
+    /// IStringBridge allowing a translation from the string back to the object
     /// ObjectToString( StringToObject( string ) ) and StringToObject( objectToString( object ) )
     /// should be "idempotent". More precisely,
     /// 
@@ -15,6 +13,6 @@ namespace NHibernate.Search.Bridge
         /// <summary>
         /// Convert the string representation to an object
         /// </summary>
-        Object StringToObject(String stringValue);
+        object StringToObject(string stringValue);
     }
 }

@@ -3,7 +3,7 @@ using Lucene.Net.Documents;
 namespace NHibernate.Search.Bridge
 {
     /// <summary>
-    /// An IFieldBrige able to convert the index representation back into an object without losing information
+    /// An IFieldBridge able to convert the index representation back into an object without losing information
     /// 
     /// Any bridge expected to process a document id should implement this interface
     /// EXPERIMENTAL Consider this interface as private
