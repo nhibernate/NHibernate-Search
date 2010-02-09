@@ -34,11 +34,16 @@ namespace NHibernate.Search.Mapping.AttributeBased
         public static T[] GetAttributes<T>(ICustomAttributeProvider member)
             where T : class
         {
-            return (T[])member.GetCustomAttributes(typeof(T), true);
+            return GetAttributes<T>(member, true);
         }
 
-        public static void GetClassBridgeParameters(
-                ICustomAttributeProvider member, IList<ClassBridgeAttribute> classBridges)
+        public static T[] GetAttributes<T>(ICustomAttributeProvider member, bool inherit)
+            where T : class
+        {
+            return (T[])member.GetCustomAttributes(typeof(T), inherit);
+        }
+
+        public static void GetClassBridgeParameters(ICustomAttributeProvider member, IList<ClassBridgeAttribute> classBridges)
         {
             // Are we expecting any unnamed parameters?
             bool fieldBridgeExists = GetFieldBridge(member) != null;

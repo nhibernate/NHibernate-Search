@@ -2,13 +2,18 @@
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
 				   namespace="NHibernate.Search.Tests.Filter"
 				   assembly="NHibernate.Search.Tests">
-	<class name="Driver" lazy="false">
+	<class name="Driver" lazy="false" discriminator-value="0">
 		<id name="Id">
 			<generator class="assigned" />
 		</id>
+		<discriminator column="DriverType" type="int" />
 		<property name="Name"/>
 		<property name="Teacher"/>
 		<property name="Score"/>
-		<property name="Delivery"/>
+		<property name="Delivery"/>		
 	</class>
+
+	<subclass name="TruckDriver" discriminator-value="1" lazy="false" extends="Driver" >
+		<property name="TruckClass" />
+	</subclass>	
 </hibernate-mapping>

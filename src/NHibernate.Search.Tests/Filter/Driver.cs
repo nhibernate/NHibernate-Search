@@ -78,4 +78,16 @@ namespace NHibernate.Search.Tests.Filter
             return Equals(name, other.name) && Equals(teacher, other.teacher);
         }
     }
+
+    public class TruckDriver : Driver
+    {
+        [Field(Index = Index.UnTokenized)]
+        private string truckClass;
+
+        public string TruckClass
+        {
+            get { return truckClass; }
+            set { truckClass = value; }
+        }
+    }
 }

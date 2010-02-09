@@ -62,7 +62,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
 
         private void BuildFilterDefinitions(DocumentMapping classMapping)
         {
-            foreach (var defAttribute in AttributeUtil.GetAttributes<FullTextFilterDefAttribute>(classMapping.MappedClass))
+            foreach (var defAttribute in AttributeUtil.GetAttributes<FullTextFilterDefAttribute>(classMapping.MappedClass, false))
             {
                 classMapping.FullTextFilterDefinitions.Add(BuildFilterDef(defAttribute));
             }
