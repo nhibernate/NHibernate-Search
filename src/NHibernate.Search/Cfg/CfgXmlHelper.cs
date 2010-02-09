@@ -1,11 +1,13 @@
 using System.Xml;
 using System.Xml.XPath;
 
-namespace NHibernate.Search.Cfg {
+namespace NHibernate.Search.Cfg 
+{
     /// <summary>
     /// Helper to parse nhv-configuration XmlNode.
     /// </summary>
-    public static class CfgXmlHelper {
+    public static class CfgXmlHelper 
+    {
         public const string CfgNamespacePrefix = "cfg";
 
         /// <summary>The XML Namespace for the nhibernate-configuration</summary>
@@ -17,17 +19,18 @@ namespace NHibernate.Search.Cfg {
         /// </summary>
         public const string CfgSectionName = "nhs-configuration";
 
-        private const string RootPrefixPath = "//" + CfgNamespacePrefix;
-
-        private static readonly XmlNamespaceManager nsMgr;
-
         public static readonly XPathExpression SearchFactoryExpression;
 
         public static readonly string SessionFactoryNameAttribute = "sessionFactoryName";
         public static readonly string PropertyNameAttribute = "name";
         public static readonly string PropertiesNodeName = "property";
-      
-        static CfgXmlHelper() {
+
+        private const string RootPrefixPath = "//" + CfgNamespacePrefix;
+
+        private static readonly XmlNamespaceManager nsMgr;
+     
+        static CfgXmlHelper() 
+        {
             NameTable nt = new NameTable();
             nsMgr = new XmlNamespaceManager(nt);
             nsMgr.AddNamespace(CfgNamespacePrefix, CfgSchemaXMLNS);
