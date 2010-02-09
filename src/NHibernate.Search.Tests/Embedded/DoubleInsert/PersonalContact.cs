@@ -7,8 +7,6 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
     [Indexed]
     public class PersonalContact : Contact
     {
-        private static readonly long serialVersionUID = 1L;
-
         [Field(Index = Index.Tokenized, Store = Store.Yes)] 
         private string firstname;
 

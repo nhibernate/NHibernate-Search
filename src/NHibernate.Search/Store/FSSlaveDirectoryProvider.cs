@@ -22,7 +22,6 @@ namespace NHibernate.Search.Store
     /// 
     /// A copy is triggered every refresh seconds
     /// </summary>
-    /// TODO: Implement IDisposable so we tidy up the Timer object
     public class FSSlaveDirectoryProvider : IDirectoryProvider
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(FSSlaveDirectoryProvider));
@@ -33,11 +32,203 @@ namespace NHibernate.Search.Store
         private Timer timer;
         private TriggerTask task;
 
-        //variables needed between initialize and start
+        // variables needed between initialize and start
         private string source;
         private DirectoryInfo indexDir;
         private string directoryProviderName;
         private IDictionary<string, string> properties;
+
+        #region Constructor/destructor
+
+        ~FSSlaveDirectoryProvider()
+        {
+            if (task != null)
+            {
+                task.Abandon = true;
+            }
+
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
+        }
+
+        #endregion
+
+        #region Property methods
+
+        public Directory Directory
+        {
+            get
+            {
+                switch (current)
+                {
+                    case 1:
+                        return directory1;
+                    case 2:
+                        return directory2;
+                    default:
+                        throw new AssertionFailure("Illegal current directory: " + current);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Public methods
+
+        public void Initialize(String directoryProviderName, IDictionary<string, string> properties, ISearchFactoryImplementor searchFactory)
+        {
+            this.properties = properties;
+            this.directoryProviderName = directoryProviderName;
+
+            // source guessing
+            source = DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source, directoryProviderName, (IDictionary) properties);
+            if (source == null)
+            {
+                throw new ArgumentException("FSSlaveDirectoryProvider requires a viable source directory");
+            }
+
+            if (!File.Exists(Path.Combine(source, "current1")) && !File.Exists(Path.Combine(source, "current2")))
+            {
+                log.Warn("No current marker in source directory: " + source);
+            }
+
+            log.Debug("Source directory: " + source);
+            indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary) properties);
+            log.Debug("Index directory: " + indexDir.FullName);
+            try
+            {
+                bool create = !indexDir.Exists;
+                if (create)
+                {
+                    log.DebugFormat("Index directory not found, creating '{0}'", indexDir.FullName);
+                    indexDir.Create();
+                }
+                indexName = indexDir.FullName;
+            }
+            catch (IOException e)
+            {
+                throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
+            }
+        }
+
+        public void Start()
+        {
+            string refreshPeriod = properties.ContainsKey("refresh") ? properties["refresh"] : "3600";
+            long period;
+            if (!long.TryParse(refreshPeriod, out period))
+            {
+                period = 3600;
+                log.Warn("Error parsing refresh period, defaulting to 1 hour");
+            }
+            log.DebugFormat("Refresh period {0} seconds", period);
+            period *= 1000;  // per second
+            try
+            {
+                bool create;
+
+                DirectoryInfo subDir = new DirectoryInfo(Path.Combine(indexName, "1"));
+                create = !IndexReader.IndexExists(subDir.FullName); 
+                directory1 = FSDirectory.GetDirectory(subDir.FullName, create);
+                if (create)
+                {
+                    log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
+                    IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(), create);
+                    iw1.Close();
+                }
+
+                subDir = new DirectoryInfo(Path.Combine(indexName, "2"));
+                create = !IndexReader.IndexExists(subDir.FullName); 
+                directory2 = FSDirectory.GetDirectory(subDir.FullName, create);
+                if (create)
+                {
+                    log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
+                    IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(), create);
+                    iw2.Close();
+                }
+
+                string current1Marker = Path.Combine(indexName, "current1");
+                string current2Marker = Path.Combine(indexName, "current2");
+                if (File.Exists(current1Marker))
+                {
+                    current = 1;
+                }
+                else if (File.Exists(current2Marker))
+                {
+                    current = 2;
+                }
+                else
+                {
+                    // no default
+                    log.Debug("Setting directory 1 as current");
+                    current = 1;
+                    DirectoryInfo srcDir = new DirectoryInfo(source);
+                    DirectoryInfo destDir = new DirectoryInfo(Path.Combine(indexName, current.ToString()));
+                    int sourceCurrent = -1;
+                    if (File.Exists(Path.Combine(srcDir.Name, "current1")))
+                    {
+                        sourceCurrent = 1;
+                    }
+                    else if (File.Exists(Path.Combine(srcDir.Name, "current2")))
+                    {
+                        sourceCurrent = 2;
+                    }
+
+                    if (sourceCurrent != -1)
+                    {
+                        try
+                        {
+                            FileHelper.Synchronize(
+                                    new DirectoryInfo(Path.Combine(source, sourceCurrent.ToString())), destDir, true);
+                        }
+                        catch (IOException e)
+                        {
+                            throw new HibernateException("Umable to synchonize directory: " + indexName, e);
+                        }
+                    }
+
+                    try
+                    {
+                        File.Create(current1Marker).Dispose();
+                    }
+                    catch (IOException e)
+                    {
+                        throw new HibernateException("Unable to create the directory marker file: " + indexName, e);
+                    }
+                }
+                log.Debug("Current directory: " + current);
+            }
+            catch (IOException e)
+            {
+                throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
+            }
+
+            task = new TriggerTask(this, source, indexName);
+            timer = new Timer(task.Run, null, period, period);
+        }
+
+        public override bool Equals(Object obj)
+        {
+            // this code is actually broken since the value change after initialize call
+            // but from a practical POV this is fine since we only call this method
+            // after initialize call
+            if (obj == this) return true;
+            if (obj == null || !(obj is FSSlaveDirectoryProvider)) return false;
+            return indexName.Equals(((FSSlaveDirectoryProvider) obj).indexName);
+        }
+
+        public override int GetHashCode()
+        {
+            // this code is actually broken since the value change after initialize call
+            // but from a practical POV this is fine since we only call this method
+            // after initialize call
+            const int hash = 11;
+            return 37*hash + indexName.GetHashCode();
+        }
+
+        #endregion
 
         #region Nested type: CopyDirectory
 
@@ -48,7 +239,7 @@ namespace NHibernate.Search.Store
             private readonly string source;
             private volatile bool inProgress;
 
-            public CopyDirectory(FSSlaveDirectoryProvider parent, String source, String destination)
+            public CopyDirectory(FSSlaveDirectoryProvider parent, string source, string destination)
             {
                 this.parent = parent;
                 this.source = source;
@@ -73,9 +264,13 @@ namespace NHibernate.Search.Store
                     string current1Slave = Path.Combine(source, "current1");
                     string current2Slave = Path.Combine(source, "current2");
                     if (File.Exists(current1Slave))
+                    {
                         sourceFile = new DirectoryInfo(Path.Combine(source, "1"));
+                    }
                     else if (File.Exists(current2Slave))
+                    {
                         sourceFile = new DirectoryInfo(Path.Combine(source, "2"));
+                    }
                     else
                     {
                         log.Warn("Unable to determine current in source directory");
@@ -84,7 +279,8 @@ namespace NHibernate.Search.Store
                     }
 
                     DirectoryInfo destinationFile = new DirectoryInfo(Path.Combine(destination, index.ToString()));
-                    //TODO make smart a parameter
+
+                    // TODO make smart a parameter
                     try
                     {
                         log.Info("Copying " + sourceFile + " into " + destinationFile);
@@ -129,7 +325,7 @@ namespace NHibernate.Search.Store
 
         #region Nested type: TriggerTask
 
-        class TriggerTask
+        private class TriggerTask
         {
             private readonly CopyDirectory copyTask;
             private readonly string source;
@@ -153,180 +349,20 @@ namespace NHibernate.Search.Store
             public void Run(object ignore)
             {
                 // We are in wind down mode, don't bother any more
-                if (abandon) return;
+                if (abandon)
+                {
+                    return;
+                }
 
                 if (!copyTask.InProgress)
+                {
                     copyTask.Run();
+                }
                 else
+                {
                     log.Info("Skipping directory synchronization, previous work still in progress: " + source);
-            }
-        }
-
-        #endregion
-
-        #region Constructor/destructor
-
-        ~FSSlaveDirectoryProvider()
-        {
-            task.Abandon = true;
-            timer.Dispose();
-            timer = null;
-        }
-
-        #endregion
-
-        #region Property methods
-
-        public Directory Directory
-        {
-            get
-            {
-                switch (current)
-                {
-                    case 1:
-                        return directory1;
-                    case 2:
-                        return directory2;
-                    default:
-                        throw new AssertionFailure("Illegal current directory: " + current);
                 }
             }
-        }
-
-        #endregion
-
-        #region Public methods
-
-        public void Initialize(String directoryProviderName, IDictionary<string, string> properties, ISearchFactoryImplementor searchFactory)
-        {
-            this.properties = properties;
-            this.directoryProviderName = directoryProviderName;
-            //source guessing
-            source = DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source, directoryProviderName, (IDictionary) properties);
-            if (source == null)
-                throw new ArgumentException("FSSlaveDirectoryProvider requires a viable source directory");
-            if (!File.Exists(Path.Combine(source, "current1")) && !File.Exists(Path.Combine(source, "current2")))
-                log.Warn("No current marker in source directory: " + source);
-            log.Debug("Source directory: " + source);
-            indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary) properties);
-            log.Debug("Index directory: " + indexDir.FullName);
-            try
-            {
-                bool create = !indexDir.Exists;
-                if (create)
-                {
-                    log.DebugFormat("Index directory not found, creating '{0}'", indexDir.FullName);
-                    indexDir.Create();
-                }
-                indexName = indexDir.FullName;
-            }
-            catch (IOException e)
-            {
-                throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
-            }
-        }
-
-        public void Start()
-        {
-            string refreshPeriod = properties.ContainsKey("refresh") ? properties["refresh"] : "3600";
-            long period;
-            if (!long.TryParse(refreshPeriod, out period))
-            {
-                period = 3600;
-                log.Warn("Error parsing refresh period, defaulting to 1 hour");
-            }
-            log.DebugFormat("Refresh period {0} seconds", period);
-            period *= 1000;  // per second
-            try
-            {
-                bool create;
-
-                DirectoryInfo subDir = new DirectoryInfo(Path.Combine(indexName, "1"));
-                create = !IndexReader.IndexExists(subDir.FullName); 
-                directory1 = FSDirectory.GetDirectory(subDir.FullName, create);
-                if (create)
-                {
-                    log.DebugFormat("Initialize index: '{0}", subDir.FullName);
-                    IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(), create);
-                    iw1.Close();
-                }
-
-                subDir = new DirectoryInfo(Path.Combine(indexName, "2"));
-                create = !IndexReader.IndexExists(subDir.FullName); 
-                directory2 = FSDirectory.GetDirectory(subDir.FullName, create);
-                if (create)
-                {
-                    IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(), create);
-                    iw2.Close();
-                }
-
-                string current1Marker = Path.Combine(indexName, "current1");
-                string current2Marker = Path.Combine(indexName, "current2");
-                if (File.Exists(current1Marker))
-                    current = 1;
-                else if (File.Exists(current2Marker))
-                    current = 2;
-                else
-                {
-                    //no default
-                    log.Debug("Setting directory 1 as current");
-                    current = 1;
-                    DirectoryInfo srcDir = new DirectoryInfo(source);
-                    DirectoryInfo destDir = new DirectoryInfo(Path.Combine(indexName, current.ToString()));
-                    int sourceCurrent = -1;
-                    if (File.Exists(Path.Combine(srcDir.Name, "current1")))
-                        sourceCurrent = 1;
-                    else if (File.Exists(Path.Combine(srcDir.Name, "current2")))
-                        sourceCurrent = 2;
-
-                    if (sourceCurrent != -1)
-                        try
-                        {
-                            FileHelper.Synchronize(new DirectoryInfo(Path.Combine(source, sourceCurrent.ToString())),
-                                                   destDir, true);
-                        }
-                        catch (IOException e)
-                        {
-                            throw new HibernateException("Umable to synchonize directory: " + indexName, e);
-                        }
-
-                    try
-                    {
-                        File.Create(current1Marker).Dispose();
-                    }
-                    catch (IOException e)
-                    {
-                        throw new HibernateException("Unable to create the directory marker file: " + indexName, e);
-                    }
-                }
-                log.Debug("Current directory: " + current);
-            }
-            catch (IOException e)
-            {
-                throw new HibernateException("Unable to initialize index: " + directoryProviderName, e);
-            }
-
-            task = new TriggerTask(this, source, indexName);
-            timer = new Timer(task.Run, null, period, period);
-        }
-
-        public override bool Equals(Object obj)
-        {
-            // this code is actually broken since the value change after initialize call
-            // but from a practical POV this is fine since we only call this method
-            // after initialize call
-            if (obj == this) return true;
-            if (obj == null || !(obj is FSSlaveDirectoryProvider)) return false;
-            return indexName.Equals(((FSSlaveDirectoryProvider) obj).indexName);
-        }
-
-        public override int GetHashCode()
-        {
-            // this code is actually broken since the value change after initialize call
-            // but from a practical POV this is fine since we only call this method
-            // after initialize call
-            const int hash = 11;
-            return 37*hash + indexName.GetHashCode();
         }
 
         #endregion

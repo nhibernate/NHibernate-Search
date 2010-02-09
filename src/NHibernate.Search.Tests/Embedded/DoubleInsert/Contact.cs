@@ -9,8 +9,6 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
     [Indexed]
     public class Contact
     {
-        private static readonly long serialVersionUID = 1L;
-
         [DocumentId]
         private long id;
         [Field(Index = Index.Tokenized, Store = Store.Yes)]
@@ -21,7 +19,7 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
         private ISet<Address> addresses;
         [ContainedIn]
         private ISet<Phone> phoneNumbers;
-        [Field(Index = Index.Tokenized, Store =Store.Yes)]
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string notes;
 
         #region Constructors

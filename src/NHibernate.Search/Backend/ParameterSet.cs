@@ -71,7 +71,7 @@
                     writer.SetTermIndexInterval((int) TermIndexInterval);
                 }
             }
-            catch (ArgumentOutOfRangeException e)
+            catch (ArgumentOutOfRangeException)
             {
                 // TODO: Log it
             }

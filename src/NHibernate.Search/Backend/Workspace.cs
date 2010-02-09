@@ -27,10 +27,10 @@ namespace NHibernate.Search.Backend
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(Workspace));
 
-        private readonly Dictionary<IDirectoryProvider, IndexReader> readers = new Dictionary<IDirectoryProvider, IndexReader>();
-        private readonly Dictionary<IDirectoryProvider, IndexWriter> writers = new Dictionary<IDirectoryProvider, IndexWriter>();
-        private readonly List<IDirectoryProvider> lockedProviders = new List<IDirectoryProvider>();
-        private readonly Dictionary<IDirectoryProvider, DPStatistics> dpStatistics = new Dictionary<IDirectoryProvider, DPStatistics>();
+        private readonly Dictionary<IDirectoryProvider, IndexReader> readers;
+        private readonly Dictionary<IDirectoryProvider, IndexWriter> writers;
+        private readonly List<IDirectoryProvider> lockedProviders;
+        private readonly Dictionary<IDirectoryProvider, DPStatistics> dpStatistics;
         private readonly ISearchFactoryImplementor searchFactoryImplementor;
         private bool isBatch;
 
@@ -38,6 +38,10 @@ namespace NHibernate.Search.Backend
 
         public Workspace(ISearchFactoryImplementor searchFactoryImplementor)
         {
+            this.readers = new Dictionary<IDirectoryProvider, IndexReader>();
+            this.writers = new Dictionary<IDirectoryProvider, IndexWriter>();
+            this.lockedProviders = new List<IDirectoryProvider>();
+            this.dpStatistics = new Dictionary<IDirectoryProvider, DPStatistics>();
             this.searchFactoryImplementor = searchFactoryImplementor;
         }
 
@@ -84,9 +88,9 @@ namespace NHibernate.Search.Backend
             {
                 throw new AssertionFailure("Tries to read for update a index while a writer is accessed" + entity);
             }
+
             IndexReader reader;
             readers.TryGetValue(provider, out reader);
-
             if (reader != null)
             {
                 return reader;
@@ -94,6 +98,7 @@ namespace NHibernate.Search.Backend
 
             LockProvider(provider);
             dpStatistics[provider].Operations++;
+
             try
             {
                 reader = IndexReader.Open(provider.Directory);
@@ -202,10 +207,19 @@ namespace NHibernate.Search.Backend
             // Make sure to use a semaphore
             object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
             Monitor.Enter(syncLock);
-            if (!lockedProviders.Contains(provider))
+            try
             {
-                lockedProviders.Add(provider);
-                dpStatistics.Add(provider, new DPStatistics());
+                if (!lockedProviders.Contains(provider))
+                {
+                    lockedProviders.Add(provider);
+                    dpStatistics.Add(provider, new DPStatistics());
+                }
+            }
+            catch (Exception)
+            {
+                // NB This is correct here, we release the lock *only* if we have an error
+                Monitor.Exit(syncLock);
+                throw;
             }
         }
 
@@ -222,15 +236,19 @@ namespace NHibernate.Search.Backend
                 catch (IOException e)
                 {
                     if (raisedException != null)
+                    {
                         log.Error("Subsequent Exception while closing IndexReader", e);
+                    }
                     else
+                    {
                         raisedException = new SearchException("Exception while closing IndexReader", e);
+                    }
                 }
             }
             readers.Clear();
 
             // TODO release lock of all indexes that do not need optimization early
-            // don't optimze if there is a failure
+            // don't optimize if there is a failure
             if (raisedException == null)
             {
                 foreach (IDirectoryProvider provider in lockedProviders)
@@ -262,9 +280,13 @@ namespace NHibernate.Search.Backend
                 catch (IOException e)
                 {
                     if (raisedException != null)
+                    {
                         log.Error("Subsequent Exception while closing IndexWriter", e);
+                    }
                     else
+                    {
                         raisedException = new SearchException("Exception while closing IndexWriter", e);
+                    }
                 }
             }
 

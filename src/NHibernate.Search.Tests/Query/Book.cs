@@ -40,8 +40,8 @@ namespace NHibernate.Search.Tests.Query
             set { body = value; }
         }
 
-        [Field(Index.Tokenized, Store = Attributes.Store.Yes)]
-        [Field(Index.UnTokenized, Name = "summary_forSort")]
+        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
+        [Field(Name = "summary_forSort", Index = Index.UnTokenized, Store = Attributes.Store.Yes)]
         public virtual string Summary
         {
             get { return summary; }
@@ -54,7 +54,7 @@ namespace NHibernate.Search.Tests.Query
             get { return mainAuthor; }
             set { mainAuthor = value; }
         }
-        
+                
         public virtual ISet<Author> Authors
         {
             get { return authors; }

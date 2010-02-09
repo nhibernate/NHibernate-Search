@@ -10,29 +10,30 @@ namespace NHibernate.Search.Query
 {
     public class FullTextSearchHelper
     {
-        public static Lucene.Net.Search.Query FilterQueryByClasses(ISet<System.Type> classesAndSubclasses,
-                                                                   Lucene.Net.Search.Query luceneQuery)
+        public static Lucene.Net.Search.Query FilterQueryByClasses(ISet<System.Type> classesAndSubclasses, Lucene.Net.Search.Query luceneQuery)
         {
-            //A query filter is more practical than a manual class filtering post query (esp on scrollable resultsets)
-            //it also probably minimise the memory footprint
+            // A query filter is more practical than a manual class filtering post query (esp on scrollable resultsets)
+            // it also probably minimise the memory footprint
             if (classesAndSubclasses == null)
-                return luceneQuery;
-            else
             {
-                BooleanQuery classFilter = new BooleanQuery();
-                //annihilate the scoring impact of DocumentBuilder.CLASS_FIELDNAME
-                classFilter.SetBoost(0);
-                foreach (System.Type clazz in classesAndSubclasses)
-                {
-                    Term t = new Term(DocumentBuilder.CLASS_FIELDNAME, TypeHelper.LuceneTypeName(clazz));
-                    TermQuery termQuery = new TermQuery(t);
-                    classFilter.Add(termQuery, BooleanClause.Occur.SHOULD);
-                }
-                BooleanQuery filteredQuery = new BooleanQuery();
-                filteredQuery.Add(luceneQuery, BooleanClause.Occur.MUST);
-                filteredQuery.Add(classFilter, BooleanClause.Occur.MUST);
-                return filteredQuery;
+                return luceneQuery;
             }
+
+            BooleanQuery classFilter = new BooleanQuery();
+
+            // annihilate the scoring impact of DocumentBuilder.CLASS_FIELDNAME
+            classFilter.SetBoost(0);
+            foreach (System.Type clazz in classesAndSubclasses)
+            {
+                Term t = new Term(DocumentBuilder.CLASS_FIELDNAME, TypeHelper.LuceneTypeName(clazz));
+                TermQuery termQuery = new TermQuery(t);
+                classFilter.Add(termQuery, BooleanClause.Occur.SHOULD);
+            }
+
+            BooleanQuery filteredQuery = new BooleanQuery();
+            filteredQuery.Add(luceneQuery, BooleanClause.Occur.MUST);
+            filteredQuery.Add(classFilter, BooleanClause.Occur.MUST);
+            return filteredQuery;
         }
 
         public static IndexSearcher BuildSearcher(ISearchFactoryImplementor searchFactory,
@@ -43,12 +44,16 @@ namespace NHibernate.Search.Query
             ISet<IDirectoryProvider> directories = new HashedSet<IDirectoryProvider>();
             if (classes == null || classes.Length == 0)
             {
-                //no class means all classes
+                // no class means all classes
                 foreach (DocumentBuilder builder in builders.Values)
                 {
                     foreach (IDirectoryProvider provider in builder.DirectoryProvidersSelectionStrategy.GetDirectoryProvidersForAllShards())
+                    {
                         directories.Add(provider);
+                    }
                 }
+
+                // Give them back an empty set
                 classesAndSubclasses = null;
             }
             else
@@ -59,19 +64,29 @@ namespace NHibernate.Search.Query
                 {
                     DocumentBuilder builder;
                     builders.TryGetValue(clazz, out builder);
-                    if (builder != null) involvedClasses.AddAll(builder.MappedSubclasses);
+                    if (builder != null)
+                    {
+                        involvedClasses.AddAll(builder.MappedSubclasses);
+                    }
                 }
+
                 foreach (System.Type clazz in involvedClasses)
                 {
                     DocumentBuilder builder;
                     builders.TryGetValue(clazz, out builder);
-                    //TODO should we rather choose a polymorphic path and allow non mapped entities
-                    if (builder == null) 
+
+                    // TODO should we rather choose a polymorphic path and allow non mapped entities
+                    if (builder == null)
+                    {
                         throw new HibernateException("Not a mapped entity: " + clazz);
+                    }
 
                     foreach (IDirectoryProvider provider in builder.DirectoryProvidersSelectionStrategy.GetDirectoryProvidersForAllShards())
+                    {
                         directories.Add(provider);
+                    }
                 }
+
                 classesAndSubclasses = involvedClasses;
             }
 

@@ -10,8 +10,6 @@ using NHibernate.Util;
 
 namespace NHibernate.Search.Store
 {
-    using System.Collections;
-
     /// <summary>
     /// Creates a Lucene directory provider.
     /// <para>
@@ -127,184 +125,6 @@ namespace NHibernate.Search.Store
 
         #region Private methods
 
-        private void ConfigureOptimizerStrategy(ISearchFactoryImplementor searchFactoryImplementor, IDictionary<string, string> indexProps, IDirectoryProvider provider)
-        {
-            bool incremental = indexProps.ContainsKey("optimizer.operation_limit.max") ||
-                               indexProps.ContainsKey("optimizer.transaction_limit.max");
-
-            IOptimizerStrategy optimizerStrategy;
-            if (incremental)
-            {
-                optimizerStrategy = new IncrementalOptimizerStrategy();
-                optimizerStrategy.Initialize(provider, indexProps, searchFactoryImplementor);
-            }
-            else
-            {
-                optimizerStrategy = new NoOpOptimizerStrategy();
-            }
-
-            searchFactoryImplementor.AddOptimizerStrategy(provider, optimizerStrategy);
-        }
-
-        private void ConfigureIndexingParameters(ISearchFactoryImplementor searchFactoryImplementor, IDictionary<string, string> indexProps, IDirectoryProvider provider)
-        {
-            LuceneIndexingParameters indexingParams = new LuceneIndexingParameters();
-
-            ConfigureProp(
-                    TRANSACTION + MERGE_FACTOR,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.MergeFactor = value;
-                        indexingParams.TransactionIndexParameters.MergeFactor = value;
-                    });
-
-            ConfigureProp(
-                    TRANSACTION + MAX_MERGE_DOCS,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.MaxMergeDocs = value;
-                        indexingParams.TransactionIndexParameters.MaxMergeDocs = value;
-                    });
-
-            ConfigureProp(
-                    TRANSACTION + MAX_BUFFERED_DOCS,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
-                        indexingParams.TransactionIndexParameters.MaxBufferedDocs = value;
-                    });
-
-            ConfigureProp(
-                    TRANSACTION + RAM_BUFFER_SIZE,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
-                        indexingParams.TransactionIndexParameters.RamBufferSizeMb = value;
-                    });
-
-            ConfigureProp(
-                    TRANSACTION + TERM_INDEX_INTERVAL,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.TermIndexInterval = value;
-                        indexingParams.TransactionIndexParameters.TermIndexInterval = value;
-                    });
-
-            ConfigureProp(
-                    BATCH + MERGE_FACTOR,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.MergeFactor = value;
-                    });
-
-            ConfigureProp(
-                    BATCH + MAX_MERGE_DOCS,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.MaxMergeDocs = value;
-                    });
-
-            ConfigureProp(
-                    BATCH + MAX_BUFFERED_DOCS,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
-                    });
-
-            ConfigureProp(
-                    BATCH + RAM_BUFFER_SIZE,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
-                    });
-
-            ConfigureProp(
-                    BATCH + TERM_INDEX_INTERVAL,
-                    indexProps,
-                    delegate(int value)
-                    {
-                        indexingParams.BatchIndexParameters.TermIndexInterval = value;
-                    });
-
-            searchFactoryImplementor.AddIndexingParameters(provider, indexingParams);
-        }
-
-        private void ConfigureProp(string name, IDictionary<string, string> indexProps, Action<int> assign)
-        {
-            string prop;
-            if (!indexProps.TryGetValue(name, out prop) || string.IsNullOrEmpty(prop))
-            {
-                return;
-            }
-
-            int value;
-            if (int.TryParse(prop, out value))
-            {
-                assign(value);
-            }
-            else
-            {
-                throw new SearchException("Invalid value for " + name + ": " + prop);
-            }
-        }
-
-        private IDirectoryProvider CreateDirectoryProvider(string directoryProviderName, IDictionary<string, string> indexProps,
-                                                          ISearchFactoryImplementor searchFactoryImplementor)
-        {
-            string className;
-            indexProps.TryGetValue("directory_provider", out className);
-            if (StringHelper.IsEmpty(className))
-            {
-                className = DEFAULT_DIRECTORY_PROVIDER;
-            }
-
-            IDirectoryProvider provider;
-            try
-            {
-                System.Type directoryClass = ReflectHelper.ClassForName(className);
-                provider = (IDirectoryProvider)Activator.CreateInstance(directoryClass);
-            }
-            catch (Exception e)
-            {
-                throw new HibernateException("Unable to instantiate directory provider: " + className, e);
-            }
-
-            try
-            {
-                provider.Initialize(directoryProviderName, indexProps, searchFactoryImplementor);
-            }
-            catch (Exception e)
-            {
-                throw new HibernateException("Unable to initialize: " + directoryProviderName, e);
-            }
-
-            int index = providers.IndexOf(provider);
-            if (index != -1)
-            {
-                // Share the same Directory provider for the same underlying store
-                return providers[index];
-            }
-
-            ConfigureOptimizerStrategy(searchFactoryImplementor, indexProps, provider);
-            ConfigureIndexingParameters(searchFactoryImplementor, indexProps, provider);
-            providers.Add(provider);
-            if (!searchFactoryImplementor.GetLockableDirectoryProviders().ContainsKey(provider))
-            {
-                searchFactoryImplementor.GetLockableDirectoryProviders()[provider] = new object();
-            }
-
-            return provider;
-        }
-
         private static IDictionary<string, string>[] GetDirectoryProperties(Configuration cfg, string directoryProviderName)
         {
             if (string.IsNullOrEmpty(directoryProviderName))
@@ -419,7 +239,7 @@ namespace NHibernate.Search.Store
                 {
                     if (!isp.ContainsKey(prop.Key))
                     {
-                       isp.Add(prop);
+                        isp.Add(prop);
                     }
                 }
             }
@@ -433,6 +253,183 @@ namespace NHibernate.Search.Store
             {
                 indexSpecificProps.Add(null);
             }
+        }
+
+        private static void ConfigureOptimizerStrategy(ISearchFactoryImplementor searchFactoryImplementor, IDictionary<string, string> indexProps, IDirectoryProvider provider)
+        {
+            bool incremental = indexProps.ContainsKey("optimizer.operation_limit.max") ||
+                               indexProps.ContainsKey("optimizer.transaction_limit.max");
+
+            IOptimizerStrategy optimizerStrategy;
+            if (incremental)
+            {
+                optimizerStrategy = new IncrementalOptimizerStrategy();
+                optimizerStrategy.Initialize(provider, indexProps, searchFactoryImplementor);
+            }
+            else
+            {
+                optimizerStrategy = new NoOpOptimizerStrategy();
+            }
+
+            searchFactoryImplementor.AddOptimizerStrategy(provider, optimizerStrategy);
+        }
+
+        private static void ConfigureIndexingParameters(ISearchFactoryImplementor searchFactoryImplementor, IDictionary<string, string> indexProps, IDirectoryProvider provider)
+        {
+            LuceneIndexingParameters indexingParams = new LuceneIndexingParameters();
+
+            ConfigureProp(
+                    TRANSACTION + MERGE_FACTOR,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.MergeFactor = value;
+                        indexingParams.TransactionIndexParameters.MergeFactor = value;
+                    });
+
+            ConfigureProp(
+                    TRANSACTION + MAX_MERGE_DOCS,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.MaxMergeDocs = value;
+                        indexingParams.TransactionIndexParameters.MaxMergeDocs = value;
+                    });
+
+            ConfigureProp(
+                    TRANSACTION + MAX_BUFFERED_DOCS,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
+                        indexingParams.TransactionIndexParameters.MaxBufferedDocs = value;
+                    });
+
+            ConfigureProp(
+                    TRANSACTION + RAM_BUFFER_SIZE,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
+                        indexingParams.TransactionIndexParameters.RamBufferSizeMb = value;
+                    });
+
+            ConfigureProp(
+                    TRANSACTION + TERM_INDEX_INTERVAL,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.TermIndexInterval = value;
+                        indexingParams.TransactionIndexParameters.TermIndexInterval = value;
+                    });
+
+            ConfigureProp(
+                    BATCH + MERGE_FACTOR,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.MergeFactor = value;
+                    });
+
+            ConfigureProp(
+                    BATCH + MAX_MERGE_DOCS,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.MaxMergeDocs = value;
+                    });
+
+            ConfigureProp(
+                    BATCH + MAX_BUFFERED_DOCS,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
+                    });
+
+            ConfigureProp(
+                    BATCH + RAM_BUFFER_SIZE,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
+                    });
+
+            ConfigureProp(
+                    BATCH + TERM_INDEX_INTERVAL,
+                    indexProps,
+                    delegate(int value)
+                    {
+                        indexingParams.BatchIndexParameters.TermIndexInterval = value;
+                    });
+
+            searchFactoryImplementor.AddIndexingParameters(provider, indexingParams);
+        }
+
+        private static void ConfigureProp(string name, IDictionary<string, string> indexProps, Action<int> assign)
+        {
+            string prop;
+            if (!indexProps.TryGetValue(name, out prop) || string.IsNullOrEmpty(prop))
+            {
+                return;
+            }
+
+            int value;
+            if (int.TryParse(prop, out value))
+            {
+                assign(value);
+            }
+            else
+            {
+                throw new SearchException("Invalid value for " + name + ": " + prop);
+            }
+        }
+
+        private IDirectoryProvider CreateDirectoryProvider(string directoryProviderName, IDictionary<string, string> indexProps, ISearchFactoryImplementor searchFactoryImplementor)
+        {
+            string className;
+            indexProps.TryGetValue("directory_provider", out className);
+            if (StringHelper.IsEmpty(className))
+            {
+                className = DEFAULT_DIRECTORY_PROVIDER;
+            }
+
+            IDirectoryProvider provider;
+            try
+            {
+                System.Type directoryClass = ReflectHelper.ClassForName(className);
+                provider = (IDirectoryProvider)Activator.CreateInstance(directoryClass);
+            }
+            catch (Exception e)
+            {
+                throw new HibernateException("Unable to instantiate directory provider: " + className, e);
+            }
+
+            try
+            {
+                provider.Initialize(directoryProviderName, indexProps, searchFactoryImplementor);
+            }
+            catch (Exception e)
+            {
+                throw new HibernateException("Unable to initialize: " + directoryProviderName, e);
+            }
+
+            int index = providers.IndexOf(provider);
+            if (index != -1)
+            {
+                // Share the same Directory provider for the same underlying store
+                return providers[index];
+            }
+
+            ConfigureOptimizerStrategy(searchFactoryImplementor, indexProps, provider);
+            ConfigureIndexingParameters(searchFactoryImplementor, indexProps, provider);
+            providers.Add(provider);
+            if (!searchFactoryImplementor.GetLockableDirectoryProviders().ContainsKey(provider))
+            {
+                searchFactoryImplementor.GetLockableDirectoryProviders()[provider] = new object();
+            }
+
+            return provider;
         }
 
         private string GetDirectoryProviderName(DocumentMapping documentMapping, Configuration cfg)

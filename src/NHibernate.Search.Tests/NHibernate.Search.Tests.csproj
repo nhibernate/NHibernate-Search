@@ -81,10 +81,12 @@
     <Compile Include="Bridge\ClassBridgeTest.cs" />
     <Compile Include="Bridge\Cloud.cs" />
     <Compile Include="Bridge\CloudType.cs" />
+    <Compile Include="Bridge\DateSplitBridge.cs" />
     <Compile Include="Bridge\Department.cs" />
     <Compile Include="Bridge\Departments.cs" />
     <Compile Include="Bridge\EquipmentType.cs" />
     <Compile Include="Bridge\Gangster.cs" />
+    <Compile Include="Bridge\PaddedIntegerBridge.cs" />
     <Compile Include="Bridge\TruncateFieldBridge.cs" />
     <Compile Include="Bridge\TruncateStringBridge.cs" />
     <Compile Include="Bridge\UnresolvedBridgeTest.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="Shards\ShardsTest.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestConfigurationHelper.cs" />
+    <Compile Include="Util\DirectoryHelperTest.cs" />
     <Compile Include="Util\FileHelperTest.cs" />
     <Compile Include="Worker\AsyncWorkerTest.cs" />
     <Compile Include="Worker\ConcurrencyTest.cs" />

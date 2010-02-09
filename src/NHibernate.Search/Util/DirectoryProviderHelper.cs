@@ -15,7 +15,7 @@ namespace NHibernate.Search
         /// Build a directory name out of a root and relative path, guessing the significant part
         /// and checking for the file availability
         /// </summary>
-        public static String GetSourceDirectory(string rootPropertyName, string relativePropertyName, string directoryProviderName, IDictionary properties)
+        public static string GetSourceDirectory(string rootPropertyName, string relativePropertyName, string directoryProviderName, IDictionary properties)
         {
             // TODO check that it's a directory
             string root = (string) properties[rootPropertyName];
@@ -46,6 +46,20 @@ namespace NHibernate.Search
             else
             {
                 DirectoryInfo rootDir = new DirectoryInfo(root);
+                if (!rootDir.Exists)
+                {
+                    try
+                    {
+                        rootDir.Create();
+                        rootDir = new DirectoryInfo(root);
+                    }
+                    catch (IOException e)
+                    {
+                        throw new SearchException(root + " does not exist and cannot be created", e);
+                    }
+                }
+
+                // Test again in case Create failed for wrong reasons
                 if (rootDir.Exists)
                 {
                     DirectoryInfo sourceFile = new DirectoryInfo(Path.Combine(root, relative));
@@ -66,7 +80,7 @@ namespace NHibernate.Search
                 }
                 else
                 {
-                    throw new SearchException(rootPropertyName + " does not exist");
+                    throw new SearchException(root + " does not exist");
                 }
             }
 
@@ -75,7 +89,6 @@ namespace NHibernate.Search
 
         public static DirectoryInfo DetermineIndexDir(String directoryProviderName, IDictionary properties)
         {
-            bool createIfMissing;
             string indexBase = (string) properties["indexBase"] ?? ".";
             string indexName = (string) properties["indexName"] ?? directoryProviderName;
 

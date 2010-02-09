@@ -4,6 +4,9 @@ using NHibernate.Criterion;
 
 namespace NHibernate.Search
 {
+    using System;
+
+    [Obsolete("Use SetCriteriaQuery against IFullTextSession")]
     public static class SearchRestrictions
     {
         public static ICriterion Query(Lucene.Net.Search.Query luceneQuery)
