@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using log4net;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
@@ -25,7 +24,7 @@ namespace NHibernate.Search.Backend
     /// TODO introduce the notion of read only IndexReader? We cannot enforce it because Lucene use abstract classes, not interfaces
     public class Workspace : IDisposable
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(Workspace));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(Workspace));
 
         private readonly Dictionary<IDirectoryProvider, IndexReader> readers;
         private readonly Dictionary<IDirectoryProvider, IndexWriter> writers;

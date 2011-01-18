@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using log4net;
 using NHibernate.Search.Impl;
 using NHibernate.Util;
 
@@ -9,7 +8,7 @@ namespace NHibernate.Search
 {
     public class DirectoryProviderHelper
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(DirectoryProviderHelper));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(DirectoryProviderHelper));
 
         /// <summary>
         /// Build a directory name out of a root and relative path, guessing the significant part

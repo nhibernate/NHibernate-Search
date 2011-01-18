@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Iesi.Collections.Generic;
-using log4net;
 using Lucene.Net.Index;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
@@ -17,7 +16,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class SharedReaderProvider : IReaderProvider
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(SharedReaderProvider));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(SharedReaderProvider));
         private static FieldInfo subReadersField;
 
         /// <summary>

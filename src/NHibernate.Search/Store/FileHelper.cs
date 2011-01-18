@@ -1,13 +1,12 @@
 using System.IO;
 using Iesi.Collections.Generic;
-using log4net;
 
 namespace NHibernate.Search.Store
 {
     public class FileHelper
     {
         private const int LastWriteTimePrecision = 2000;
-        private static readonly ILog log = LogManager.GetLogger(typeof(FileHelper));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(FileHelper));
 
         public static void Synchronize(DirectoryInfo source, DirectoryInfo destination, bool smart)
         {

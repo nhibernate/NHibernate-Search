@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using log4net;
 using Lucene.Net.Index;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Engine;
@@ -15,7 +14,7 @@ namespace NHibernate.Search.Store.Optimization
     /// </summary>
     public class IncrementalOptimizerStrategy : IOptimizerStrategy
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(IncrementalOptimizerStrategy));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(IncrementalOptimizerStrategy));
 
         private int operationMax = -1;
         private int transactionMax = -1;

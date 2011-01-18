@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using log4net;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
@@ -22,7 +21,7 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class FSMasterDirectoryProvider : IDirectoryProvider
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(FSMasterDirectoryProvider));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(FSMasterDirectoryProvider));
         private FSDirectory directory;
         private int current;
         private string indexName;

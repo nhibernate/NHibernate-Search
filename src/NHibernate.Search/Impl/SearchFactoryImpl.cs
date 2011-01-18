@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-using log4net;
-
 using Iesi.Collections.Generic;
 
 using Lucene.Net.Analysis;
@@ -26,7 +24,7 @@ namespace NHibernate.Search.Impl
 {
     public class SearchFactoryImpl : ISearchFactoryImplementor
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(SearchFactoryImpl));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(SearchFactoryImpl));
         private static readonly object searchFactoryKey = new object();
 
         private readonly ISearchMapping mapping;

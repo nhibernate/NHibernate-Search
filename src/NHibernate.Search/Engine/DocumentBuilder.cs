@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Iesi.Collections.Generic;
-using log4net;
 using Lucene.Net.Analysis;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
@@ -28,7 +27,7 @@ namespace NHibernate.Search.Engine
     public class DocumentBuilder
     {
         public const string CLASS_FIELDNAME = "_hibernate_class";
-        private static readonly ILog logger = LogManager.GetLogger(typeof(DocumentBuilder));
+        private static readonly ILogger logger = LoggerProvider.LoggerFor(typeof(DocumentBuilder));
 
         private readonly IDirectoryProvider[] directoryProviders;
         private readonly IIndexShardingStrategy shardingStrategy;

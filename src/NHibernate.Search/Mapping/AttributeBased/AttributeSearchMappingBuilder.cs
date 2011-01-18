@@ -5,7 +5,6 @@ using System.Reflection;
 
 using Iesi.Collections.Generic;
 
-using log4net;
 using Lucene.Net.Analysis;
 using NHibernate.Properties;
 using NHibernate.Search.Attributes;
@@ -20,7 +19,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
     using Type = System.Type;
     
     public class AttributeSearchMappingBuilder {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(AttributeSearchMappingBuilder));
+        private static readonly ILogger logger = LoggerProvider.LoggerFor(typeof(AttributeSearchMappingBuilder));
 
         private int level;
         private int maxLevel = int.MaxValue;

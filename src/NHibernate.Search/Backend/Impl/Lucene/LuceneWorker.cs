@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using log4net;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using NHibernate.Search.Engine;
@@ -12,7 +11,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 {
     public class LuceneWorker
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(LuceneWorker));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(LuceneWorker));
         private readonly Workspace workspace;
 
         #region Constructors

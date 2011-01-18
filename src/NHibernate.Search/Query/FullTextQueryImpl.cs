@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Iesi.Collections.Generic;
-using log4net;
 using Lucene.Net.Search;
 using NHibernate.Engine.Query;
 using NHibernate.Impl;
@@ -22,7 +21,7 @@ namespace NHibernate.Search.Query
 
     public class FullTextQueryImpl : AbstractQueryImpl, IFullTextQuery
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(FullTextQueryImpl));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(FullTextQueryImpl));
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
         private readonly Lucene.Net.Search.Query luceneQuery;
         private System.Type[] classes;

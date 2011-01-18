@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using log4net;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
@@ -13,7 +12,7 @@ namespace NHibernate.Search.Store
 {
     public class FSDirectoryProvider : IDirectoryProvider
     {
-        private static ILog log = LogManager.GetLogger(typeof(FSDirectoryProvider));
+        private static ILogger log = LoggerProvider.LoggerFor(typeof(FSDirectoryProvider));
         private FSDirectory directory;
         private String indexName;
 

@@ -1,12 +1,11 @@
 using System;
 using System.Collections;
-using log4net;
 
 namespace NHibernate.Search.Engine
 {
     public class ObjectLoader : ILoader
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(ObjectLoader));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(ObjectLoader));
 
         private ISession session;
 

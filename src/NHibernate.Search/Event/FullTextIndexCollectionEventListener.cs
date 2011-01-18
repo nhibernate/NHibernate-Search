@@ -2,8 +2,6 @@ namespace NHibernate.Search.Event
 {
     using Backend;
 
-    using log4net;
-
     using NHibernate.Engine;
     using NHibernate.Event;
 
@@ -14,7 +12,7 @@ namespace NHibernate.Search.Event
     public class FullTextIndexCollectionEventListener : FullTextIndexEventListener, 
                                     IPostCollectionRecreateEventListener, IPostCollectionRemoveEventListener, IPostCollectionUpdateEventListener
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(FullTextIndexCollectionEventListener));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(FullTextIndexCollectionEventListener));
 
         #region Public methods
 

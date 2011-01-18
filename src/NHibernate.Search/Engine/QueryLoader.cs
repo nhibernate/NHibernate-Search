@@ -1,13 +1,12 @@
 using System;
 using System.Collections;
-using log4net;
 using NHibernate.Criterion;
 
 namespace NHibernate.Search.Engine
 {
     public class QueryLoader : ILoader
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(QueryLoader));
+        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(QueryLoader));
         private static readonly IList EMPTY_LIST = new ArrayList();
         private const int MAX_IN_CLAUSE = 500;
 

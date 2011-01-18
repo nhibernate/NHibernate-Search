@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 
-using log4net;
-
 using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Mapping.AttributeBased
 {
     public class AttributeUtil
     {
-        private static readonly ILog logger = LogManager.GetLogger(typeof(AttributeUtil));
+        private static readonly ILogger logger = LoggerProvider.LoggerFor(typeof(AttributeUtil));
 
         #region Public methods
 
