@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Data;
+using System.Linq.Expressions;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using NHibernate.Engine;
@@ -112,12 +113,10 @@ namespace NHibernate.Search.Impl
             return session.Load(theType, id, lockMode);
         }
 
-#if !NHIBERNATE20
-        public object Load(string entityName, object id, LockMode lockMode)
-        {
-            return session.Load(entityName, id, lockMode);
-        }
-#endif
+		public object Load(string entityName, object id, LockMode lockMode)
+		{
+			return session.Load(entityName, id, lockMode);
+		}
 
         public object Load(System.Type theType, object id)
         {
@@ -134,12 +133,10 @@ namespace NHibernate.Search.Impl
             return session.Load<T>(id);
         }
 
-#if !NHIBERNATE20
-        public object Load(string entityName, object id)
-        {
-            return session.Load(entityName, id);
-        }
-#endif
+		public object Load(string entityName, object id)
+		{
+			return session.Load(entityName, id);
+		}
 
         public void Load(object obj, object id)
         {
@@ -156,12 +153,10 @@ namespace NHibernate.Search.Impl
             get { return session.Statistics; }
         }
 
-#if !NHIBERNATE20
-        public EntityMode ActiveEntityMode
-        {
-            get { return session.ActiveEntityMode; }
-        }
-#endif
+		public EntityMode ActiveEntityMode
+		{
+			get { return session.ActiveEntityMode; }
+		}
 
         public FlushMode FlushMode
         {
@@ -290,75 +285,10 @@ namespace NHibernate.Search.Impl
             session.Delete(obj);
         }
 
-#if !NHIBERNATE20
-        public void Delete(string entityName, object obj)
-        {
-            session.Delete(entityName, obj);
-        }
-#endif
-
-        public IList Find(string query)
-        {
-#pragma warning disable 618,612
-            return session.Find(query);
-#pragma warning restore 618,612
-        }
-
-        public IList Find(string query, object value, IType type)
-        {
-#pragma warning disable 618,612
-            return session.Find(query, value, type);
-#pragma warning restore 618,612
-        }
-
-        public IList Find(string query, object[] values, IType[] types)
-        {
-#pragma warning disable 618,612
-            return session.Find(query, values, types);
-#pragma warning restore 618,612
-        }
-
-        public IEnumerable Enumerable(string query)
-        {
-#pragma warning disable 618,612
-            return session.Enumerable(query);
-#pragma warning restore 618,612
-        }
-
-        public IEnumerable Enumerable(string query, object value, IType type)
-        {
-#pragma warning disable 618,612
-            return session.Enumerable(query, value, type);
-#pragma warning restore 618,612
-        }
-
-        public IEnumerable Enumerable(string query, object[] values, IType[] types)
-        {
-#pragma warning disable 618,612
-            return session.Enumerable(query, values, types);
-#pragma warning restore 618,612
-        }
-
-        public ICollection Filter(object collection, string filter)
-        {
-#pragma warning disable 618,612
-            return session.Filter(collection, filter);
-#pragma warning restore 618,612
-        }
-
-        public ICollection Filter(object collection, string filter, object value, IType type)
-        {
-#pragma warning disable 618,612
-            return session.Filter(collection, filter, value, type);
-#pragma warning restore 618,612
-        }
-
-        public ICollection Filter(object collection, string filter, object[] values, IType[] types)
-        {
-#pragma warning disable 618,612
-            return session.Filter(collection, filter, values, types);
-#pragma warning restore 618,612
-        }
+		public void Delete(string entityName, object obj)
+		{
+			session.Delete(entityName, obj);
+		}
 
         public int Delete(string query)
         {
@@ -409,8 +339,8 @@ namespace NHibernate.Search.Impl
         {
             return session.BeginTransaction(isolationLevel);
         }
-#if !NHIBERNATE20
-        public ICriteria CreateCriteria<T>() where T : class
+
+		public ICriteria CreateCriteria<T>() where T : class
         {
             return session.CreateCriteria<T>();
         }
@@ -419,8 +349,8 @@ namespace NHibernate.Search.Impl
         {
             return session.CreateCriteria<T>(alias);
         }
-#endif
-        public ICriteria CreateCriteria(System.Type persistentClass)
+
+		public ICriteria CreateCriteria(System.Type persistentClass)
         {
             return session.CreateCriteria(persistentClass);
         }
@@ -430,7 +360,6 @@ namespace NHibernate.Search.Impl
             return session.CreateCriteria(persistentClass, alias);
         }
 
-#if !NHIBERNATE20
         public ICriteria CreateCriteria(string entityName)
         {
             return session.CreateCriteria(entityName);
@@ -440,14 +369,28 @@ namespace NHibernate.Search.Impl
         {
             return session.CreateCriteria(entityName, alias);
         }
-#endif
+
+    	public IQueryOver<T, T> QueryOver<T>() where T : class
+    	{
+    		return session.QueryOver<T>();
+    	}
+
+    	public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
+    	{
+    		return session.QueryOver(alias);
+    	}
 
         public IQuery CreateQuery(string queryString)
         {
             return session.CreateQuery(queryString);
         }
 
-        public IQuery CreateFilter(object collection, string queryString)
+    	public IQuery CreateQuery(IQueryExpression queryExpression)
+    	{
+    		return session.CreateQuery(queryExpression);
+    	}
+
+    	public IQuery CreateFilter(object collection, string queryString)
         {
             return session.CreateFilter(collection, queryString);
         }
@@ -455,20 +398,6 @@ namespace NHibernate.Search.Impl
         public IQuery GetNamedQuery(string queryName)
         {
             return session.GetNamedQuery(queryName);
-        }
-
-        public IQuery CreateSQLQuery(string sql, string returnAlias, System.Type returnClass)
-        {
-#pragma warning disable 618,612
-            return session.CreateSQLQuery(sql, returnAlias, returnClass);
-#pragma warning restore 618,612
-        }
-
-        public IQuery CreateSQLQuery(string sql, string[] returnAliases, System.Type[] returnClasses)
-        {
-#pragma warning disable 618,612
-            return session.CreateSQLQuery(sql, returnAliases, returnClasses);
-#pragma warning restore 618,612
         }
 
         public ISQLQuery CreateSQLQuery(string queryString)

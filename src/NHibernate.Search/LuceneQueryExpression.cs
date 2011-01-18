@@ -47,11 +47,7 @@ namespace NHibernate.Search
         {
             CriteriaImpl impl = criteria as CriteriaImpl;
             return impl != null ?
-#if NHIBERNATE20
-                impl.CriteriaClass
-#else
                 impl.GetRootEntityTypeIfAvailable()
-#endif
                 : GetCriteriaClass(((CriteriaImpl.Subcriteria) criteria).Parent);
         }
 

@@ -164,7 +164,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
                         Directory.Delete("./lucenedirs/", true);
                     }
                 }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     // Wait for it to wind down for a while
                     Thread.Sleep(1000);

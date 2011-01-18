@@ -9,10 +9,8 @@ namespace NHibernate.Search.Event
 {
     public class FullTextIndexEventListener : IPostDeleteEventListener, IPostInsertEventListener,
                                               IPostUpdateEventListener,
-                                              IInitializable
-#if !NHIBERNATE20
-                                              , IDestructible
-#endif
+                                              IInitializable,
+                                              IDestructible
     {
         protected bool used;
         protected ISearchFactoryImplementor searchFactory;
