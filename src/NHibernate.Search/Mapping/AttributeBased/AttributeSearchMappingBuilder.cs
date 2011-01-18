@@ -19,7 +19,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
     using Type = System.Type;
     
     public class AttributeSearchMappingBuilder {
-        private static readonly ILogger logger = LoggerProvider.LoggerFor(typeof(AttributeSearchMappingBuilder));
+		private static readonly IInternalLogger logger = LoggerProvider.LoggerFor(typeof(AttributeSearchMappingBuilder));
 
         private int level;
         private int maxLevel = int.MaxValue;

@@ -8,7 +8,7 @@ namespace NHibernate.Search
 {
     public class DirectoryProviderHelper
     {
-        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(DirectoryProviderHelper));
+		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(DirectoryProviderHelper));
 
         /// <summary>
         /// Build a directory name out of a root and relative path, guessing the significant part

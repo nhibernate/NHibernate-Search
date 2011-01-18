@@ -12,7 +12,7 @@ namespace NHibernate.Search.Event
     public class FullTextIndexCollectionEventListener : FullTextIndexEventListener, 
                                     IPostCollectionRecreateEventListener, IPostCollectionRemoveEventListener, IPostCollectionUpdateEventListener
     {
-        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(FullTextIndexCollectionEventListener));
+		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FullTextIndexCollectionEventListener));
 
         #region Public methods
 

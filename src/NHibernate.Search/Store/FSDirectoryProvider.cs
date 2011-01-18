@@ -12,7 +12,7 @@ namespace NHibernate.Search.Store
 {
     public class FSDirectoryProvider : IDirectoryProvider
     {
-        private static ILogger log = LoggerProvider.LoggerFor(typeof(FSDirectoryProvider));
+		private static IInternalLogger log = LoggerProvider.LoggerFor(typeof(FSDirectoryProvider));
         private FSDirectory directory;
         private String indexName;
 

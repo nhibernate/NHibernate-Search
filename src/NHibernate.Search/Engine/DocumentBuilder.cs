@@ -27,7 +27,7 @@ namespace NHibernate.Search.Engine
     public class DocumentBuilder
     {
         public const string CLASS_FIELDNAME = "_hibernate_class";
-        private static readonly ILogger logger = LoggerProvider.LoggerFor(typeof(DocumentBuilder));
+		private static readonly IInternalLogger logger = LoggerProvider.LoggerFor(typeof(DocumentBuilder));
 
         private readonly IDirectoryProvider[] directoryProviders;
         private readonly IIndexShardingStrategy shardingStrategy;

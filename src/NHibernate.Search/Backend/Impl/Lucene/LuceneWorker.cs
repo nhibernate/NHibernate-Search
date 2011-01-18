@@ -11,7 +11,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 {
     public class LuceneWorker
     {
-        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(LuceneWorker));
+		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(LuceneWorker));
         private readonly Workspace workspace;
 
         #region Constructors

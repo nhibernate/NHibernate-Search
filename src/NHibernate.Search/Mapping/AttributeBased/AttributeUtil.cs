@@ -9,7 +9,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
 {
     public class AttributeUtil
     {
-        private static readonly ILogger logger = LoggerProvider.LoggerFor(typeof(AttributeUtil));
+		private static readonly IInternalLogger logger = LoggerProvider.LoggerFor(typeof(AttributeUtil));
 
         #region Public methods
 

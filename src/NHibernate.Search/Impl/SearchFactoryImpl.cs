@@ -24,7 +24,7 @@ namespace NHibernate.Search.Impl
 {
     public class SearchFactoryImpl : ISearchFactoryImplementor
     {
-        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(SearchFactoryImpl));
+		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(SearchFactoryImpl));
         private static readonly object searchFactoryKey = new object();
 
         private readonly ISearchMapping mapping;

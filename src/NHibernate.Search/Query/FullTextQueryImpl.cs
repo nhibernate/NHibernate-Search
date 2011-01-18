@@ -21,7 +21,7 @@ namespace NHibernate.Search.Query
 
     public class FullTextQueryImpl : AbstractQueryImpl, IFullTextQuery
     {
-        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(FullTextQueryImpl));
+		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FullTextQueryImpl));
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
         private readonly Lucene.Net.Search.Query luceneQuery;
         private System.Type[] classes;

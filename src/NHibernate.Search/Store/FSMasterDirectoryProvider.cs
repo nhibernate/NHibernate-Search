@@ -21,7 +21,7 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class FSMasterDirectoryProvider : IDirectoryProvider
     {
-        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(FSMasterDirectoryProvider));
+		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FSMasterDirectoryProvider));
         private FSDirectory directory;
         private int current;
         private string indexName;

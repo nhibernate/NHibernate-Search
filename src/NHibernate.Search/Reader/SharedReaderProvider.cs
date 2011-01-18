@@ -16,7 +16,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class SharedReaderProvider : IReaderProvider
     {
-        private static readonly ILogger log = LoggerProvider.LoggerFor(typeof(SharedReaderProvider));
+		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(SharedReaderProvider));
         private static FieldInfo subReadersField;
 
         /// <summary>
