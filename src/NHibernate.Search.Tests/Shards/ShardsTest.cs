@@ -25,6 +25,11 @@ namespace NHibernate.Search.Tests.Shards
                              }; }
         }
 
+        protected override bool RunFixtureSetUpAndTearDownForEachTest
+        {
+            get { return true; }
+        }
+
         #region Tests
 
         [Test]

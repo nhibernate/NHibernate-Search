@@ -59,6 +59,11 @@ namespace NHibernate.Test
             get { return (ISessionFactoryImplementor) sessions; }
         }
 
+        protected virtual bool RunFixtureSetUpAndTearDownForEachTest
+        {
+            get { return false; }
+        }
+
         #endregion
 
         static TestCase()
@@ -74,6 +79,12 @@ namespace NHibernate.Test
         /// </summary>
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
+        {
+            if (!RunFixtureSetUpAndTearDownForEachTest)
+                TestFixtureSetUpInternal();
+        }
+
+        private void TestFixtureSetUpInternal()
         {
             try
             {
@@ -105,6 +116,12 @@ namespace NHibernate.Test
         [TestFixtureTearDown]
         public void TestFixtureTearDown()
         {
+            if (!RunFixtureSetUpAndTearDownForEachTest)
+                TestFixtureTearDownInternal();
+        }
+
+        private void TestFixtureTearDownInternal()
+        {
             DropSchema();
             Cleanup();
         }
@@ -116,6 +133,9 @@ namespace NHibernate.Test
         [SetUp]
         public void SetUp()
         {
+            if (RunFixtureSetUpAndTearDownForEachTest)
+                TestFixtureSetUpInternal();
+
             OnSetUp();
         }
 
@@ -137,6 +157,9 @@ namespace NHibernate.Test
             {
                 Assert.Fail("Test didn't clean up after itself");
             }
+
+            if (RunFixtureSetUpAndTearDownForEachTest)
+                TestFixtureTearDownInternal();
         }
 
         #endregion
