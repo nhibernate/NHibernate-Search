@@ -138,7 +138,7 @@ namespace NHibernate.Search.Query
                     if (criteria is CriteriaImpl)
                     {
                         string targetEntity = ((CriteriaImpl)criteria).EntityOrClassName;
-                        if (classes.GetLength(0) == 1 && classes[0].Name != targetEntity)
+                        if (classes.GetLength(0) == 1 && classes[0].FullName != targetEntity)
                         {
                             throw new SearchException("Criteria query entity should match query entity");
                         }
