@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
+using NHibernate.Criterion;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Query
@@ -365,9 +366,9 @@ namespace NHibernate.Search.Tests.Query
             s.Save(clock);
             tx.Commit();
 
-            IList list = s.CreateCriteria(typeof(Clock))
-                .Add(SearchRestrictions.Query("Brand:seiko"))
-                .List();
+			IList list = s.CreateFullTextQuery<Clock>("Brand:seiko")
+				.SetCriteriaQuery(s.CreateCriteria(typeof(Clock)).Add(Restrictions.IdEq(1)))
+				.List();
             Assert.AreEqual(1, list.Count, "should get result back from query");
 
             s.Delete(clock);
