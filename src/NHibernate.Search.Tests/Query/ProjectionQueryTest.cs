@@ -137,7 +137,7 @@ namespace NHibernate.Search.Tests.Query
                 Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
                 Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
                 Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-                Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+                Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
             }
             Assert.AreEqual(4, counter, "incorrect number of results returned");
 
@@ -183,7 +183,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1001, projection[7], "ID incorrect");
             Assert.IsNotNull(projection[8], "Lucene internal doc id");
 
@@ -206,7 +206,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.IsNotNull(projection);
 
             Assert.IsTrue(projection[0] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[0]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[0]).GetFields().Count, "DOCUMENT size incorrect");
             Assert.AreEqual(projection[1], s.Get<Employee>(projection[4]), "THIS incorrect");
             Assert.AreEqual(1.0F, projection[2], "SCORE incorrect");
             Assert.IsNull(projection[3], "BOOST not removed");
@@ -246,7 +246,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1000, projection[7], "legacy ID incorrect");
         }
 
@@ -260,7 +260,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+						Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1004, projection[7], "legacy ID incorrect");
         }
 
@@ -274,7 +274,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFieldsCount(), "DOCUMENT size incorrect");
+						Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1003, projection[7], "legacy ID incorrect");
         }
 

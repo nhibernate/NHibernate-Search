@@ -562,7 +562,7 @@ namespace NHibernate.Search.Query
 
                 try
                 {
-                    SearchFactory.ReaderProvider.CloseReader(searcher.Reader);
+                    SearchFactory.ReaderProvider.CloseReader(searcher.GetIndexReader());
                     searcher.Close();
                 }
                 catch (IOException e)
