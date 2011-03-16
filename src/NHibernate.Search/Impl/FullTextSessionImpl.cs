@@ -93,7 +93,17 @@ namespace NHibernate.Search.Impl
             return session.IsDirty();
         }
 
-        public object GetIdentifier(object obj)
+    	public bool IsReadOnly(object entityOrProxy)
+    	{
+				return session.IsReadOnly(entityOrProxy);
+    	}
+
+    	public void SetReadOnly(object entityOrProxy, bool readOnly)
+    	{
+				session.SetReadOnly(entityOrProxy, readOnly);
+			}
+
+    	public object GetIdentifier(object obj)
         {
             return session.GetIdentifier(obj);
         }
@@ -190,7 +200,13 @@ namespace NHibernate.Search.Impl
             get { return session.IsConnected; }
         }
 
-        public ITransaction Transaction
+    	public bool DefaultReadOnly
+    	{
+    		get { return session.DefaultReadOnly; }
+				set { session.DefaultReadOnly = value; }
+    	}
+
+    	public ITransaction Transaction
         {
             get { return session.Transaction; }
         }
@@ -384,11 +400,6 @@ namespace NHibernate.Search.Impl
         {
             return session.CreateQuery(queryString);
         }
-
-    	public IQuery CreateQuery(IQueryExpression queryExpression)
-    	{
-    		return session.CreateQuery(queryExpression);
-    	}
 
     	public IQuery CreateFilter(object collection, string queryString)
         {
