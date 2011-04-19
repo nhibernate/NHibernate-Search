@@ -19,6 +19,7 @@
     <tags>NHibernate Search Lucene FullText Text</tags>
     <dependencies>
       <dependency id="NHibernate" version="3.1.0.4000" />
+	  <dependency id="Lucene" version="2.9.2.2" />   
     </dependencies>
   </metadata>
   <files>  
