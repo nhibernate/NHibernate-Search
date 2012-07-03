@@ -3,13 +3,14 @@
 		name="NHibernate.Search"
 		default="build"
 		description="NHibernate Search - Integration with Lucene.NET"
-		xmlns="http://nant.sf.net/release/0.85-rc3/nant.xsd">
+		xmlns="http://nant.sourceforge.net/release/0.92/nant.xsd">
 
 	<property name="framework.family" value="${framework::get-family(framework::get-target-framework())}"/>
 	<property name="framework.version" value="${framework::get-version(framework::get-target-framework())}"/>
 
 	<property name="folders.lib" value="lib" />
 	<property name="folders.build" value="build" />
+	<property name="folders.packages" value="src/packages" />
 
 	
 	<target name="clean" description="aasd">
@@ -22,15 +23,19 @@
 			 output="${folders.build}/NHibernate.Search.dll">
 			<nowarn>
 				<warning number="1591" />
+				<warning number="0618" />
+				<warning number="0672" />
 				<!-- No XML comment for publicly visible member -->
 			</nowarn>
 			<sources basedir="src/NHibernate.Search">
 				<include name="**/*.cs"/>
 			</sources>
 			<references>
-				<include name="${folders.lib}/NHibernate.dll"/>
-				<include name="${folders.lib}/Iesi.Collections.dll"/>
-				<include name="${folders.lib}/Lucene.Net.dll"/>
+				<include name="${folders.packages}/NHibernate.3.3.1.4000/lib/Net35/NHibernate.dll"/>
+				<include name="${folders.packages}/Iesi.Collections.3.3.1.4000/lib/Net35/Iesi.Collections.dll"/>
+				<include name="${folders.packages}/Lucene.Net.2.9.4.1/lib/net40/Lucene.Net.dll"/>
+				<include name="${folders.packages}/SharpZipLib.0.86.0/lib/20/ICSharpCode.SharpZipLib.dll"/>
+				
 			</references>
 			<resources basedir="src/NHibernate.Search" prefix="NHibernate.Search" dynamicprefix="true">
 				<include name="**/*.xsd"/>
@@ -43,19 +48,22 @@
 			 output="${folders.build}/NHibernate.Search.Tests.dll"		>
 			<nowarn>
 				<warning number="1591" />
+				<warning number="0618" />
+				<warning number="0672" />
 				<!-- No XML comment for publicly visible member -->
 			</nowarn>
 			<sources basedir="src/NHibernate.Search.Tests">
 				<include name="**/*.cs"/>
 			</sources>
 			<references>
-				<include name="${folders.lib}/NHibernate.dll"/>
-				<include name="${folders.lib}/NHibernate.ByteCode.Castle.dll"/>
-				<include name="${folders.lib}/log4net.dll"/>
-				<include name="${folders.lib}/nunit.framework.dll"/>
-				<include name="${folders.lib}/Iesi.Collections.dll"/>
-				<include name="${folders.lib}/Lucene.Net.dll"/>
+				<include name="${folders.packages}/NHibernate.3.3.1.4000/lib/Net35/NHibernate.dll"/>
+				<include name="${folders.packages}/Iesi.Collections.3.3.1.4000/lib/Net35/Iesi.Collections.dll"/>
+				<include name="${folders.packages}/Lucene.Net.2.9.4.1/lib/net40/Lucene.Net.dll"/>
+				<include name="${folders.packages}/SharpZipLib.0.86.0/lib/20/ICSharpCode.SharpZipLib.dll"/>
+				<include name="${folders.packages}/Log4net.2.0.0/lib/net40-full/log4net.dll"/>
+				<include name="${folders.packages}/NUnit.2.6.0.12054/lib/nunit.framework.dll"/>
 				<include name="${folders.build}/NHibernate.Search.dll"/>
+				
 			</references>
 			<resources basedir="src/NHibernate.Search.Tests" prefix="NHibernate.Search.Tests" dynamicprefix="true">
 				<include name="**/*.hbm.xml"/>
@@ -71,15 +79,10 @@
 
 		<copy todir="build" flatten="true">
 			<fileset>
-				<include name="${folders.lib}/NHibernate.dll"/>
-				<include name="${folders.lib}/Antlr3.Runtime.dll"/>
-				<include name="${folders.lib}/Remotion.Data.Linq.dll"/>
-				<include name="${folders.lib}/NHibernate.ByteCode.Castle.dll"/>
-				<include name="${folders.lib}/NHibernate.DomainModel.dll"/>
-				<include name="${folders.lib}/Iesi.Collections.dll"/>
-				<include name="${folders.lib}/nunit.framework.dll"/>
-				<include name="${folders.lib}/Castle.Core.dll"/>
-				<include name="${folders.lib}/Lucene.Net.dll"/>
+				<include name="${folders.packages}/NHibernate.3.3.1.4000/lib/Net35/NHibernate.dll"/>
+				<include name="${folders.packages}/Iesi.Collections.3.3.1.4000/lib/Net35/Iesi.Collections.dll"/>
+				<include name="${folders.packages}/Lucene.Net.2.9.4.1/lib/net40/Lucene.Net.dll"/>
+				<include name="${folders.packages}/SharpZipLib.0.86.0/lib/20/ICSharpCode.SharpZipLib.dll"/>
 			</fileset>
 		</copy>
 	</target>
