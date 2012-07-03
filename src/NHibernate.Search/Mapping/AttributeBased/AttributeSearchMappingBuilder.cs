@@ -34,7 +34,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
             }
 
             public DocumentMapping Root { get; set; }
-            public ISet<System.Type> Processed { get; private set; }
+            public Iesi.Collections.Generic.ISet<System.Type> Processed { get; private set; }
         }
 
         #endregion

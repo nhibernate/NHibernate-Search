@@ -1,7 +1,7 @@
-using System.Collections;
+using System.Collections.Generic;
 using Iesi.Collections.Generic;
 using NHibernate.Search.Attributes;
-using System.Collections.Generic;
+
 
 namespace NHibernate.Search.Tests.Embedded
 {
@@ -13,7 +13,7 @@ namespace NHibernate.Search.Tests.Embedded
         [Field(Index.Tokenized)]
         private string name;
         [IndexedEmbedded]
-        private ISet<Author> authors = new HashedSet<Author>();
+        private Iesi.Collections.Generic.ISet<Author> authors = new HashedSet<Author>();
         [IndexedEmbedded]
         private IDictionary<string, Order> orders = new Dictionary<string, Order>();
 
@@ -29,7 +29,7 @@ namespace NHibernate.Search.Tests.Embedded
             set { name = value; }
         }
 
-        public virtual ISet<Author> Authors
+        public virtual Iesi.Collections.Generic.ISet<Author> Authors
         {
             get { return authors; }
             set { authors = value; }

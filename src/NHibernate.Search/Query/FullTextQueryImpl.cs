@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Iesi.Collections.Generic;
 using Lucene.Net.Search;
 using NHibernate.Engine.Query;
 using NHibernate.Impl;
@@ -23,7 +22,7 @@ namespace NHibernate.Search.Query
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
         private readonly Lucene.Net.Search.Query luceneQuery;
         private System.Type[] classes;
-        private ISet<System.Type> classesAndSubclasses;
+        private Iesi.Collections.Generic.ISet<System.Type> classesAndSubclasses;
         private int resultSize;
         private Sort sort;
         private Lucene.Net.Search.Filter filter;
