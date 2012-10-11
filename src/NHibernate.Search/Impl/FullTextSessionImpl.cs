@@ -241,11 +241,6 @@ namespace NHibernate.Search.Impl
             return session.Save(entityName, obj);
         }
 
-        public void Save(string entityName, object obj, object id)
-        {
-            session.Save(entityName, obj, id);
-        }
-
         public void SaveOrUpdate(object obj)
         {
             session.SaveOrUpdate(obj);
@@ -254,11 +249,6 @@ namespace NHibernate.Search.Impl
         public void SaveOrUpdate(string entityName, object obj)
         {
             session.SaveOrUpdate(entityName, obj);
-        }
-
-        public void SaveOrUpdate(string entityName, object obj, object id)
-        {
-            session.SaveOrUpdate(entityName, obj, id);
         }
 
         public void Update(object obj)
@@ -274,11 +264,6 @@ namespace NHibernate.Search.Impl
         public void Update(string entityName, object obj)
         {
             session.Update(entityName, obj);
-        }
-
-        public void Update(string entityName, object obj, object id)
-        {
-            session.Update(entityName, obj, id);
         }
 
         public object Merge(object obj)
