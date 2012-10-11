@@ -53,6 +53,12 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>NHSearch.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
@@ -221,6 +227,7 @@
     <None Include="Cfg\nhs-configuration.xsx">
       <DependentUpon>nhs-configuration.xsd</DependentUpon>
     </None>
+    <None Include="NHSearch.snk" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

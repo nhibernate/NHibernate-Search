@@ -1,3 +1,5 @@
+using System;
+
 namespace NHibernate.Search.Filter
 {
     using System.Collections;
@@ -16,7 +18,7 @@ namespace NHibernate.Search.Filter
             chainedFilters.Add(filter);
         }
 
-        public override BitArray Bits(IndexReader reader)
+        public override DocIdSet GetDocIdSet(IndexReader reader)
         {
             if (chainedFilters.Count == 0)
             {
@@ -24,24 +26,37 @@ namespace NHibernate.Search.Filter
             }
 
             // We need to copy the first BitArray because BitArray is assigned to by And
-            Filter filter = chainedFilters[0];
-            BitArray result = (BitArray)filter.Bits(reader).Clone();
-            int size = result.Count;
-            for (int index = 1; index < chainedFilters.Count; index++ )
-            {
-                BitArray b2 = chainedFilters[index].Bits(reader);
-                int s2 = b2.Count;
-                if (s2 != size)
-                {
-                    // Align the lengths, any extra elements are set to false, ok as as we are Anding
-                    b2.Length = size;
-                }
+            HashSet<int> result = null;
 
-                // Stared at this for hours - C# compiler doesn't warn when you discard a function result!
-                result = result.And(b2);
+            foreach (var filter in chainedFilters)
+            {
+                DocIdSet b2 = filter.GetDocIdSet(reader);
+                int docId;
+                DocIdSetIterator iterator = b2.Iterator();
+
+                if (result == null)
+                {
+                    result = new HashSet<int>();
+
+                    while ((docId = iterator.NextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
+                    {
+                        result.Add(docId);
+                    }
+                }
+                else
+                {
+                    while ((docId = iterator.NextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
+                    {
+                        if (!result.Contains(docId))
+                        {
+                            result.Remove(docId);
+                        }
+                    }
+                }
             }
 
-            return result;
+            DocIdSet filteredCombinedDocIdSet = new EnumerableBasedDocIdSet(result);
+            return filteredCombinedDocIdSet;
         }
 
         public override string ToString()
@@ -53,6 +68,98 @@ namespace NHibernate.Search.Filter
             }
 
             return sb.Append("\r\n]").ToString();
+        }
+    }
+
+    public class EnumerableBasedDocIdSet : DocIdSet
+    {
+        private readonly IEnumerable<int> _items;
+
+        public EnumerableBasedDocIdSet(IEnumerable<int> items)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException("items");
+            }
+
+            _items = items;
+        }
+
+        /// <summary>
+        /// Provides a <see cref="T:Lucene.Net.Search.DocIdSetIterator"/> to access the set.
+        ///             This implementation can return <c>null</c> or
+        ///             <c>EMPTY_DOCIDSET.Iterator()</c> if there
+        ///             are no docs that match. 
+        /// </summary>
+        public override DocIdSetIterator Iterator()
+        {
+            return new EnumerableBasedDocIdSetIterator(_items);
+        }
+    }
+
+    public class EnumerableBasedDocIdSetIterator : DocIdSetIterator
+    {
+        private readonly IEnumerable<int> items;
+        private IEnumerator<int> iterator;
+        private int? currentIndex;
+
+        public EnumerableBasedDocIdSetIterator(IEnumerable<int> items)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException("items");
+            }
+
+            this.items = items;
+            iterator = items.GetEnumerator();
+        }
+
+        public override int Advance(int target)
+        {
+            if (currentIndex == null)
+            {
+                currentIndex = 0;
+            }
+
+            if (target < currentIndex)
+            {
+                throw new ArgumentOutOfRangeException("target", target, "Iterator state past target: " + currentIndex);
+            }
+
+            int remaining = target - currentIndex.Value;
+            bool hasMore;
+
+            while ((hasMore = iterator.MoveNext()) && remaining > 0)
+            {
+                currentIndex++;
+            }
+
+            if (!hasMore)
+            {
+                currentIndex = NO_MORE_DOCS;
+            }
+
+            return currentIndex == NO_MORE_DOCS ? NO_MORE_DOCS : iterator.Current;
+        }
+
+        public override int DocID()
+        {
+            if (currentIndex == NO_MORE_DOCS || currentIndex == null)
+            {
+                return NO_MORE_DOCS;
+            }
+
+            return iterator.Current;
+        }
+
+        public override int NextDoc()
+        {
+            if (currentIndex == NO_MORE_DOCS)
+            {
+                return NO_MORE_DOCS;
+            }
+
+            return Advance(currentIndex.Value + 1);
         }
     }
 }

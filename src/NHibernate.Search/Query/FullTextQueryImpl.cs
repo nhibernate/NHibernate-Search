@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Lucene.Net.Search;
+using NHibernate.Engine;
 using NHibernate.Engine.Query;
 using NHibernate.Impl;
 using NHibernate.Search.Engine;
@@ -16,7 +17,7 @@ namespace NHibernate.Search.Query
 
     using Transform;
 
-    public class FullTextQueryImpl : AbstractQueryImpl, IFullTextQuery
+    public class FullTextQueryImpl : QueryImpl, IFullTextQuery
     {
 		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FullTextQueryImpl));
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
@@ -175,7 +176,7 @@ namespace NHibernate.Search.Query
                 }
             }
         }
-
+        
         protected override IDictionary<string, LockMode> LockModes
         {
             get { return null; }
@@ -232,6 +233,11 @@ namespace NHibernate.Search.Query
                 return (T[])arrayList.ToArray(typeof(T));
             }
         }
+
+        //protected override IEnumerable<ITranslator> GetTranslators(ISessionImplementor sessionImplementor, QueryParameters queryParameters)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public override IList List()
         {
