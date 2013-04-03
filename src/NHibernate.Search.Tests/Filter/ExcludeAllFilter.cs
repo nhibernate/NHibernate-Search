@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Lucene.Net.Index;
+using Lucene.Net.Search;
 
 namespace NHibernate.Search.Tests.Filter
 {
@@ -8,17 +9,18 @@ namespace NHibernate.Search.Tests.Filter
     {
         private static bool done = false;
 
-        public override BitArray Bits(IndexReader reader)
+        public override DocIdSet GetDocIdSet(IndexReader reader)
         {
-            if (done)
-            {
-                throw new NotSupportedException("Called twice");
-            }
+            throw new NotImplementedException();
+            //if (done)
+            //{
+            //    throw new NotSupportedException("Called twice");
+            //}
 
-            BitArray bitArray = new BitArray(reader.MaxDoc());
-            done = true;
+            //BitArray bitArray = new BitArray(reader.MaxDoc());
+            //done = true;
 
-            return bitArray;
+            //return bitArray;
         }
     }
 }

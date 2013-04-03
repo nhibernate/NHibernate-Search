@@ -29,11 +29,17 @@ namespace NHibernate.Search.Store
                 bool create = !IndexReader.IndexExists(indexDir.FullName);
                 indexName = indexDir.FullName;
                 directory = FSDirectory.GetDirectory(indexName, create);
+
                 if (create)
                 {
-                    IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), create);
+                    IndexWriter iw = new IndexWriter(directory,
+                                                     new StandardAnalyzer(),
+                                                     create,
+                                                     new KeepOnlyLastCommitDeletionPolicy(),
+                                                     IndexWriter.MaxFieldLength.UNLIMITED);
                     iw.Close();
                 }
+
                 //searchFactory.RegisterDirectoryProviderForLocks(this);
             }
             catch (IOException e)
