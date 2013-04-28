@@ -9,157 +9,144 @@ namespace NHibernate.Search.Filter
     using Lucene.Net.Index;
     using Lucene.Net.Search;
 
+		/// <summary>
+		/// A filter that performs a Boolean AND on multiple filters.
+		/// </summary>
     public class ChainedFilter : Filter
     {
-        private readonly List<Filter> chainedFilters = new List<Filter>();
+			private readonly List<Filter> chainedFilters = new List<Filter>();
 
-        public void AddFilter(Filter filter)
-        {
-            chainedFilters.Add(filter);
-        }
+			public void AddFilter(Filter filter)
+			{
+				chainedFilters.Add(filter);
+			}
 
-        public override DocIdSet GetDocIdSet(IndexReader reader)
-        {
-            if (chainedFilters.Count == 0)
-            {
-                throw new AssertionFailure("ChainedFilter has no filters to chain for");
-            }
+			private HashSet<int> DocIdSetToHashSet(DocIdSet docs)
+			{
+				var result = new HashSet<int>();
+				var iterator = docs.Iterator();
 
-            // We need to copy the first BitArray because BitArray is assigned to by And
-            HashSet<int> result = null;
+				int docId;
+				while ((docId = iterator.NextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
+					result.Add(docId);
 
-            foreach (var filter in chainedFilters)
-            {
-                DocIdSet b2 = filter.GetDocIdSet(reader);
-                int docId;
-                DocIdSetIterator iterator = b2.Iterator();
+				return result;
+			}
 
-                if (result == null)
-                {
-                    result = new HashSet<int>();
+			public override DocIdSet GetDocIdSet(IndexReader reader)
+			{
+				if (chainedFilters.Count == 0)
+				{
+					throw new AssertionFailure("ChainedFilter has no filters to chain for");
+				}
 
-                    while ((docId = iterator.NextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
-                    {
-                        result.Add(docId);
-                    }
-                }
-                else
-                {
-                    while ((docId = iterator.NextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
-                    {
-                        if (!result.Contains(docId))
-                        {
-                            result.Remove(docId);
-                        }
-                    }
-                }
-            }
+				// Create HashSet of first filter's contents
+				HashSet<int> result = DocIdSetToHashSet(chainedFilters[0].GetDocIdSet(reader));
 
-            DocIdSet filteredCombinedDocIdSet = new EnumerableBasedDocIdSet(result);
-            return filteredCombinedDocIdSet;
-        }
+				// For each remaining filter, fill another HashSet and intersect it with the first.
+				for (int i = 1; i < chainedFilters.Count; i++)
+				{
+					var nextSet = DocIdSetToHashSet(chainedFilters[i].GetDocIdSet(reader));
+					result.IntersectWith(nextSet);
+				}
 
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder("ChainedFilter [");
-            foreach (Filter filter in chainedFilters)
-            {
-                sb.AppendLine().Append(filter.ToString());
-            }
+				DocIdSet resultDocIds = new EnumerableBasedDocIdSet(result);
+				return resultDocIds;
+			}
 
-            return sb.Append("\r\n]").ToString();
-        }
-    }
 
-    public class EnumerableBasedDocIdSet : DocIdSet
-    {
-        private readonly IEnumerable<int> _items;
+			public override string ToString()
+			{
+				StringBuilder sb = new StringBuilder("ChainedFilter [");
+				foreach (Filter filter in chainedFilters)
+				{
+					sb.AppendLine().Append(filter.ToString());
+				}
 
-        public EnumerableBasedDocIdSet(IEnumerable<int> items)
-        {
-            if (items == null)
-            {
-                throw new ArgumentNullException("items");
-            }
+				return sb.Append("\r\n]").ToString();
+			}
+		}
 
-            _items = items;
-        }
+		public class EnumerableBasedDocIdSet : DocIdSet
+		{
+			private readonly IEnumerable<int> _items;
 
-        /// <summary>
-        /// Provides a <see cref="T:Lucene.Net.Search.DocIdSetIterator"/> to access the set.
-        ///             This implementation can return <c>null</c> or
-        ///             <c>EMPTY_DOCIDSET.Iterator()</c> if there
-        ///             are no docs that match. 
-        /// </summary>
-        public override DocIdSetIterator Iterator()
-        {
-            return new EnumerableBasedDocIdSetIterator(_items);
-        }
-    }
+			public EnumerableBasedDocIdSet(IEnumerable<int> items)
+			{
+				if (items == null)
+				{
+					throw new ArgumentNullException("items");
+				}
 
-    public class EnumerableBasedDocIdSetIterator : DocIdSetIterator
-    {
-        private readonly IEnumerable<int> items;
-        private IEnumerator<int> iterator;
-        private int? currentIndex;
+				_items = items;
+			}
 
-        public EnumerableBasedDocIdSetIterator(IEnumerable<int> items)
-        {
-            if (items == null)
-            {
-                throw new ArgumentNullException("items");
-            }
+			/// <summary>
+			/// Provides a <see cref="T:Lucene.Net.Search.DocIdSetIterator"/> to access the set.
+			///             This implementation can return <c>null</c> or
+			///             <c>EMPTY_DOCIDSET.Iterator()</c> if there
+			///             are no docs that match. 
+			/// </summary>
+			public override DocIdSetIterator Iterator()
+			{
+				return new EnumerableBasedDocIdSetIterator(_items);
+			}
+		}
 
-            this.items = items;
-            iterator = items.GetEnumerator();
-        }
+		public class EnumerableBasedDocIdSetIterator : DocIdSetIterator
+		{
+			private readonly IEnumerable<int> items;
+			private IEnumerator<int> iterator;
+			private int currentIndex = -1;
 
-        public override int Advance(int target)
-        {
-            if (currentIndex == null)
-            {
-                currentIndex = 0;
-            }
+			public EnumerableBasedDocIdSetIterator(IEnumerable<int> items)
+			{
+				if (items == null)
+				{
+					throw new ArgumentNullException("items");
+				}
 
-            if (target < currentIndex)
-            {
-                throw new ArgumentOutOfRangeException("target", target, "Iterator state past target: " + currentIndex);
-            }
+				this.items = items;
+				iterator = items.GetEnumerator();
+			}
 
-            int remaining = target - currentIndex.Value;
-            bool hasMore;
+			public override int Advance(int target)
+			{
+				if (target < currentIndex)
+				{
+					throw new ArgumentOutOfRangeException("target", target, "Iterator state past target: " + currentIndex);
+				}
 
-            while ((hasMore = iterator.MoveNext()) && remaining > 0)
-            {
-                currentIndex++;
-            }
+				// Relies on NO_MORE_DOCS being a big number
+				while (target > currentIndex)
+				{
+					if (iterator.MoveNext())
+						currentIndex++;
+					else
+						currentIndex = NO_MORE_DOCS;
+				}
 
-            if (!hasMore)
-            {
-                currentIndex = NO_MORE_DOCS;
-            }
+				return currentIndex == NO_MORE_DOCS ? NO_MORE_DOCS : iterator.Current;
+			}
 
-            return currentIndex == NO_MORE_DOCS ? NO_MORE_DOCS : iterator.Current;
-        }
+			public override int DocID()
+			{
+				if (currentIndex == NO_MORE_DOCS || currentIndex == -1)
+				{
+					return NO_MORE_DOCS;
+				}
 
-        public override int DocID()
-        {
-            if (currentIndex == NO_MORE_DOCS || currentIndex == null)
-            {
-                return NO_MORE_DOCS;
-            }
+				return iterator.Current;
+			}
 
-            return iterator.Current;
-        }
+			public override int NextDoc()
+			{
+				if (currentIndex == NO_MORE_DOCS)
+				{
+					return NO_MORE_DOCS;
+				}
 
-        public override int NextDoc()
-        {
-            if (currentIndex == NO_MORE_DOCS)
-            {
-                return NO_MORE_DOCS;
-            }
-
-            return Advance(currentIndex.Value + 1);
-        }
-    }
+				return Advance(currentIndex + 1);
+			}
+		}
 }
