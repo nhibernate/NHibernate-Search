@@ -37,10 +37,31 @@ namespace NHibernate.Search
         /// <param name="entityType"></param>
         void Optimize(System.Type entityType);
 
+        /// <summary>
+        /// Gets a FilterDef object by name from the ISearchFactory implementation. 
+        /// A return value indicates if a matching FilterDef was found
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="filter"></param>
+        /// <returns>True/false whether or not a FilterDef exists for the name.</returns>
         bool TryGetFilterDefinition(string name, out FilterDef filter);
 
+        /// <summary>
+        /// Gets a FilterDef object by name from the ISearchFactory implementation. 
+        /// Throws an exception if one does not exist.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>A FilterDef object associated with the included name parameter.</returns>
         FilterDef GetFilterDefinition(string name);
 
+        /// <summary>
+        /// Adds a FilterDef object to the ISearchFactory implementation with the given name.
+        /// In most cases, FilterDefs should be added during mapping configuration in a 
+        /// custom ISearchMapping implementation. This method enables FilterDefs to be added 
+        /// after mapping at run-time anytime an IFullTextSession is available. 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="filter"></param>
         void AddFilterDefinition(string name, FilterDef filter);
     }
 }
