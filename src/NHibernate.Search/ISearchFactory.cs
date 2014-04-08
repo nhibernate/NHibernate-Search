@@ -1,3 +1,4 @@
+using NHibernate.Search.Engine;
 using NHibernate.Search.Reader;
 using NHibernate.Search.Store;
 
@@ -35,5 +36,11 @@ namespace NHibernate.Search
         /// </summary>
         /// <param name="entityType"></param>
         void Optimize(System.Type entityType);
+
+        bool TryGetFilterDefinition(string name, out FilterDef filter);
+
+        FilterDef GetFilterDefinition(string name);
+
+        void AddFilterDefinition(string name, FilterDef filter);
     }
 }

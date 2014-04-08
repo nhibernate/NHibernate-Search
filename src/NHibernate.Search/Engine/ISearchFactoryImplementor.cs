@@ -25,8 +25,6 @@ namespace NHibernate.Search.Engine
 
         IFilterCachingStrategy GetFilterCachingStrategy();
 
-        FilterDef GetFilterDefinition(string name);
-
         LuceneIndexingParameters GetIndexingParameters(IDirectoryProvider provider);
 
         void AddIndexingParameters(IDirectoryProvider provider, LuceneIndexingParameters indexingParameters);

@@ -288,9 +288,19 @@ namespace NHibernate.Search.Impl
             }
         }
 
+        public bool TryGetFilterDefinition(string name, out FilterDef filter)
+        {
+            return filterDefinitions.TryGetValue(name, out filter);
+        }
+
         public FilterDef GetFilterDefinition(string name)
         {
             return filterDefinitions[name];
+        }
+
+        public void AddFilterDefinition(string name, FilterDef filter)
+        {
+            filterDefinitions.Add(name, filter);
         }
 
         public IOptimizerStrategy GetOptimizerStrategy(IDirectoryProvider provider)
