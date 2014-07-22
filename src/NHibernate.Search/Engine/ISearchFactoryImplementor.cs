@@ -30,5 +30,15 @@ namespace NHibernate.Search.Engine
         void AddIndexingParameters(IDirectoryProvider provider, LuceneIndexingParameters indexingParameters);
 
         void Close();
+
+        /// <summary>
+        /// Adds a FilterDef object to the ISearchFactory implementation with the given name.
+        /// In most cases, FilterDefs should be added during mapping configuration in a 
+        /// custom ISearchMapping implementation. This method enables FilterDefs to be added 
+        /// after mapping at run-time anytime an IFullTextSession is available. 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="filter"></param>
+        void AddFilterDefinition(string name, FilterDef filter);
     }
 }
