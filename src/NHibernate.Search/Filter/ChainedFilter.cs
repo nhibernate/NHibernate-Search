@@ -2,18 +2,16 @@ using System;
 
 namespace NHibernate.Search.Filter
 {
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Text;
+	using Lucene.Net.Index;
+	using Lucene.Net.Search;
+	using System.Collections.Generic;
+	using System.Text;
 
-    using Lucene.Net.Index;
-    using Lucene.Net.Search;
-
-		/// <summary>
-		/// A filter that performs a Boolean AND on multiple filters.
-		/// </summary>
-    public class ChainedFilter : Filter
-    {
+	/// <summary>
+	/// A filter that performs a Boolean AND on multiple filters.
+	/// </summary>
+	public class ChainedFilter : Filter
+	{
 			private readonly List<Filter> chainedFilters = new List<Filter>();
 
 			public void AddFilter(Filter filter)
