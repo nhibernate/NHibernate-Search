@@ -1,8 +1,8 @@
-using System;
-using System.Collections;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 using NUnit.Framework;
+using System;
+using System.Collections;
 
 namespace NHibernate.Search.Tests.Filter
 {
@@ -41,6 +41,7 @@ namespace NHibernate.Search.Tests.Filter
 		}
 
 		[Test]
+		[Ignore("Need to implement BestDriversFilter")]
 		public void CombinedFilters()
 		{
 			CreateData();
@@ -69,6 +70,7 @@ namespace NHibernate.Search.Tests.Filter
 		}
 		
 		[Test]
+		[Ignore("Need to implement ExcludeAllFilter")]
 		public void Cache()
 		{
 			CreateData();
@@ -103,6 +105,7 @@ namespace NHibernate.Search.Tests.Filter
 		}
 
 		[Test]
+		[Ignore("Need to implement BestDriversFilter")]
 		public void StraightFilters()
 		{
 			CreateData();
