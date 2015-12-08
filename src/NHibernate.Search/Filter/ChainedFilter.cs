@@ -95,7 +95,7 @@ namespace NHibernate.Search.Filter
 		{
 			private readonly IEnumerable<int> items;
 			private IEnumerator<int> iterator;
-			private int currentIndex = -1;
+			private int currentDocId = -1;
 
 			public EnumerableBasedDocIdSetIterator(IEnumerable<int> items)
 			{
@@ -110,26 +110,26 @@ namespace NHibernate.Search.Filter
 
 			public override int Advance(int target)
 			{
-				if (target < currentIndex)
+				if (target < currentDocId)
 				{
-					throw new ArgumentOutOfRangeException("target", target, "Iterator state past target: " + currentIndex);
+					throw new ArgumentOutOfRangeException("target", target, "Iterator state past target: " + currentDocId);
 				}
 
 				// Relies on NO_MORE_DOCS being a big number
-				while (target > currentIndex)
+				while (target > currentDocId)
 				{
 					if (iterator.MoveNext())
-						currentIndex = iterator.Current;
+						currentDocId = iterator.Current;
 					else
-						currentIndex = NO_MORE_DOCS;
+						currentDocId = NO_MORE_DOCS;
 				}
 
-				return currentIndex == NO_MORE_DOCS ? NO_MORE_DOCS : iterator.Current;
+				return currentDocId == NO_MORE_DOCS ? NO_MORE_DOCS : iterator.Current;
 			}
 
 			public override int DocID()
 			{
-				if (currentIndex == NO_MORE_DOCS || currentIndex == -1)
+				if (currentDocId == NO_MORE_DOCS || currentDocId == -1)
 				{
 					return NO_MORE_DOCS;
 				}
@@ -139,12 +139,12 @@ namespace NHibernate.Search.Filter
 
 			public override int NextDoc()
 			{
-				if (currentIndex == NO_MORE_DOCS)
+				if (currentDocId == NO_MORE_DOCS)
 				{
 					return NO_MORE_DOCS;
 				}
 
-				return Advance(currentIndex + 1);
+				return Advance(currentDocId + 1);
 			}
 		}
 }
