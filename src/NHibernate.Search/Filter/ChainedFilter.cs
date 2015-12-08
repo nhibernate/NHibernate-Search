@@ -119,7 +119,7 @@ namespace NHibernate.Search.Filter
 				while (target > currentIndex)
 				{
 					if (iterator.MoveNext())
-						currentIndex++;
+						currentIndex = iterator.Current;
 					else
 						currentIndex = NO_MORE_DOCS;
 				}
