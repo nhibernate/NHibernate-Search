@@ -118,13 +118,10 @@ namespace NHibernate.Search.Filter
 				// Relies on NO_MORE_DOCS being a big number
 				while (target > currentDocId)
 				{
-					if (iterator.MoveNext())
-						currentDocId = iterator.Current;
-					else
-						currentDocId = NO_MORE_DOCS;
+					currentDocId = iterator.MoveNext() ? iterator.Current : NO_MORE_DOCS;
 				}
 
-				return currentDocId == NO_MORE_DOCS ? NO_MORE_DOCS : iterator.Current;
+				return currentDocId;
 			}
 
 			public override int DocID()
