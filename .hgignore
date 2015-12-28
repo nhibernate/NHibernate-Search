@@ -23,6 +23,7 @@ syntax: glob
 *.lib
 *.sbr
 *.scc
+*.csdat
 [Bb]in
 [Db]ebug*/
 obj/

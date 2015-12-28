@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Attributes\AnalyzerAttribute.cs" />
     <Compile Include="Attributes\BoostAttribute.cs" />
     <Compile Include="Attributes\BridgeParameterAttribute.cs" />
