@@ -88,11 +88,37 @@ namespace NHibernate.Search
 
         public static DirectoryInfo DetermineIndexDir(String directoryProviderName, IDictionary properties)
         {
-            string indexBase = (string) properties["indexBase"] ?? ".";
-            string indexName = (string) properties["indexName"] ?? directoryProviderName;
+            string indexBase = (string)properties["indexBase"];
 
-            // We need this to allow using the search from the web, where the "." directory is somewhere in the system root.
-            indexBase = indexBase.Replace("~", AppDomain.CurrentDomain.BaseDirectory);
+            if (indexBase == null)
+            {
+                indexBase = ".";
+            }
+            else if (indexBase.StartsWith("~"))
+            {
+                // We need this to allow using the search from the web, where the "." directory is somewhere in the system root.
+                indexBase = indexBase.Replace("~", AppDomain.CurrentDomain.BaseDirectory);
+            }
+            else if (indexBase.StartsWith(".."))
+            {
+                // determine the indexBase path when using parent directory (eg. "../indexes")
+
+                DirectoryInfo targetParentDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+                string path = indexBase;
+
+                while (path.StartsWith(".."))
+                {
+                    if (targetParentDir.Parent == null)
+                        throw new HibernateException("IndexBase path not valid");
+
+                    targetParentDir = targetParentDir.Parent;
+                    path = path.Remove(0, 3);
+                }
+
+                indexBase = Path.Combine(targetParentDir.FullName, path);
+            }
+
             DirectoryInfo indexDir = new DirectoryInfo(indexBase);
             if (!indexDir.Exists)
             {
@@ -105,8 +131,9 @@ namespace NHibernate.Search
                 throw new HibernateException("Cannot write into index directory: " + indexBase);
             }
 
-            indexDir = new DirectoryInfo(Path.Combine(indexDir.FullName, indexName));
-            return indexDir;
+            string indexName = (string)properties["indexName"] ?? directoryProviderName;
+
+            return new DirectoryInfo(Path.Combine(indexDir.FullName, indexName));
         }
 
         private static bool HasWriteAccess(DirectoryInfo indexDir)

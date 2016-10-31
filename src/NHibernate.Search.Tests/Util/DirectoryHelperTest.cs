@@ -2,7 +2,9 @@
 
 namespace NHibernate.Search.Tests.Util
 {
+    using System;
     using System.IO;
+    using System.Linq;
     using System.Threading;
 
     using NUnit.Framework;
@@ -53,6 +55,22 @@ namespace NHibernate.Search.Tests.Util
 
             DirectoryInfo info = new DirectoryInfo(root + "/Fred");
             Assert.IsTrue(info.Exists);
+        }
+
+        [Test]
+        public void CreateViaParent()
+        {
+            var properties = new Dictionary<string, string>();            
+            properties["indexBase"] = "../Wilma";
+            properties["indexName"] = "fakeIndex";
+
+            DirectoryInfo info = DirectoryProviderHelper.DetermineIndexDir(null, properties);
+
+            // get process execution path
+            DirectoryInfo targetParentDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+            // check if a directory info object was returned and "Wilma" folder was created into parent folder of execution process
+            Assert.IsTrue(targetParentDir.Parent.GetDirectories().Any(d => d.Name.Equals(info.Parent.Name)));
         }
 
         #region Helper methods
