@@ -1,28 +1,23 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>NHibernate.Search</id>
-	<title>NHibernate Search</title>
-    <version>2.1.0.1000</version>
+    <id>NHibernate.Search.Esha</id>
+    <version>2.0.5.0</version>
+    <title>NHibernate Search</title>
     <authors>NHibernate Community</authors>
-    <owners>Dario Quintana</owners>
-	<licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
-    <projectUrl>http://nhforge.org</projectUrl>
-    <iconUrl>http://darioquintana.com.ar/files/nhsearch-logo.png</iconUrl>
+    <owners>ESHA Research, Inc.</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-	<summary>
-		NHibernate Search brings the power of full text search engines to the persistence domain model by combining NHibernate with the capabilities of the Lucene.Net search engine.
-	</summary>
-    <description>
-	NHibernate Search brings the power of full text search engines to the persistence domain model by combining NHibernate with the capabilities of the Lucene.Net search engine.
-	</description>
+    <description>NHibernate Search brings the power of full text search engines to the persistence domain model by combining NHibernate with the capabilities of the Lucene.Net search engine.</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/rdavanzo/NHibernate-Search</projectUrl>
+    <copyright>Copyright © ESHA Research, Incorporated. 2014</copyright>
     <tags>NHibernate Search Lucene FullText Text</tags>
     <dependencies>
-      <dependency id="NHibernate" version="3.3.1.4000" />
-	  <dependency id="Lucene" version="2.9.4.1" />   
+      <dependency id="NHibernate" version="3.3.5.4000" />
+      <dependency id="Lucene.Net" version="2.9.4.1" />
     </dependencies>
   </metadata>
-  <files>  
-    <file src="Build\NHibernate.Search.dll" target="lib\Net4" />
+  <files>
+    <file src="bin\Release-2.0\NHibernate.Search.dll" target="lib\net452" />
   </files>
 </package>
