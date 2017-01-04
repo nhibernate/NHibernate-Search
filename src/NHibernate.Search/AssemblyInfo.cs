@@ -19,6 +19,6 @@ using System.Reflection;
 [assembly: AssemblyCopyrightAttribute("Licensed under LGPL.")]
 [assembly: AssemblyVersionAttribute("2.0.5.0")]
 [assembly: AssemblyInformationalVersionAttribute("2.0.5.0")]
-[assembly: AssemblyFileVersionAttribute("2.0.50")]
+[assembly: AssemblyFileVersionAttribute("2.0.5.0")]
 //[assembly : AssemblyKeyFileAttribute("../../src/NHibernate.snk")]
 [assembly: AssemblyDelaySignAttribute(false)]
