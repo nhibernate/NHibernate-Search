@@ -86,7 +86,6 @@
       <DependentUpon>nhs-configuration.xsd</DependentUpon>
     </None>
     <None Include="NHSearch.snk" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -110,6 +109,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0-rc.2.20475.5" />
+    <packageReference Include="Iesi.Collections" version="3.3.1.4000" />
+    <packageReference Include="Lucene.Net.Esha" version="2.9.4.2" />
+    <packageReference Include="NHibernate" version="3.4.1.4000" />
+    <packageReference Include="SharpZipLib" version="0.86.0" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
