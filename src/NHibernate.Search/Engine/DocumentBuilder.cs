@@ -14,6 +14,7 @@ using NHibernate.Search.Mapping;
 using NHibernate.Search.Store;
 using NHibernate.Search.Util;
 using NHibernate.Util;
+using Index = NHibernate.Search.Attributes.Index;
 
 namespace NHibernate.Search.Engine
 {

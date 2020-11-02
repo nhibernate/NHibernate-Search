@@ -1,6 +1,7 @@
 using System;
 using Iesi.Collections.Generic;
 using NHibernate.Search.Attributes;
+using Index = NHibernate.Search.Attributes.Index;
 
 namespace NHibernate.Search.Tests.Query
 {

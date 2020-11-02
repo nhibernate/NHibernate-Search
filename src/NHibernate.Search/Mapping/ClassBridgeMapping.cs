@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Lucene.Net.Analysis;
 using NHibernate.Search.Attributes;
 using NHibernate.Search.Bridge;
+using Index = NHibernate.Search.Attributes.Index;
 
 namespace NHibernate.Search.Mapping
 {

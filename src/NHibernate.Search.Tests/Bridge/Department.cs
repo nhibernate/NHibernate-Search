@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NHibernate.Search.Attributes;
+using Index = NHibernate.Search.Attributes.Index;
 
 namespace NHibernate.Search.Tests.Bridge
 {
