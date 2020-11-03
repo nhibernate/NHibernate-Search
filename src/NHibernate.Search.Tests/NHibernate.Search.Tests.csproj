@@ -4,23 +4,148 @@
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup>    
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NHibernate.Search\NHibernate.Search.csproj" />      
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0-rc.2.20475.5" />
-    <PackageReference Include="Iesi.Collections" version="3.3.1.4000"/>
-    <PackageReference Include="log4net" version="2.0.0"/>
-    <PackageReference Include="Lucene.Net.Esha" version="2.9.4.2"/>
-    <PackageReference Include="NHibernate" version="3.4.1.4000"/>
-    <PackageReference Include="NUnit" version="3.12.0"/>
-    <PackageReference Include="NUnit3TestAdapter" version="3.17.0" />
-    <PackageReference Include="SharpZipLib" version="0.86.0"/>
+    <ProjectReference Include="..\NHibernate.Search\NHibernate.Search.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Bridge\Cloud.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DirectoryProvider\SnowStorm.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FieldAccess\Document.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Inheritance\Animal.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Inheritance\Mammal.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\AlternateBook.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Book.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Clock.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Session\Email.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Worker\Employee.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Worker\Employer.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LuceneWorker\Document.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Bridge\Department.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Bridge\Departments.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Bridge\Gangster.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Worker\Food.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Worker\Drink.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Analyzer\MyEntity.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Author.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Tower.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Product.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Order.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Country.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\Address.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Author.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Music.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Optimizer\Construction.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query\Employee.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Optimizer\Worker.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Reader\Detective.hbm.xml" />
+    <EmbeddedResource Include="Reader\Suspect.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\DoubleInsert\Address.hbm.xml" />
+    <EmbeddedResource Include="Embedded\DoubleInsert\Contact.hbm.xml" />
+    <EmbeddedResource Include="Embedded\DoubleInsert\PersonalContact.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AlternateDocument.hbm.xml" />
+    <EmbeddedResource Include="DocumentTop.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
+    <EmbeddedResource Include="Embedded\DoubleInsert\Phone.hbm.xml" />
+    <Content Include="Filter\Soap.hbm.xml" />
+    <EmbeddedResource Include="Shards\Animal.hbm.xml">
+      <SubType>Embedded Resource</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Shards\Furniture.hbm.xml">
+      <SubType>Embedded Resource</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Filter\Driver.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="Iesi.Collections" version="3.3.1.4000" />
+    <PackageReference Include="log4net" version="2.0.0" />
+    <PackageReference Include="Lucene.Net.Esha" version="2.9.4.2" />
+    <PackageReference Include="NHibernate" version="3.4.1.4000" />
+    <PackageReference Include="NUnit" version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" version="3.17.0" />
+    <PackageReference Include="SharpZipLib" version="0.86.0" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+      if exist hibernate.cfg.xml (del hibernate.cfg.xml)
+      if exist "$(ProjectDir)hibernate.cfg.xml" (copy "$(ProjectDir)hibernate.cfg.xml" "hibernate.cfg.xml")
+    </PostBuildEvent>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>
