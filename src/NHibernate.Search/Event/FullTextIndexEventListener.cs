@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using NHibernate.Cfg;
 using NHibernate.Event;
 using NHibernate.Search.Backend;
@@ -50,6 +52,12 @@ namespace NHibernate.Search.Event
             searchFactory.Close();
         }
 
+        /// <inheritdoc />
+        public Task OnPostDeleteAsync(PostDeleteEvent @event, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual void OnPostDelete(PostDeleteEvent e)
         {
             if (used)
@@ -58,12 +66,24 @@ namespace NHibernate.Search.Event
             }
         }
 
+        /// <inheritdoc />
+        public Task OnPostInsertAsync(PostInsertEvent @event, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual void OnPostInsert(PostInsertEvent e)
         {
             if (used)
             {
                 ProcessWork(e.Entity, e.Id, WorkType.Add, e);
             }
+        }
+
+        /// <inheritdoc />
+        public Task OnPostUpdateAsync(PostUpdateEvent @event, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public virtual void OnPostUpdate(PostUpdateEvent e)

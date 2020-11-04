@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Data;
+using System.Data.Common;
 using System.Reflection;
 
 using log4net;
@@ -213,7 +214,7 @@ namespace NHibernate.Test
 
             using (IConnectionProvider prov = ConnectionProviderFactory.NewConnectionProvider(cfg.Properties))
             {
-                IDbConnection conn = prov.GetConnection();
+                DbConnection conn = prov.GetConnection();
 
                 try
                 {

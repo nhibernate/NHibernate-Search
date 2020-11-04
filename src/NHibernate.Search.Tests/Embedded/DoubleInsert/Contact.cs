@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 {
@@ -26,8 +27,8 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 
         public Contact()
         {
-            addresses = new HashedSet<Address>();
-            phoneNumbers = new HashedSet<Phone>();
+            addresses = new HashSet<Address>();
+            phoneNumbers = new HashSet<Phone>();
         }
 
         #endregion

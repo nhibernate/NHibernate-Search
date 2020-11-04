@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Iesi.Collections.Generic;
 using NHibernate.Search.Attributes;
 using Index = NHibernate.Search.Attributes.Index;
@@ -11,7 +12,7 @@ namespace NHibernate.Search.Tests.Query
         private int id;
         private String summary;
         private String body;
-        private ISet<Author> authors = new HashedSet<Author>();
+        private ISet<Author> authors = new HashSet<Author>();
         private Author mainAuthor;
         private DateTime publicationDate;
 

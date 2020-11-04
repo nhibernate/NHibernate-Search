@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Iesi.Collections.Generic;
 using NHibernate.Search.Attributes;
 
@@ -8,7 +9,7 @@ namespace NHibernate.Search.Tests.Query
     {
         private long id;
         private string title;
-        private ISet<Author> authors = new HashedSet<Author>();
+        private ISet<Author> authors = new HashSet<Author>();
 
         [DocumentId]
         public virtual long Id
