@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Iesi.Collections.Generic;
 using NHibernate.Search.Attributes;
 
@@ -19,7 +20,7 @@ namespace NHibernate.Search.Tests.Embedded
         private string street;
 
         [ContainedIn] 
-        private ISet<Tower> towers = new HashedSet<Tower>();
+        private ISet<Tower> towers = new HashSet<Tower>();
 
         public virtual long Id
         {

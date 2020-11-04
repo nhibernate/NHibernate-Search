@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Linq;
 using Iesi.Collections;
 using NHibernate.Connection;
 
@@ -12,16 +15,16 @@ namespace NHibernate.Test
 	/// </summary>
 	public class DebugConnectionProvider : DriverConnectionProvider
 	{
-		private ISet connections = new ListSet();
+		private ISet<DbConnection> connections = new HashSet<DbConnection>();
 
-		public override IDbConnection GetConnection()
+		public override DbConnection GetConnection()
 		{
-			IDbConnection connection = base.GetConnection();
+			DbConnection connection = base.GetConnection();
 			connections.Add(connection);
 			return connection;
 		}
 
-		public override void CloseConnection(IDbConnection conn)
+		public override void CloseConnection(DbConnection conn)
 		{
 			base.CloseConnection(conn);
 			connections.Remove(conn);
@@ -34,7 +37,7 @@ namespace NHibernate.Test
 				// check to see if all connections that were at one point opened
 				// have been closed through the CloseConnection
 				// method
-				if (connections.IsEmpty)
+				if (!connections.Any())
 				{
 					// there are no connections, either none were opened or
 					// all of the closings went through CloseConnection.
@@ -62,12 +65,12 @@ namespace NHibernate.Test
 
 		public void CloseAllConnections()
 		{
-			while (!connections.IsEmpty)
+			while (connections.Any())
 			{
                 IEnumerator en = connections.GetEnumerator();
                 if (en.MoveNext())
                 {
-                    IDbConnection conn = en.Current as IDbConnection;
+                    DbConnection conn = en.Current as DbConnection;
                     en.Reset();
                     CloseConnection(conn);
                 }

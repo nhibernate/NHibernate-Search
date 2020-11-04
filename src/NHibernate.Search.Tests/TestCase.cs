@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Data;
+using System.Data.Common;
 using System.Reflection;
 
 using log4net;
@@ -77,7 +78,7 @@ namespace NHibernate.Test
         /// <summary>
         /// Creates the tables used in this TestCase
         /// </summary>
-        [TestFixtureSetUp]
+        [SetUp]
         public void TestFixtureSetUp()
         {
             if (!RunFixtureSetUpAndTearDownForEachTest)
@@ -113,7 +114,7 @@ namespace NHibernate.Test
         /// will occur if the TestCase does not have the same hbm.xml files
         /// included as a previous one.
         /// </remarks>
-        [TestFixtureTearDown]
+        [TearDown]
         public void TestFixtureTearDown()
         {
             if (!RunFixtureSetUpAndTearDownForEachTest)
@@ -213,7 +214,7 @@ namespace NHibernate.Test
 
             using (IConnectionProvider prov = ConnectionProviderFactory.NewConnectionProvider(cfg.Properties))
             {
-                IDbConnection conn = prov.GetConnection();
+                DbConnection conn = prov.GetConnection();
 
                 try
                 {

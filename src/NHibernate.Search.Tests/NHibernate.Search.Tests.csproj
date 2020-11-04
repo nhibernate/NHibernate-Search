@@ -1,210 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{71560152-A693-4F66-99CF-570685A33169}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NHibernate.Search.Tests</RootNamespace>
-    <AssemblyName>NHibernate.Search.Tests</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug-2.0\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release-2.0\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Iesi.Collections">
-      <HintPath>..\packages\Iesi.Collections.3.3.1.4000\lib\Net35\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="Lucene.Net, Version=2.9.4.2, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
-      <HintPath>..\packages\Lucene.Net.Esha.2.9.4.2\lib\net40\Lucene.Net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NHibernate, Version=3.4.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
-      <HintPath>..\packages\NHibernate.3.4.1.4000\lib\Net35\NHibernate.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.0.12051, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AlternateDocument.cs" />
-    <Compile Include="Analyzer\AbstractTestAnalyzer.cs" />
-    <Compile Include="Analyzer\AnalyzerTest.cs" />
-    <Compile Include="Analyzer\MyComponent.cs" />
-    <Compile Include="Analyzer\MyEntity.cs" />
-    <Compile Include="Analyzer\Test1Analyzer.cs" />
-    <Compile Include="Analyzer\Test2Analyzer.cs" />
-    <Compile Include="Analyzer\Test3Analyzer.cs" />
-    <Compile Include="Analyzer\Test4Analyzer.cs" />
-    <Compile Include="Bridge\BridgeTest.cs" />
-    <Compile Include="Bridge\CatDeptsFieldsClassBridge.cs" />
-    <Compile Include="Bridge\CatFieldsClassBridge.cs" />
-    <Compile Include="Bridge\ClassBridgeTest.cs" />
-    <Compile Include="Bridge\Cloud.cs" />
-    <Compile Include="Bridge\CloudType.cs" />
-    <Compile Include="Bridge\DateSplitBridge.cs" />
-    <Compile Include="Bridge\Department.cs" />
-    <Compile Include="Bridge\Departments.cs" />
-    <Compile Include="Bridge\EquipmentType.cs" />
-    <Compile Include="Bridge\Gangster.cs" />
-    <Compile Include="Bridge\PaddedIntegerBridge.cs" />
-    <Compile Include="Bridge\TruncateFieldBridge.cs" />
-    <Compile Include="Bridge\TruncateStringBridge.cs" />
-    <Compile Include="Bridge\UnresolvedBridgeTest.cs" />
-    <Compile Include="Cfg\ConfigurationFixture.cs" />
-    <Compile Include="Cfg\LuceneIndexParametersTest.cs" />
-    <Compile Include="DebugConnectionProvider.cs" />
-    <Compile Include="DirectoryProvider\FSSlaveAndMasterDPTest.cs" />
-    <Compile Include="DirectoryProvider\MultiplySessionFactoriesTestCase.cs" />
-    <Compile Include="DirectoryProvider\SnowStorm.cs" />
-    <Compile Include="DocumentTop.cs" />
-    <Compile Include="Embedded\Address.cs" />
-    <Compile Include="Embedded\Author.cs" />
-    <Compile Include="Embedded\Country.cs" />
-    <Compile Include="Embedded\DoubleInsert\Address.cs" />
-    <Compile Include="Embedded\DoubleInsert\BusinessContact.cs" />
-    <Compile Include="Embedded\DoubleInsert\Contact.cs" />
-    <Compile Include="Embedded\DoubleInsert\DoubleInsertEmbeddedTest.cs" />
-    <Compile Include="Embedded\DoubleInsert\PersonalContact.cs" />
-    <Compile Include="Embedded\DoubleInsert\Phone.cs" />
-    <Compile Include="Embedded\EmbeddedTest.cs" />
-    <Compile Include="Embedded\IndexedEmbeddedAndCollections.cs" />
-    <Compile Include="Embedded\Order.cs" />
-    <Compile Include="Embedded\Owner.cs" />
-    <Compile Include="Embedded\Person.cs" />
-    <Compile Include="Embedded\Product.cs" />
-    <Compile Include="Embedded\Tower.cs" />
-    <Compile Include="FieldAccess\Document.cs" />
-    <Compile Include="FieldAccess\FieldAccessTest.cs" />
-    <Compile Include="FileHelperTestCase.cs" />
-    <Compile Include="Filter\BestDriversFilter.cs" />
-    <Compile Include="Filter\Driver.cs" />
-    <Compile Include="Filter\ExcludeAllFilter.cs" />
-    <Compile Include="Filter\ExcludeAllFilterFactory.cs" />
-    <Compile Include="Filter\FilterTest.cs" />
-    <Compile Include="Filter\SecurityFilterFactory.cs" />
-    <Compile Include="Filter\Soap.cs" />
-    <Compile Include="FSDirectoryTest.cs" />
-    <Compile Include="IndexingStrategy\ManualIndexingStrategyTest.cs" />
-    <Compile Include="Inheritance\Animal.cs" />
-    <Compile Include="Inheritance\InheritanceTest.cs" />
-    <Compile Include="Inheritance\Mammal.cs" />
-    <Compile Include="Inheritance\ProxyObjectInheritanceTest.cs" />
-    <Compile Include="ListenerCfg\ListenerRegistrationTests.cs" />
-    <Compile Include="LuceneWorker\Document.cs" />
-    <Compile Include="LuceneWorker\LuceneWorker.cs" />
-    <Compile Include="Mapping\SearchMappingFactoryTest.cs" />
-    <Compile Include="Optimizer\Construction.cs" />
-    <Compile Include="Optimizer\IncrementalOptimizerStrategyTest.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Optimizer\OptimizerTestCase.cs" />
-    <Compile Include="Optimizer\Worker.cs" />
-    <Compile Include="PhysicalTestCase.cs" />
-    <Compile Include="PurgeTest.cs" />
-    <Compile Include="Query\AlternateBook.cs" />
-    <Compile Include="Query\Author.cs" />
-    <Compile Include="Query\Book.cs" />
-    <Compile Include="Query\Clock.cs" />
-    <Compile Include="Query\Employee.cs" />
-    <Compile Include="Query\LuceneQuerySortTest.cs" />
-    <Compile Include="Query\LuceneQueryTest.cs" />
-    <Compile Include="Query\Music.cs" />
-    <Compile Include="Query\ObjectLoaderTest.cs" />
-    <Compile Include="Query\ProjectionQueryTest.cs" />
-    <Compile Include="Query\ProjectionToDelimStringResultTransformer.cs" />
-    <Compile Include="Query\ProjectionToMapResultTransformer.cs" />
-    <Compile Include="Query\QueryLoaderTest.cs" />
-    <Compile Include="RamDirectoryTest.cs" />
-    <Compile Include="Reader\Detective.cs" />
-    <Compile Include="Reader\NotSharedReaderPerfTest.cs" />
-    <Compile Include="Reader\ReaderPerfTestCase.cs" />
-    <Compile Include="Reader\SharedReaderPerfTest.cs" />
-    <Compile Include="Reader\Suspect.cs" />
-    <Compile Include="SearchTestCase.cs" />
-    <Compile Include="Session\Categorie.cs" />
-    <Compile Include="Session\DelegationWrapper.cs" />
-    <Compile Include="Session\Email.cs" />
-    <Compile Include="Session\Entite.cs" />
-    <Compile Include="Session\MassIndexTest.cs" />
-    <Compile Include="Session\OptimizeTest.cs" />
-    <Compile Include="Session\SessionTest.cs" />
-    <Compile Include="Shards\Animal.cs" />
-    <Compile Include="Shards\Furniture.cs" />
-    <Compile Include="Shards\ShardsTest.cs" />
-    <Compile Include="TestCase.cs" />
-    <Compile Include="TestConfigurationHelper.cs" />
-    <Compile Include="Util\DirectoryHelperTest.cs" />
-    <Compile Include="Util\FileHelperTest.cs" />
-    <Compile Include="Worker\AsyncWorkerTest.cs" />
-    <Compile Include="Worker\ConcurrencyTest.cs" />
-    <Compile Include="Worker\Drink.cs" />
-    <Compile Include="Worker\Employee.cs" />
-    <Compile Include="Worker\Employer.cs" />
-    <Compile Include="Worker\Food.cs" />
-    <Compile Include="Worker\SyncWorkerTest.cs" />
-    <Compile Include="Worker\WorkerTestCase.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <ProjectReference Include="..\NHibernate.Search\NHibernate.Search.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Bridge\Cloud.hbm.xml" />
@@ -282,12 +91,6 @@
     <EmbeddedResource Include="Embedded\Address.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NHibernate.Search\NHibernate.Search.csproj">
-      <Project>{CC25D767-990D-4CE0-9F64-3426E244403B}</Project>
-      <Name>NHibernate.Search</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Query\Author.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -319,6 +122,9 @@
     <EmbeddedResource Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
     <EmbeddedResource Include="Embedded\DoubleInsert\Phone.hbm.xml" />
     <Content Include="Filter\Soap.hbm.xml" />
+    <Content Include="hibernate.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Shards\Animal.hbm.xml">
       <SubType>Embedded Resource</SubType>
     </EmbeddedResource>
@@ -328,37 +134,15 @@
     <EmbeddedResource Include="Filter\Driver.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="NHSpecificTest\" />
-    <Folder Include="Properties\" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="Iesi.Collections" version="4.0.4" />
+    <PackageReference Include="log4net" version="2.0.0" />
+    <PackageReference Include="Lucene.Net.Esha" version="2.9.4.2" />
+    <PackageReference Include="NHibernate" version="5.3.4" />
+    <PackageReference Include="NUnit" version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" version="3.17.0" />
+    <PackageReference Include="SharpZipLib" version="0.86.0" />
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <PropertyGroup>
-    <PostBuildEvent>if exist hibernate.cfg.xml (del hibernate.cfg.xml)
-if exist "$(ProjectDir)hibernate.cfg.xml" (copy "$(ProjectDir)hibernate.cfg.xml" "hibernate.cfg.xml")</PostBuildEvent>
-  </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

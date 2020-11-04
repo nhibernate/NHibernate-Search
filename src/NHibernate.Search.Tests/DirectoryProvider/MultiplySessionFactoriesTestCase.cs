@@ -45,7 +45,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
         /// <summary>
         /// The fixture set up.
         /// </summary>
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public virtual void FixtureSetUp()
         {
             Configure();

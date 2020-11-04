@@ -12,13 +12,6 @@ using System.Reflection;
 //------------------------------------------------------------------------------
 
 [assembly: CLSCompliant(false)]
-[assembly: AssemblyTitle("NHibernate.Search")]
 [assembly: AssemblyDescriptionAttribute("NHibernate Search - Integration with Lucene.NET")]
-[assembly: AssemblyCompanyAttribute("NHibernate.org")]
-[assembly: AssemblyProductAttribute("NHibernate.Search")]
 [assembly: AssemblyCopyrightAttribute("Licensed under LGPL.")]
-[assembly: AssemblyVersionAttribute("2.0.5.0")]
-[assembly: AssemblyInformationalVersionAttribute("2.0.5.0")]
-[assembly: AssemblyFileVersionAttribute("2.0.5.0")]
-//[assembly : AssemblyKeyFileAttribute("../../src/NHibernate.snk")]
 [assembly: AssemblyDelaySignAttribute(false)]

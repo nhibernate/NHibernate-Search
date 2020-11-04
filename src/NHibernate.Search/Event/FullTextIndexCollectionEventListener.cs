@@ -1,3 +1,6 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace NHibernate.Search.Event
 {
     using Backend;
@@ -16,14 +19,32 @@ namespace NHibernate.Search.Event
 
         #region Public methods
 
+        /// <inheritdoc />
+        public Task OnPostRecreateCollectionAsync(PostCollectionRecreateEvent @event, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void OnPostRecreateCollection(PostCollectionRecreateEvent @event)
         {
             ProcessCollectionEvent(@event);
         }
 
+        /// <inheritdoc />
+        public Task OnPostRemoveCollectionAsync(PostCollectionRemoveEvent @event, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void OnPostRemoveCollection(PostCollectionRemoveEvent @event)
         {
             ProcessCollectionEvent(@event);
+        }
+
+        /// <inheritdoc />
+        public Task OnPostUpdateCollectionAsync(PostCollectionUpdateEvent @event, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
         }
 
         public void OnPostUpdateCollection(PostCollectionUpdateEvent @event)

@@ -40,3 +40,4 @@ available-test-configurations
 current-test-configuration
 NHibernate.VisualState.xml
 src/.vs
+/.vs/slnx.sqlite

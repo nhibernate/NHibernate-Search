@@ -1,7 +1,11 @@
 using System;
 using System.Collections;
 using System.Data;
+using System.Data.Common;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using NHibernate.Engine;
@@ -22,6 +26,7 @@ namespace NHibernate.Search.Impl
         private readonly IEventSource eventSource;
         private readonly ISessionImplementor sessionImplementor;
         private ISearchFactoryImplementor searchFactory;
+        private DbConnection _connection;
 
         public FullTextSessionImpl(ISession session)
         {
@@ -58,9 +63,300 @@ namespace NHibernate.Search.Impl
 
         #region Delegating to Inner Session
 
+        /// <inheritdoc />
+        public Task FlushAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Boolean> IsDirtyAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task EvictAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> LoadAsync(System.Type theType, Object id, LockMode lockMode,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> LoadAsync(String entityName, Object id, LockMode lockMode,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> LoadAsync(System.Type theType, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<T> LoadAsync<T>(Object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<T> LoadAsync<T>(Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> LoadAsync(String entityName, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task LoadAsync(Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReplicateAsync(Object obj, ReplicationMode replicationMode,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task ReplicateAsync(String entityName, Object obj, ReplicationMode replicationMode,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> SaveAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task SaveAsync(Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> SaveAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task SaveAsync(String entityName, Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task SaveOrUpdateAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task SaveOrUpdateAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task SaveOrUpdateAsync(String entityName, Object obj, Object id,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(String entityName, Object obj, Object id,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> MergeAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> MergeAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<T> MergeAsync<T>(String entityName, T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task PersistAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task PersistAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Int32> DeleteAsync(String query, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Int32> DeleteAsync(String query, Object value, IType type, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Int32> DeleteAsync(String query, Object[] values, IType[] types,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task LockAsync(Object obj, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task LockAsync(String entityName, Object obj, LockMode lockMode,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task RefreshAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task RefreshAsync(Object obj, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<IQuery> CreateFilterAsync(Object collection, String queryString,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> GetAsync(System.Type clazz, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> GetAsync(System.Type clazz, Object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<Object> GetAsync(String entityName, Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<T> GetAsync<T>(Object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<T> GetAsync<T>(Object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public Task<String> GetEntityNameAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public ISharedSessionBuilder SessionWithOptions()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Flush()
         {
             session.Flush();
+        }
+
+        /// <inheritdoc />
+        DbConnection ISession.Disconnect()
+        {
+            throw new NotImplementedException();
         }
 
         public IDbConnection Disconnect()
@@ -72,8 +368,14 @@ namespace NHibernate.Search.Impl
         {
             session.Reconnect();
         }
+        
+        /// <inheritdoc />
+        DbConnection ISession.Close()
+        {
+            throw new NotImplementedException();
+        }
 
-        public void Reconnect(IDbConnection connection)
+        public void Reconnect(DbConnection connection)
         {
             session.Reconnect(connection);
         }
@@ -163,10 +465,11 @@ namespace NHibernate.Search.Impl
             get { return session.Statistics; }
         }
 
-		public EntityMode ActiveEntityMode
-		{
-			get { return session.ActiveEntityMode; }
-		}
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>(String entityName)
+        {
+            throw new NotImplementedException();
+        }
 
         public FlushMode FlushMode
         {
@@ -184,6 +487,9 @@ namespace NHibernate.Search.Impl
         {
             get { return session.SessionFactory; }
         }
+
+        /// <inheritdoc />
+        DbConnection ISession.Connection => _connection;
 
         public IDbConnection Connection
         {
@@ -241,6 +547,12 @@ namespace NHibernate.Search.Impl
             return session.Save(entityName, obj);
         }
 
+        /// <inheritdoc />
+        public void Save(String entityName, Object obj, Object id)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SaveOrUpdate(object obj)
         {
             session.SaveOrUpdate(obj);
@@ -249,6 +561,12 @@ namespace NHibernate.Search.Impl
         public void SaveOrUpdate(string entityName, object obj)
         {
             session.SaveOrUpdate(entityName, obj);
+        }
+
+        /// <inheritdoc />
+        public void SaveOrUpdate(String entityName, Object obj, Object id)
+        {
+            throw new NotImplementedException();
         }
 
         public void Update(object obj)
@@ -264,6 +582,12 @@ namespace NHibernate.Search.Impl
         public void Update(string entityName, object obj)
         {
             session.Update(entityName, obj);
+        }
+
+        /// <inheritdoc />
+        public void Update(String entityName, Object obj, Object id)
+        {
+            throw new NotImplementedException();
         }
 
         public object Merge(object obj)
@@ -294,16 +618,6 @@ namespace NHibernate.Search.Impl
         public void Persist(string entityName, object obj)
         {
             session.Persist(entityName, obj);
-        }
-
-        public object SaveOrUpdateCopy(object obj)
-        {
-            return session.SaveOrUpdateCopy(obj);
-        }
-
-        public object SaveOrUpdateCopy(object obj, object id)
-        {
-            return session.SaveOrUpdateCopy(obj, id);
         }
 
         public void Delete(object obj)
@@ -366,7 +680,13 @@ namespace NHibernate.Search.Impl
             return session.BeginTransaction(isolationLevel);
         }
 
-		public ICriteria CreateCriteria<T>() where T : class
+        /// <inheritdoc />
+        public void JoinTransaction()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICriteria CreateCriteria<T>() where T : class
         {
             return session.CreateCriteria<T>();
         }
@@ -499,6 +819,12 @@ namespace NHibernate.Search.Impl
         public ISession GetSession(EntityMode entityMode)
         {
             return session.GetSession(entityMode);
+        }
+
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

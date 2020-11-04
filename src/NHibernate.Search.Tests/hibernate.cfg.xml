@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This is the System.Data.dll provider for SQL Server -->
+<hibernate-configuration  xmlns="urn:nhibernate-configuration-2.2" >
+	<session-factory name="NHibernate.Test">
+		<property name="connection.driver_class">NHibernate.Driver.SqlClientDriver</property>
+		<property name="connection.connection_string">
+			Server=(localdb)\mssqllocaldb;initial catalog=nhibernate;Integrated Security=SSPI
+		</property>
+		<property name="dialect">NHibernate.Dialect.MsSql2008Dialect</property>
+	</session-factory>
+</hibernate-configuration>
