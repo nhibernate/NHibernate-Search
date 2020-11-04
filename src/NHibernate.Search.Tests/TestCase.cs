@@ -77,7 +77,7 @@ namespace NHibernate.Test
         /// <summary>
         /// Creates the tables used in this TestCase
         /// </summary>
-        [OneTimeSetUp]
+        [SetUp]
         public void TestFixtureSetUp()
         {
             if (!RunFixtureSetUpAndTearDownForEachTest)
@@ -113,7 +113,7 @@ namespace NHibernate.Test
         /// will occur if the TestCase does not have the same hbm.xml files
         /// included as a previous one.
         /// </remarks>
-        [OneTimeTearDown]
+        [TearDown]
         public void TestFixtureTearDown()
         {
             if (!RunFixtureSetUpAndTearDownForEachTest)
