@@ -98,6 +98,7 @@
     <packageReference Include="Lucene.Net.Esha" version="2.9.4.2" />
     <packageReference Include="NHibernate" version="3.4.1.4000" />
     <packageReference Include="SharpZipLib" version="0.86.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

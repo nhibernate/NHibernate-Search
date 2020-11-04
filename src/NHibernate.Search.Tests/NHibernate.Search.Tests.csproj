@@ -122,6 +122,9 @@
     <EmbeddedResource Include="Embedded\DoubleInsert\BusinessContact.hbm.xml" />
     <EmbeddedResource Include="Embedded\DoubleInsert\Phone.hbm.xml" />
     <Content Include="Filter\Soap.hbm.xml" />
+    <Content Include="hibernate.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Shards\Animal.hbm.xml">
       <SubType>Embedded Resource</SubType>
     </EmbeddedResource>
@@ -141,11 +144,5 @@
     <PackageReference Include="NUnit3TestAdapter" version="3.17.0" />
     <PackageReference Include="SharpZipLib" version="0.86.0" />
   </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-      if exist hibernate.cfg.xml (del hibernate.cfg.xml)
-      if exist "$(ProjectDir)hibernate.cfg.xml" (copy "$(ProjectDir)hibernate.cfg.xml" "hibernate.cfg.xml")
-    </PostBuildEvent>
-  </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>
