@@ -21,12 +21,11 @@ namespace NHibernate.Search
             this.luceneQuery = luceneQuery;
         }
 
-        public override SqlString ToSqlString(ICriteria criteria, ICriteriaQuery criteriaQuery,
-                                              IDictionary<string, IFilter> enabledFilters)
+        public override SqlString ToSqlString(ICriteria criteria, ICriteriaQuery criteriaQuery)
         {
             System.Type type = GetCriteriaClass(criteria);
             ISearchFactoryImplementor searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
-            Iesi.Collections.Generic.ISet<System.Type> types;
+            ISet<System.Type> types;
             IndexSearcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out types, type);
             if (searcher == null)
                 throw new SearchException("Could not find a searcher for class: " + type.FullName);
@@ -39,7 +38,7 @@ namespace NHibernate.Search
                 ids.Add(id);
             }
             base.Values = ids.ToArray();
-            return base.ToSqlString(criteria, criteriaQuery, enabledFilters);
+            return base.ToSqlString(criteria, criteriaQuery);
         }
 
         private static System.Type GetCriteriaClass(ICriteria criteria)

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Data;
+using System.Data.Common;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
 using NHibernate.Search.Impl;
@@ -23,7 +24,7 @@ namespace NHibernate.Search.Tests.Session
             int loop = 14;
             for (int i = 0; i < loop; i++)
             {
-                using (IDbCommand cmd = s.Connection.CreateCommand())
+                using (DbCommand cmd = s.Connection.CreateCommand())
                 {
                     s.Transaction.Enlist(cmd);
                     cmd.CommandText = "insert into Email(Id, Title, Body, Header) values( + " + (i + 1)
@@ -86,7 +87,7 @@ namespace NHibernate.Search.Tests.Session
 
             s = new FullTextSessionImpl(OpenSession());
             s.Transaction.Begin();
-            using (IDbCommand cmd = s.Connection.CreateCommand()) 
+            using (DbCommand cmd = s.Connection.CreateCommand()) 
             {
                 s.Transaction.Enlist(cmd);
                 cmd.CommandText = "update Email set Body='Meet the guys who write the software'";
