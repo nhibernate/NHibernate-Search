@@ -93,9 +93,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00012" />
+    <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00012" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0-rc.2.20475.5" />
     <packageReference Include="Iesi.Collections" version="4.0.4" />
-    <packageReference Include="Lucene.Net.Esha" version="2.9.4.2" />
     <packageReference Include="NHibernate" version="5.3.4" />
     <packageReference Include="SharpZipLib" version="0.86.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />

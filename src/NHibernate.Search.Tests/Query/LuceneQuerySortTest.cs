@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using Lucene.Net.Analysis;
-using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
 using NUnit.Framework;
 
