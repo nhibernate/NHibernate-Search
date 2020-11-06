@@ -1,5 +1,6 @@
 using Lucene.Net.Analysis.Standard;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
 using NHibernate.Criterion;
 
 namespace NHibernate.Search
@@ -16,13 +17,13 @@ namespace NHibernate.Search
 
         public static ICriterion Query(string luceneQuery)
         {
-            QueryParser parser = new QueryParser(string.Empty, new StandardAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, string.Empty, new StandardAnalyzer(LuceneVersion.LUCENE_48));
             return Query(parser.Parse(luceneQuery));
         }
 
         public static ICriterion Query(string defaultField, string luceneQuery)
         {
-            QueryParser parser = new QueryParser(defaultField, new StandardAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, defaultField, new StandardAnalyzer(LuceneVersion.LUCENE_48));
             return Query(parser.Parse(luceneQuery));
         }
     }

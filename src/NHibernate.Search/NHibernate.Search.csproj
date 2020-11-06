@@ -94,7 +94,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Lucene.Net" Version="4.8.0-beta00012" />
+    <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00012" />
+    <PackageReference Include="Lucene.Net.Queries" Version="4.8.0-beta00012" />
     <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00012" />
+    <PackageReference Include="Lucene.Net.Sandbox" Version="4.8.0-beta00012" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0-rc.2.20475.5" />
     <packageReference Include="Iesi.Collections" version="4.0.4" />
     <packageReference Include="NHibernate" version="5.3.4" />

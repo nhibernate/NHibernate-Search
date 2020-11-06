@@ -5,6 +5,7 @@ using System.Threading;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
+using Lucene.Net.Util;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
@@ -132,7 +133,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    reader.Close();
+                    reader.Dispose();
                 }
                 catch (IOException ex)
                 {
@@ -165,8 +166,8 @@ namespace NHibernate.Search.Backend
             {
                 Analyzer analyzer = entity != null
                                         ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
-                                        : new StandardAnalyzer();
-                IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false);
+                                        : new StandardAnalyzer(LuceneVersion.LUCENE_48);
+                IndexWriter writer = new IndexWriter(provider.Directory, analyzer);
 
                 LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
                 if (IsBatch)
@@ -230,7 +231,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    reader.Close();
+                    reader.Dispose();
                 }
                 catch (IOException e)
                 {
@@ -274,7 +275,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    writer.Close();
+                    writer.Dispose();
                 }
                 catch (IOException e)
                 {

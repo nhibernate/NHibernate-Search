@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 using NHibernate.Engine;
 using NHibernate.Event;
 using NHibernate.Impl;
