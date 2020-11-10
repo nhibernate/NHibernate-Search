@@ -6,41 +6,15 @@
 
     public class ParameterSet
     {
-        private int? mergeFactor;
-        private int? maxMergeDocs;
-        private int? maxBufferedDocs;
-        private int? termIndexInterval;
-        private int? ramBufferSizeMb;
+        public int? MergeFactor { get; set; }
 
-        public int? MergeFactor
-        {
-            get { return mergeFactor; }
-            set { mergeFactor = value; }
-        }
+        public int? MaxMergeDocs { get; set; }
 
-        public int? MaxMergeDocs
-        {
-            get { return maxMergeDocs; }
-            set { maxMergeDocs = value; }
-        }
+        public int? MaxBufferedDocs { get; set; }
 
-        public int? MaxBufferedDocs
-        {
-            get { return maxBufferedDocs; }
-            set { maxBufferedDocs = value; }
-        }
+        public int? TermIndexInterval { get; set; }
 
-        public int? TermIndexInterval
-        {
-            get { return termIndexInterval; }
-            set { termIndexInterval = value; }
-        }
-
-        public int? RamBufferSizeMb
-        {
-            get { return ramBufferSizeMb; }
-            set { ramBufferSizeMb = value; }
-        }
+        public int? RamBufferSizeMb { get; set; }
 
         public void ApplyToWriter(IndexWriter writer)
         {

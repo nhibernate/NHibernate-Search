@@ -121,7 +121,7 @@ namespace NHibernate.Search.Reader
                 if (trace) log.Info("Closing out of date IndexReader " + outOfDateReader);
                 try
                 {
-                    outOfDateReader.Close();
+                    outOfDateReader.Dispose();
                 }
                 catch (IOException e)
                 {
@@ -134,7 +134,7 @@ namespace NHibernate.Search.Reader
                 if (trace) log.Info("Closing old IndexReader " + oldReader);
                 try
                 {
-                    oldReader.Close();
+                    oldReader.Dispose();
                 }
                 catch (IOException e)
                 {

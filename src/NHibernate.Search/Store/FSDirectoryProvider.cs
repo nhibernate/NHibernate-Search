@@ -5,6 +5,7 @@ using System.IO;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using Lucene.Net.Util;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
 
@@ -33,7 +34,7 @@ namespace NHibernate.Search.Store
                 if (create)
                 {
                     IndexWriter iw = new IndexWriter(directory,
-                                                     new StandardAnalyzer(),
+                                                     new StandardAnalyzer(LuceneVersion.LUCENE_48),
                                                      create,
                                                      new KeepOnlyLastCommitDeletionPolicy(),
                                                      IndexWriter.MaxFieldLength.UNLIMITED);

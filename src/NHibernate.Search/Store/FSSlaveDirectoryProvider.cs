@@ -7,6 +7,7 @@ using System.Threading;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using Lucene.Net.Util;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
 
@@ -23,6 +24,7 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class FSSlaveDirectoryProvider : IDirectoryProvider
     {
+        private const LuceneVersion _luceneVersion = LuceneVersion.LUCENE_48;
 		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FSSlaveDirectoryProvider));
         private FSDirectory directory1;
         private FSDirectory directory2;
@@ -127,6 +129,7 @@ namespace NHibernate.Search.Store
             try
             {
                 bool create;
+                var config = new IndexWriterConfig(_luceneVersion, new StandardAnalyzer(_luceneVersion));
 
                 DirectoryInfo subDir = new DirectoryInfo(Path.Combine(indexName, "1"));
                 create = !IndexReader.IndexExists(subDir.FullName); 
@@ -134,18 +137,39 @@ namespace NHibernate.Search.Store
                 if (create)
                 {
                     log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
-                    IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(), create);
-                    iw1.Close();
+                    var iw1 = new IndexWriter(directory1, config);
+                    try
+                    {
+                        iw1.Dispose();
+                    }
+                    finally
+                    {
+                        if (IndexWriter.IsLocked(directory1))
+                        {
+                            IndexWriter.Unlock(directory1);
+                        }
+                    }
                 }
 
-                subDir = new DirectoryInfo(Path.Combine(indexName, "2"));
-                create = !IndexReader.IndexExists(subDir.FullName); 
+                var indexPath = Path.Combine(indexName, "2");
+
+                var dir = new Directory(subDir);
+                DirectoryReader.IndexExists(subDir.);
+                create = !IndexReader.IndexExists(subDir.FullName);
                 directory2 = FSDirectory.GetDirectory(subDir.FullName, create);
-                if (create)
+                
+                log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
+                var iw2 = new IndexWriter(directory2, config);
+                try
                 {
-                    log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
-                    IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(), create);
-                    iw2.Close();
+                    iw2.Dispose();
+                }
+                finally
+                {
+                    if (IndexWriter.IsLocked(directory2))
+                    {
+                        IndexWriter.Unlock(directory2);
+                    }
                 }
 
                 string current1Marker = Path.Combine(indexName, "current1");

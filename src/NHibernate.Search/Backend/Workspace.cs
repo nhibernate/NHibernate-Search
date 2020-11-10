@@ -145,7 +145,7 @@ namespace NHibernate.Search.Backend
 
                     // PH - Moved the exit lock out of the try otherwise it won't take place when we have an error closing the reader.
                     // Exit Lock added by Kailuo Wang, because the lock needs to be obtained immediately afterwards
-                    object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
+                    var syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
                     Monitor.Exit(syncLock);
                 }
             }
@@ -164,12 +164,13 @@ namespace NHibernate.Search.Backend
 
             try
             {
-                Analyzer analyzer = entity != null
+                var analyzer = entity != null
                                         ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
                                         : new StandardAnalyzer(LuceneVersion.LUCENE_48);
-                IndexWriter writer = new IndexWriter(provider.Directory, analyzer);
+                var config = new IndexWriterConfig(LuceneVersion.LUCENE_48, analyzer);
+                var writer = new IndexWriter(provider.Directory, config);
 
-                LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
+                var indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
                 if (IsBatch)
                 {
                     indexingParams.BatchIndexParameters.ApplyToWriter(writer);

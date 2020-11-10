@@ -183,7 +183,7 @@ namespace NHibernate.Search.Engine
             {
                 Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entityType), Field.Store.YES, Field.Index.UN_TOKENIZED);
                 doc.Add(classField);
-                idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES, Field.Index.UN_TOKENIZED, idMapping.Boost);
+                idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES);
             }
 
             BuildDocumentFields(instance, doc, rootClassMapping, string.Empty);
@@ -389,7 +389,7 @@ namespace NHibernate.Search.Engine
                 case Index.NoNorms:
                     return Field.Index.NO_NORMS;
                 case Index.Tokenized:
-                    return Field.Index.TOKENIZED;
+                    return Field.Index.ANALYZED;
                 case Index.UnTokenized:
                     return Field.Index.UN_TOKENIZED;
                 default:
