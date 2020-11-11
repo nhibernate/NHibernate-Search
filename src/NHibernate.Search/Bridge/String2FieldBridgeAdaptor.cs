@@ -18,8 +18,7 @@ namespace NHibernate.Search.Bridge
 
         #region IFieldBridge Members
 
-        [Obsolete]
-        public void Set(String name, Object value, Document document, Field.Store store, Field.Index index)
+        public void Set(String name, Object value, Document document, Field.Store store)
         {
             string indexedString = stringBridge.ObjectToString(value);
 
@@ -27,7 +26,7 @@ namespace NHibernate.Search.Bridge
             // TODO if Store, probably also save empty ones
             if (StringHelper.IsNotEmpty(indexedString))
             {
-                var field = new Field(name, indexedString, store, index);
+                var field = new StringField(name, indexedString, store);
 
                 document.Add(field);
             }

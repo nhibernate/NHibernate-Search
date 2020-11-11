@@ -128,15 +128,13 @@ namespace NHibernate.Search.Store
             period *= 1000;  // per second
             try
             {
-                bool create;
                 var config = new IndexWriterConfig(_luceneVersion, new StandardAnalyzer(_luceneVersion));
 
-                DirectoryInfo subDir = new DirectoryInfo(Path.Combine(indexName, "1"));
-                create = !IndexReader.IndexExists(subDir.FullName); 
-                directory1 = FSDirectory.GetDirectory(subDir.FullName, create);
-                if (create)
+                var indexPath1 = new DirectoryInfo(Path.Combine(indexName, "1"));
+                directory1 = FSDirectory.Open(indexPath1);
+                if (!DirectoryReader.IndexExists(directory1))
                 {
-                    log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
+                    log.DebugFormat("Initialize index: '{0}'", indexPath1);
                     var iw1 = new IndexWriter(directory1, config);
                     try
                     {
@@ -151,24 +149,22 @@ namespace NHibernate.Search.Store
                     }
                 }
 
-                var indexPath = Path.Combine(indexName, "2");
-
-                var dir = new Directory(subDir);
-                DirectoryReader.IndexExists(subDir.);
-                create = !IndexReader.IndexExists(subDir.FullName);
-                directory2 = FSDirectory.GetDirectory(subDir.FullName, create);
-                
-                log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
-                var iw2 = new IndexWriter(directory2, config);
-                try
+                var indexPath2 = Path.Combine(indexName, "2");
+                directory2 = FSDirectory.Open(indexPath2);
+                if (!DirectoryReader.IndexExists(directory2))
                 {
-                    iw2.Dispose();
-                }
-                finally
-                {
-                    if (IndexWriter.IsLocked(directory2))
+                    log.DebugFormat("Initialize index: '{0}'", indexPath2);
+                    var iw2 = new IndexWriter(directory2, config);
+                    try
                     {
-                        IndexWriter.Unlock(directory2);
+                        iw2.Dispose();
+                    }
+                    finally
+                    {
+                        if (IndexWriter.IsLocked(directory2))
+                        {
+                            IndexWriter.Unlock(directory2);
+                        }
                     }
                 }
 

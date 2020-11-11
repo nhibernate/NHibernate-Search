@@ -157,12 +157,15 @@ namespace NHibernate.Search.Reader
 
             if (trace) log.Info("Opening IndexReader for directoryProviders: " + length);
 
-            for (int index = 0; index < length; index++)
+            for (var index = 0; index < length; index++)
             {
-                IDirectoryProvider directoryProvider = directoryProviders[index];
+                var directoryProvider = directoryProviders[index];
                 IndexReader reader;
-                object directoryProviderLock = perDirectoryProviderManipulationLocks[directoryProvider];
-                if (trace) log.Info("Opening IndexReader from " + directoryProvider.Directory);
+                var directoryProviderLock = perDirectoryProviderManipulationLocks[directoryProvider];
+                if (trace)
+                {
+                    log.Info("Opening IndexReader from " + directoryProvider.Directory);
+                }
                 lock (directoryProviderLock)
                 {
                     activeSearchIndexReaders.TryGetValue(directoryProvider, out reader);
@@ -170,7 +173,9 @@ namespace NHibernate.Search.Reader
                 if (reader == null)
                 {
                     if (trace)
+                    {
                         log.Info("No shared IndexReader, opening a new one: " + directoryProvider.Directory);
+                    }
                     reader = ReplaceActiveReader(null, directoryProviderLock, directoryProvider, readers);
                 }
                 else
@@ -188,15 +193,19 @@ namespace NHibernate.Search.Reader
                     if (!isCurrent)
                     {
                         if (trace)
+                        {
                             log.Info("Out of date shared IndexReader found, opening a new one: " +
                                      directoryProvider.Directory);
+                        }
                         IndexReader outOfDateReader = reader;
                         reader = ReplaceActiveReader(outOfDateReader, directoryProviderLock, directoryProvider, readers);
                     }
                     else
                     {
                         if (trace)
+                        {
                             log.Info("Valid shared IndexReader: " + directoryProvider.Directory);
+                        }
 
                         lock (directoryProviderLock)
                         {
@@ -205,11 +214,14 @@ namespace NHibernate.Search.Reader
                             reader = activeSearchIndexReaders[directoryProvider];
                             lock (semaphoreIndexReaderLock)
                             {
-                                ReaderData readerData = searchIndexReaderSemaphores[reader];
+                                var readerData = searchIndexReaderSemaphores[reader];
                                 //TODO if readerData is null????
                                 readerData.Semaphore++;
                                 searchIndexReaderSemaphores[reader] = readerData; //not necessary
-                                if (trace) log.Info("Semaphore increased: " + readerData.Semaphore + " for " + reader);
+                                if (trace)
+                                {
+                                    log.Info("Semaphore increased: " + readerData.Semaphore + " for " + reader);
+                                }
                             }
                         }
                     }
@@ -310,7 +322,7 @@ namespace NHibernate.Search.Reader
                 if (trace) log.Info("Closing IndexReader: " + subReader);
                 try
                 {
-                    subReader.Close();
+                    subReader.Dispose();
                 }
                 catch (IOException e)
                 {
