@@ -168,17 +168,17 @@ namespace NHibernate.Search.Backend
                                         ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
                                         : new StandardAnalyzer(LuceneVersion.LUCENE_48);
                 var config = new IndexWriterConfig(LuceneVersion.LUCENE_48, analyzer);
-                var writer = new IndexWriter(provider.Directory, config);
-
                 var indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
                 if (IsBatch)
                 {
-                    indexingParams.BatchIndexParameters.ApplyToWriter(writer);
+                    indexingParams.BatchIndexParameters.ApplyToWriterConfig(config);
                 }
                 else
                 {
-                    indexingParams.TransactionIndexParameters.ApplyToWriter(writer);
+                    indexingParams.TransactionIndexParameters.ApplyToWriterConfig(config);
                 }
+
+                var writer = new IndexWriter(provider.Directory, config);
 
                 writers.Add(provider, writer);
 

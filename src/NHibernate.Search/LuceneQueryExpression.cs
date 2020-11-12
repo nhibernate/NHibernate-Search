@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lucene.Net.Search;
 using NHibernate.Criterion;
 using NHibernate.Impl;
@@ -23,21 +25,17 @@ namespace NHibernate.Search
 
         public override SqlString ToSqlString(ICriteria criteria, ICriteriaQuery criteriaQuery)
         {
-            System.Type type = GetCriteriaClass(criteria);
-            ISearchFactoryImplementor searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
-            ISet<System.Type> types;
-            IndexSearcher searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out types, type);
+            var type = GetCriteriaClass(criteria);
+            var searchFactory = ContextHelper.GetSearchFactory(GetSession(criteria));
+            var searcher = FullTextSearchHelper.BuildSearcher(searchFactory, out var types, type);
             if (searcher == null)
-                throw new SearchException("Could not find a searcher for class: " + type.FullName);
-            Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(types, luceneQuery);
-            Hits hits = searcher.Search(query);
-            List<object> ids = new List<object>();
-            for (int i = 0; i < hits.Length(); i++)
             {
-                object id = DocumentBuilder.GetDocumentId(searchFactory, type, hits.Doc(i));
-                ids.Add(id);
+                throw new SearchException("Could not find a searcher for class: " + type.FullName);
             }
-            base.Values = ids.ToArray();
+            var query = FullTextSearchHelper.FilterQueryByClasses(types, luceneQuery);
+            var results = searcher.Search(query, Int32.MaxValue);
+            Values = results.ScoreDocs.Select(result => searcher.Doc(result.Doc))
+                .Select(doc => DocumentBuilder.GetDocumentId(searchFactory, type, doc)).ToArray();
             return base.ToSqlString(criteria, criteriaQuery);
         }
 

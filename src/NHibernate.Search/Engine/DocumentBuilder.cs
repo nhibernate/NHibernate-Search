@@ -140,14 +140,10 @@ namespace NHibernate.Search.Engine
 
         public Document GetDocument(object instance, object id, System.Type entityType)
         {
-            Document doc = new Document();
+            var doc = new Document();
 
             // TODO: Check if that should be an else?
-            {
-                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entityType), Field.Store.YES, Index.UnTokenized);
-                doc.Add(classField);
-                idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES);
-            }
+            idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES);
 
             BuildDocumentFields(instance, doc, rootClassMapping, string.Empty);
             return doc;
@@ -232,7 +228,7 @@ namespace NHibernate.Search.Engine
                 return;
             }
 
-            object unproxiedInstance = Unproxy(instance);
+            var unproxiedInstance = Unproxy(instance);
             foreach (var bridge in classMapping.ClassBridges)
             {
                 var bridgeName = prefix + bridge.Name;

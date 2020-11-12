@@ -1,4 +1,6 @@
-﻿namespace NHibernate.Search.Backend
+﻿using Lucene.Net.Index.Extensions;
+
+namespace NHibernate.Search.Backend
 {
     using System;
 
@@ -16,33 +18,33 @@
 
         public int? RamBufferSizeMb { get; set; }
 
-        public void ApplyToWriter(IndexWriter writer)
+        public void ApplyToWriterConfig(IndexWriterConfig config)
         {
             try
             {
                 if (MergeFactor != null)
                 {
-                    writer.SetMergeFactor((int) MergeFactor);
+                    config.SetMergeFactor((int) MergeFactor);
                 }
 
                 if (MaxMergeDocs != null)
                 {
-                    writer.SetMaxMergeDocs((int) MaxMergeDocs);
+                    config.SetMaxMergeDocs((int) MaxMergeDocs);
                 }
 
                 if (MaxBufferedDocs != null)
                 {
-                    writer.SetMaxBufferedDocs((int) MaxBufferedDocs);
+                    config.SetMaxBufferedDocs((int) MaxBufferedDocs);
                 }
 
                 if (RamBufferSizeMb != null)
                 {
-                    writer.SetRAMBufferSizeMB((int) RamBufferSizeMb);
+                    config.SetRAMBufferSizeMB((int) RamBufferSizeMb);
                 }
 
                 if (TermIndexInterval != null)
                 {
-                    writer.SetTermIndexInterval((int) TermIndexInterval);
+                    config.SetTermIndexInterval((int) TermIndexInterval);
                 }
             }
             catch (ArgumentOutOfRangeException)
