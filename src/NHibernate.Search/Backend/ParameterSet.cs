@@ -22,15 +22,19 @@ namespace NHibernate.Search.Backend
         {
             try
             {
+                // possibly take in a MergePolicy or configure it elsewhere
+                var mergePolicy = new LogByteSizeMergePolicy();
                 if (MergeFactor != null)
                 {
-                    config.SetMergeFactor((int) MergeFactor);
+                    mergePolicy.MergeFactor = (int) MergeFactor;
                 }
 
                 if (MaxMergeDocs != null)
                 {
-                    config.SetMaxMergeDocs((int) MaxMergeDocs);
+                    mergePolicy.MaxMergeDocs = (int) MaxMergeDocs;
                 }
+
+                config.MergePolicy = mergePolicy;
 
                 if (MaxBufferedDocs != null)
                 {
