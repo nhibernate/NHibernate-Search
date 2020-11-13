@@ -30,6 +30,7 @@ namespace NHibernate.Search.Query
         private string[] indexProjection;
         private IResultTransformer resultTransformer;
         private ISearchFactoryImplementor searchFactoryImplementor;
+        private int _maxResults = 20;  //Environment.MaxResults;
 
         #region Constructors
 
@@ -48,6 +49,9 @@ namespace NHibernate.Search.Query
 
         #endregion
 
+
+        public int ResultSize => GetResultSize();
+
         public IFullTextQuery SetSort(Sort value)
         {
             this.sort = value;
@@ -60,61 +64,21 @@ namespace NHibernate.Search.Query
             return this;
         }
 
-        /// <summary>
-        /// Return an interator on the results.
-        /// Retrieve the object one by one (initialize it during the next() operation)
-        /// </summary>
-        public override IEnumerable<T> Enumerable<T>()
+        private TopDocs GetTopDocs(IndexSearcher searcher)
         {
             using (new SessionIdLoggingContext(Session.SessionId))
             {
-                //implement an interator which keep the id/class for each hit and get the object on demand
-                //cause I can't keep the searcher and hence the hit opened. I dont have any hook to know when the
-                //user stop using it
-                //scrollable is better in this area
+                LogQuery();
+                var query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
+                BuildFilters();
+                TopDocs topDocs = searcher.Search(query, filter, _maxResults, this.sort ?? Sort.RELEVANCE);
+                log.DebugFormat("Lucene query returned {0} results", topDocs.TotalHits);
+                this.SetResultSize(topDocs);
 
-                //find the directories
-                IndexSearcher searcher = BuildSearcher();
-                if (searcher == null)
-                {
-                    return new IteratorImpl<T>(new List<EntityInfo>(), noLoader).Iterate();
-                }
-
-                try
-                {
-                    Hits hits = GetHits(searcher);
-                    SetResultSize(hits);
-                    int first = First();
-                    int max = Max(first, hits);
-
-                    int size = max - first + 1 < 0 ? 0 : max - first + 1;
-                    IList<EntityInfo> infos = new List<EntityInfo>(size);
-                    DocumentExtractor extractor = new DocumentExtractor(SearchFactory, indexProjection);
-                    for (int index = first; index <= max; index++)
-                    {
-                        //TODO use indexSearcher.getIndexReader().document( hits.id(index), FieldSelector(indexProjection) );
-                        infos.Add(extractor.Extract(hits, index));
-                    }
-                    return new IteratorImpl<T>(infos, this.GetLoader((ISession)Session)).Iterate();
-                }
-                catch (IOException e)
-                {
-                    throw new HibernateException("Unable to query Lucene index", e);
-                }
-                finally
-                {
-                    CloseSearcher(searcher);
-                }
+                return topDocs;
             }
         }
-
-        public override IEnumerable Enumerable()
-        {
-            using (new SessionIdLoggingContext(Session.SessionId))
-            {
-                return Enumerable<object>();
-            }
-        }
+    
 
         private ILoader GetLoader(ISession session)
         {
@@ -191,9 +155,8 @@ namespace NHibernate.Search.Query
             }
         }
 
-        public int ResultSize
-        {
-            get
+   
+        private int GetResultSize()
             {
                 using (new SessionIdLoggingContext(Session.SessionId))
                 {
@@ -207,7 +170,7 @@ namespace NHibernate.Search.Query
                         else
                             try
                             {
-                                resultSize = GetHits(searcher).Length();
+                                resultSize = GetTopDocs(searcher).TotalHits;
                             }
                             catch (IOException e)
                             {
@@ -221,101 +184,17 @@ namespace NHibernate.Search.Query
                     return resultSize;
                 }
             }
-        }
+        
 
-        public override IList<T> List<T>()
-        {
-            using (new SessionIdLoggingContext(Session.SessionId))
-            {
-                ArrayList arrayList = new ArrayList();
-                List(arrayList);
-                return (T[])arrayList.ToArray(typeof(T));
-            }
-        }
+
+
+    
 
         //protected override IEnumerable<ITranslator> GetTranslators(ISessionImplementor sessionImplementor, QueryParameters queryParameters)
         //{
         //    throw new NotImplementedException();
         //}
-
-        public override IList List()
-        {
-            using (new SessionIdLoggingContext(Session.SessionId))
-            {
-                ArrayList arrayList = new ArrayList();
-                List(arrayList);
-                return arrayList;
-            }
-        }
-
-        public override void List(IList list)
-        {
-            using (new SessionIdLoggingContext(Session.SessionId))
-            {
-                // Find the directories
-                IndexSearcher searcher = BuildSearcher();
-                if (searcher == null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    Hits hits = GetHits(searcher);
-                    SetResultSize(hits);
-                    int first = First();
-                    int max = Max(first, hits);
-                    int size = max - first + 1;
-                    if (size <= 0)
-                    {
-                        return;
-                    }
-
-                    ISession sess = (ISession)Session;
-                    List<EntityInfo> infos = new List<EntityInfo>(size);
-                    DocumentExtractor extractor = new DocumentExtractor(SearchFactory, indexProjection);
-                    for (int index = first; index <= max; index++)
-                    {
-                        infos.Add(extractor.Extract(hits, index));
-                    }
-
-                    ILoader loader = GetLoader(sess);
-                    IList entities = loader.Load(infos.ToArray());
-                    foreach (object entity in entities)
-                    {
-                        list.Add(entity);
-                    }
-
-                    if (entities.Count != infos.Count)
-                        log.Warn("Lucene index contains infos about " + infos.Count + " entities, but " + entities.Count +
-                                 " were found in the database. Rebuild the index.");
-
-                    if (resultTransformer == null || loader is ProjectionLoader)
-                    {
-                        // stay consistent with transformTuple which can only be executed during a projection
-                    }
-                    else
-                    {
-                        IList tempList = resultTransformer.TransformList(list);
-                        list.Clear();
-                        foreach (object entity in tempList)
-                        {
-                            list.Add(entity);
-                        }
-                    }
-
-                }
-                catch (IOException e)
-                {
-                    throw new HibernateException("Unable to query Lucene index", e);
-                }
-                finally
-                {
-                    CloseSearcher(searcher);
-                }
-            }
-        }
-
+        
         public override IQuery SetLockMode(string alias, LockMode lockMode)
         {
             return null;
@@ -396,31 +275,7 @@ namespace NHibernate.Search.Query
             return this;
         }
 
-        private Hits GetHits(IndexSearcher searcher)
-        {
-            using (new SessionIdLoggingContext(Session.SessionId))
-            {
-                LogQuery();
-
-                var query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
-                BuildFilters();
-                Hits hits;
-                if (sort != null)
-                {
-                    searcher.SetDefaultFieldSortScoring(true, true);
-                    hits = searcher.Search(query, filter, sort);
-                }
-                else
-                {
-                    hits = searcher.Search(query, filter);
-                }
-                SetResultSize(hits);
-
-                log.DebugFormat("Lucene query returned {0} results", hits.Length());
-
-                return hits;
-            }
-        }
+      
 
         private void LogQuery()
         {
@@ -577,8 +432,7 @@ namespace NHibernate.Search.Query
 
                 try
                 {
-                    SearchFactory.ReaderProvider.CloseReader(searcher.GetIndexReader());
-                    searcher.Close();
+                    SearchFactory.ReaderProvider.CloseReader(searcher.IndexReader);
                 }
                 catch (IOException e)
                 {
@@ -593,19 +447,19 @@ namespace NHibernate.Search.Query
             return FullTextSearchHelper.BuildSearcher(SearchFactory, out classesAndSubclasses, classes);
         }
 
-        private int Max(int first, Hits hits)
+        private int Max(int first, TopDocs topDocs)
         {
             if (Selection.MaxRows == NHibernate.Engine.RowSelection.NoValue)
             {
-                return hits.Length() - 1;
+                return topDocs.TotalHits - 1;
             }
 
-            if (Selection.MaxRows + first < hits.Length())
+            if (Selection.MaxRows + first < topDocs.TotalHits)
             {
                 return first + Selection.MaxRows - 1;
             }
 
-            return hits.Length() - 1;
+            return topDocs.TotalHits - 1;
         }
 
         private int First()
@@ -613,9 +467,9 @@ namespace NHibernate.Search.Query
             return Selection.FirstRow != NHibernate.Engine.RowSelection.NoValue ? Selection.FirstRow : 0;
         }
 
-        private void SetResultSize(Hits hits)
+        private void SetResultSize(TopDocs topDocs)
         {
-            resultSize = hits.Length();
+            resultSize = topDocs.TotalHits;
         }
 
         #region Nested type: ImplFilterKey

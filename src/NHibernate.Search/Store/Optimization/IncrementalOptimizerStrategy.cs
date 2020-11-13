@@ -80,10 +80,10 @@ namespace NHibernate.Search.Store.Optimization
                 log.Debug("Optimize " + directoryProvider.Directory + " after " + operations + " operations and " + transactions + " transactions");
             }
 
-            IndexWriter writer = workspace.GetIndexWriter(directoryProvider);
+            var writer = workspace.GetIndexWriter(directoryProvider);
             try
             {
-                writer.Optimize();
+                writer.ForceMerge(1);
             }
             catch (IOException e)
             {

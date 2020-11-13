@@ -1,20 +1,30 @@
+using System;
 using System.IO;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Analyzer
 {
     public abstract class AbstractTestAnalyzer : Lucene.Net.Analysis.Analyzer
     {
+        private readonly LuceneVersion _version;
+
+        protected AbstractTestAnalyzer(LuceneVersion version)
+        {
+            _version = version;
+        }
+
         protected abstract string[] Tokens { get; }
 
-        public override TokenStream TokenStream(string fieldName, TextReader reader)
-        {
-            return new InternalTokenStream(Tokens);
-        }
+        /// <inheritdoc />
+        protected override TokenStreamComponents CreateComponents(String fieldName, TextReader reader) =>
+            new TokenStreamComponents(
+                new StandardTokenizer(_version, reader), new InternalTokenStream(Tokens));
 
         #region Nested type: InternalTokenStream
 
-        private class InternalTokenStream : TokenStream
+        private sealed class InternalTokenStream : TokenStream
         {
             private readonly string[] tokens;
             private int position;
@@ -24,9 +34,16 @@ namespace NHibernate.Search.Tests.Analyzer
                 this.tokens = tokens;
             }
 
-            public override Token Next()
+            /// <inheritdoc />
+            public override Boolean IncrementToken()
             {
-                return position >= tokens.Length ? null : new Token(tokens[position++], 0, 0);
+                if (position < tokens.Length)
+                {
+                    position++;
+                    return true;
+                }
+
+                return false;
             }
         }
 

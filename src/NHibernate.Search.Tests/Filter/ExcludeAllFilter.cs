@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
+using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Filter
 {
@@ -9,7 +10,7 @@ namespace NHibernate.Search.Tests.Filter
     {
         private static bool done = false;
 
-        public override DocIdSet GetDocIdSet(IndexReader reader)
+        public override DocIdSet GetDocIdSet(AtomicReaderContext context, IBits acceptDocs)
         {
             throw new NotImplementedException();
             //if (done)

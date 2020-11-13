@@ -29,10 +29,6 @@ namespace NHibernate.Search.Reader
             return true;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj != null && BusinessEquals(obj as CacheableMultiReader);
-        }
 
         public bool Equals(CacheableMultiReader obj)
         {
@@ -41,15 +37,5 @@ namespace NHibernate.Search.Reader
 
             return BusinessEquals(obj);
         }
-
-        public override int GetHashCode()
-        {
-            int result = 0;
-            foreach (object reader in subReaders)
-            {
-                result = 31*result + reader.GetHashCode();
-            }
-            return result;
-        }
-    }
+  }
 }

@@ -18,7 +18,7 @@ namespace NHibernate.Search.Bridge
 
         #region IFieldBridge Members
 
-        public void Set(String name, Object value, Document document, Field.Store store, Field.Index index, float? boost)
+        public void Set(String name, Object value, Document document, Field.Store store)
         {
             string indexedString = stringBridge.ObjectToString(value);
 
@@ -26,11 +26,7 @@ namespace NHibernate.Search.Bridge
             // TODO if Store, probably also save empty ones
             if (StringHelper.IsNotEmpty(indexedString))
             {
-                Field field = new Field(name, indexedString, store, index);
-                if (boost != null)
-                {
-                    field.SetBoost(boost.Value);
-                }
+                var field = new StringField(name, indexedString, store);
 
                 document.Add(field);
             }

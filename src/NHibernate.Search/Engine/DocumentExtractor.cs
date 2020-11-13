@@ -27,22 +27,22 @@ namespace NHibernate.Search.Engine
             }
             return entityInfo;
         }
-
-        public EntityInfo Extract(Hits hits, int index)
+        public EntityInfo Extract(TopDocs topDocs, Lucene.Net.Search.IndexSearcher searcher, int index)
         {
-            Document doc = hits.Doc(index);
+            ScoreDoc scoreDoc = topDocs.ScoreDocs[index];
+            Document doc = searcher.Doc(scoreDoc.Doc);
             //TODO if we are lonly looking for score (unlikely), avoid accessing doc (lazy load)
             EntityInfo entityInfo = Extract(doc);
             object[] eip = entityInfo.Projection;
 
             if (eip != null && eip.Length > 0)
             {
-                for (int x = 0; x < projection.Length; x++)
+                for (int x = 0; x<projection.Length; x++)
                 {
                     switch (projection[x])
                     {
                         case ProjectionConstants.SCORE:
-                            eip[x] = hits.Score(index);
+                            eip[x] = scoreDoc.Score;
                             break;
 
                         case ProjectionConstants.ID:
@@ -54,12 +54,12 @@ namespace NHibernate.Search.Engine
                             break;
 
                         case ProjectionConstants.DOCUMENT_ID:
-                            eip[x] = hits.Id(index);
+                            eip[x] = scoreDoc.Doc;
                             break;
 
-                        case ProjectionConstants.BOOST:
-                            eip[x] = doc.GetBoost();
-                            break;
+                        //case ProjectionConstants.BOOST:
+                        //    eip[x] = doc.Boost;
+                        //    break;
 
                         case ProjectionConstants.THIS:
                             //THIS could be projected more than once
@@ -77,4 +77,5 @@ namespace NHibernate.Search.Engine
             return entityInfo;
         }
     }
+    
 }

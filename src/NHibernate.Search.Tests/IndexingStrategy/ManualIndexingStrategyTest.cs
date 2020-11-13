@@ -13,11 +13,11 @@ namespace NHibernate.Search.Tests.IndexingStrategy
             IndexReader reader = IndexReader.Open(GetDirectory(typeof(DocumentTop)));
             try
             {
-                return reader.NumDocs();
+                return reader.NumDocs;
             }
             finally
             {
-                reader.Close();
+                reader.Dispose();
             }
         }
 

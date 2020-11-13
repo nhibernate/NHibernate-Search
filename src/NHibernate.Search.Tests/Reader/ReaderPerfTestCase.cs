@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Threading;
 using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Reader
@@ -96,107 +97,107 @@ namespace NHibernate.Search.Tests.Reader
 
         private void Work(object state)
         {
-            try
-            {
-                Random random = new Random();
-                QueryParser parser = new MultiFieldQueryParser(new string[] { "name", "physicalDescription", "suspectCharge" },
-                    new Lucene.Net.Analysis.Standard.StandardAnalyzer());
-                using (ISession s = OpenSession())
-                {
-                    ITransaction tx = s.BeginTransaction();
-                    IFullTextQuery query = GetQuery("John Doe", parser, s);
-                    Assert.IsTrue(query.ResultSize != 0);
+            //try
+            //{
+            //    Random random = new Random();
+            //    QueryParser parser = new MultiFieldQueryParser(new string[] { "name", "physicalDescription", "suspectCharge" },
+            //        new Lucene.Net.Analysis.Standard.StandardAnalyzer());
+            //    using (ISession s = OpenSession())
+            //    {
+            //        ITransaction tx = s.BeginTransaction();
+            //        IFullTextQuery query = GetQuery("John Doe", parser, s);
+            //        Assert.IsTrue(query.ResultSize != 0);
 
-                    query = GetQuery("green", parser, s);
-                    random.Next(query.ResultSize - 15);
-                    query.SetFirstResult(random.Next(query.ResultSize - 15));
-                    query.SetMaxResults(10);
-                    query.List();
-                    tx.Commit();
-                }
+            //        query = GetQuery("green", parser, s);
+            //        random.Next(query.ResultSize - 15);
+            //        query.SetFirstResult(random.Next(query.ResultSize - 15));
+            //        query.SetMaxResults(10);
+            //        query.List();
+            //        tx.Commit();
+            //    }
 
-                using (ISession s = OpenSession())
-                {
-                    ITransaction tx = s.BeginTransaction();
-                    IFullTextQuery query = GetQuery("John Doe", parser, s);
-                    Assert.IsTrue(query.ResultSize != 0);
+            //    using (ISession s = OpenSession())
+            //    {
+            //        ITransaction tx = s.BeginTransaction();
+            //        IFullTextQuery query = GetQuery("John Doe", parser, s);
+            //        Assert.IsTrue(query.ResultSize != 0);
 
-                    query = GetQuery("thief", parser, s);
-                    int firstResult = random.Next(query.ResultSize - 15);
-                    query.SetFirstResult(firstResult);
-                    query.SetMaxResults(10);
-                    IList result = query.List();
-                    object object_Renamed = result[0];
-                    if (insert && object_Renamed is Detective)
-                    {
-                        Detective detective = (Detective)object_Renamed;
-                        detective.PhysicalDescription = detective.PhysicalDescription + " Eye" + firstResult;
-                    }
-                    else if (insert && object_Renamed is Suspect)
-                    {
-                        Suspect suspect = (Suspect)object_Renamed;
-                        suspect.PhysicalDescription = suspect.PhysicalDescription + " Eye" + firstResult;
-                    }
-                    tx.Commit();
-                }
-                //System.Diagnostics.Debug.WriteLine("Interation " + worksCount + " completed on thread " + Thread.CurrentThread.ManagedThreadId);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex);
-                errorsCount++;
-            }
-            finally
-            {
-                worksCount++;
-            }
+            //        query = GetQuery("thief", parser, s);
+            //        int firstResult = random.Next(query.ResultSize - 15);
+            //        query.SetFirstResult(firstResult);
+            //        query.SetMaxResults(10);
+            //        IList result = query.List();
+            //        object object_Renamed = result[0];
+            //        if (insert && object_Renamed is Detective)
+            //        {
+            //            Detective detective = (Detective)object_Renamed;
+            //            detective.PhysicalDescription = detective.PhysicalDescription + " Eye" + firstResult;
+            //        }
+            //        else if (insert && object_Renamed is Suspect)
+            //        {
+            //            Suspect suspect = (Suspect)object_Renamed;
+            //            suspect.PhysicalDescription = suspect.PhysicalDescription + " Eye" + firstResult;
+            //        }
+            //        tx.Commit();
+            //    }
+            //    //System.Diagnostics.Debug.WriteLine("Interation " + worksCount + " completed on thread " + Thread.CurrentThread.ManagedThreadId);
+            //}
+            //catch (Exception ex)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex);
+            //    errorsCount++;
+            //}
+            //finally
+            //{
+            //    worksCount++;
+            //}
         }
 
         private void ReverseWork(object state)
         {
-            try
-            {
-                Random random = new Random();
-                QueryParser parser = new MultiFieldQueryParser(new string[] { "name", "physicalDescription", "suspectCharge" },
-                    new Lucene.Net.Analysis.Standard.StandardAnalyzer());
-                IFullTextQuery query;
-                using (ISession s = OpenSession())
-                {
-                    ITransaction tx = s.BeginTransaction();
-                    query = GetQuery("John Doe", parser, s);
-                    Assert.IsTrue(query.ResultSize != 0);
+            //try
+            //{
+            //    Random random = new Random();
+            //    QueryParser parser = new MultiFieldQueryParser(new string[] { "name", "physicalDescription", "suspectCharge" },
+            //        new Lucene.Net.Analysis.Standard.StandardAnalyzer());
+            //    IFullTextQuery query;
+            //    using (ISession s = OpenSession())
+            //    {
+            //        ITransaction tx = s.BeginTransaction();
+            //        query = GetQuery("John Doe", parser, s);
+            //        Assert.IsTrue(query.ResultSize != 0);
 
-                    query = GetQuery("london", parser, s);
-                    random.Next(query.ResultSize - 15);
-                    query.SetFirstResult(random.Next(query.ResultSize - 15));
-                    query.SetMaxResults(10);
-                    query.List();
-                    tx.Commit();
-                }
+            //        query = GetQuery("london", parser, s);
+            //        random.Next(query.ResultSize - 15);
+            //        query.SetFirstResult(random.Next(query.ResultSize - 15));
+            //        query.SetMaxResults(10);
+            //        query.List();
+            //        tx.Commit();
+            //    }
 
-                using (ISession s = OpenSession())
-                {
-                    ITransaction tx = s.BeginTransaction();
-                    GetQuery("John Doe", parser, s);
-                    Assert.IsTrue(query.ResultSize != 0);
+            //    using (ISession s = OpenSession())
+            //    {
+            //        ITransaction tx = s.BeginTransaction();
+            //        GetQuery("John Doe", parser, s);
+            //        Assert.IsTrue(query.ResultSize != 0);
 
-                    query = GetQuery("green", parser, s);
-                    random.Next(query.ResultSize - 15);
-                    query.SetFirstResult(random.Next(query.ResultSize - 15));
-                    query.SetMaxResults(10);
-                    query.List();
-                    tx.Commit();
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex);
-                errorsCount++;
-            }
-            finally
-            {
-                reverseWorksCount++;
-            }
+            //        query = GetQuery("green", parser, s);
+            //        random.Next(query.ResultSize - 15);
+            //        query.SetFirstResult(random.Next(query.ResultSize - 15));
+            //        query.SetMaxResults(10);
+            //        query.List();
+            //        tx.Commit();
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(ex);
+            //    errorsCount++;
+            //}
+            //finally
+            //{
+            //    reverseWorksCount++;
+            //}
         }
 
         private IFullTextQuery GetQuery(string queryString, QueryParser parser, ISession s)

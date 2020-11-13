@@ -1,3 +1,7 @@
+using Lucene.Net.Analysis.Core;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
+
 namespace NHibernate.Search.Tests.Query
 {
     using System.Collections;
@@ -78,7 +82,7 @@ namespace NHibernate.Search.Tests.Query
 
             IFullTextSession s = Search.CreateFullTextSession(sess);
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("title", new KeywordAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "title", new KeywordAnalyzer());
             Lucene.Net.Search.Query query = parser.Parse("title:moo");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Music));
             IList result = hibQuery.List();

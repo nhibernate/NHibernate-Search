@@ -19,13 +19,8 @@ namespace NHibernate.Search.Bridge
 
         public object Get(String name, Document document)
         {
-            Field field = document.GetField(name);
-            if (field == null)
-            {
-                return null;
-            }
-
-            return stringBridge.StringToObject(field.StringValue());
+            var field = document.GetField(name);
+            return field == null ? null : stringBridge.StringToObject(field.GetStringValue());
         }
 
         public string ObjectToString(object obj)

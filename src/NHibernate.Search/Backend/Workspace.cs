@@ -5,6 +5,7 @@ using System.Threading;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
+using Lucene.Net.Util;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
@@ -132,7 +133,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    reader.Close();
+                    reader.Dispose();
                 }
                 catch (IOException ex)
                 {
@@ -144,7 +145,7 @@ namespace NHibernate.Search.Backend
 
                     // PH - Moved the exit lock out of the try otherwise it won't take place when we have an error closing the reader.
                     // Exit Lock added by Kailuo Wang, because the lock needs to be obtained immediately afterwards
-                    object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
+                    var syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
                     Monitor.Exit(syncLock);
                 }
             }
@@ -163,20 +164,21 @@ namespace NHibernate.Search.Backend
 
             try
             {
-                Analyzer analyzer = entity != null
+                var analyzer = entity != null
                                         ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
-                                        : new StandardAnalyzer();
-                IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false);
-
-                LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
+                                        : new StandardAnalyzer(LuceneVersion.LUCENE_48);
+                var config = new IndexWriterConfig(LuceneVersion.LUCENE_48, analyzer);
+                var indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
                 if (IsBatch)
                 {
-                    indexingParams.BatchIndexParameters.ApplyToWriter(writer);
+                    indexingParams.BatchIndexParameters.ApplyToWriterConfig(config);
                 }
                 else
                 {
-                    indexingParams.TransactionIndexParameters.ApplyToWriter(writer);
+                    indexingParams.TransactionIndexParameters.ApplyToWriterConfig(config);
                 }
+
+                var writer = new IndexWriter(provider.Directory, config);
 
                 writers.Add(provider, writer);
 
@@ -230,7 +232,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    reader.Close();
+                    reader.Dispose();
                 }
                 catch (IOException e)
                 {
@@ -274,7 +276,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    writer.Close();
+                    writer.Dispose();
                 }
                 catch (IOException e)
                 {

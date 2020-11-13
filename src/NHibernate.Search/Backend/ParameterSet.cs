@@ -1,4 +1,6 @@
-﻿namespace NHibernate.Search.Backend
+﻿using Lucene.Net.Index.Extensions;
+
+namespace NHibernate.Search.Backend
 {
     using System;
 
@@ -6,69 +8,47 @@
 
     public class ParameterSet
     {
-        private int? mergeFactor;
-        private int? maxMergeDocs;
-        private int? maxBufferedDocs;
-        private int? termIndexInterval;
-        private int? ramBufferSizeMb;
+        public int? MergeFactor { get; set; }
 
-        public int? MergeFactor
-        {
-            get { return mergeFactor; }
-            set { mergeFactor = value; }
-        }
+        public int? MaxMergeDocs { get; set; }
 
-        public int? MaxMergeDocs
-        {
-            get { return maxMergeDocs; }
-            set { maxMergeDocs = value; }
-        }
+        public int? MaxBufferedDocs { get; set; }
 
-        public int? MaxBufferedDocs
-        {
-            get { return maxBufferedDocs; }
-            set { maxBufferedDocs = value; }
-        }
+        public int? TermIndexInterval { get; set; }
 
-        public int? TermIndexInterval
-        {
-            get { return termIndexInterval; }
-            set { termIndexInterval = value; }
-        }
+        public int? RamBufferSizeMb { get; set; }
 
-        public int? RamBufferSizeMb
-        {
-            get { return ramBufferSizeMb; }
-            set { ramBufferSizeMb = value; }
-        }
-
-        public void ApplyToWriter(IndexWriter writer)
+        public void ApplyToWriterConfig(IndexWriterConfig config)
         {
             try
             {
+                // possibly take in a MergePolicy or configure it elsewhere
+                var mergePolicy = new LogByteSizeMergePolicy();
                 if (MergeFactor != null)
                 {
-                    writer.SetMergeFactor((int) MergeFactor);
+                    mergePolicy.MergeFactor = (int) MergeFactor;
                 }
 
                 if (MaxMergeDocs != null)
                 {
-                    writer.SetMaxMergeDocs((int) MaxMergeDocs);
+                    mergePolicy.MaxMergeDocs = (int) MaxMergeDocs;
                 }
+
+                config.MergePolicy = mergePolicy;
 
                 if (MaxBufferedDocs != null)
                 {
-                    writer.SetMaxBufferedDocs((int) MaxBufferedDocs);
+                    config.SetMaxBufferedDocs((int) MaxBufferedDocs);
                 }
 
                 if (RamBufferSizeMb != null)
                 {
-                    writer.SetRAMBufferSizeMB((int) RamBufferSizeMb);
+                    config.SetRAMBufferSizeMB((int) RamBufferSizeMb);
                 }
 
                 if (TermIndexInterval != null)
                 {
-                    writer.SetTermIndexInterval((int) TermIndexInterval);
+                    config.SetTermIndexInterval((int) TermIndexInterval);
                 }
             }
             catch (ArgumentOutOfRangeException)

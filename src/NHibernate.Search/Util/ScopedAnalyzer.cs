@@ -26,9 +26,10 @@ namespace NHibernate.Search.Util
             scopedAnalyzers.Add(scope, analyzer);
         }
 
-        public override TokenStream TokenStream(string fieldName, TextReader reader)
+
+        protected override TokenStreamComponents CreateComponents(string fieldName, TextReader reader)
         {
-            return GetAnalyzer(fieldName).TokenStream(fieldName, reader);
+            throw new NotImplementedException();
         }
 
         public override int GetPositionIncrementGap(string fieldName)

@@ -46,7 +46,7 @@ namespace NHibernate.Search.Tests.Inheritance
             var reader = s.SearchFactory.ReaderProvider.OpenReader(s.SearchFactory.GetDirectoryProviders(typeof(Mammal)));
 
             // Get the last document indexed
-            var Document = reader.Document(reader.MaxDoc() - 1);
+            var Document = reader.Document(reader.MaxDoc - 1);
 
             // get the class name field from the document
             string classTypeThatWasIndex = Document.Get(NHibernate.Search.Engine.DocumentBuilder.CLASS_FIELDNAME);

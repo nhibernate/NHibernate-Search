@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
-using Lucene.Net.Analysis;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.Analysis.Core;
+using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Search;
+using Lucene.Net.Util;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Query
@@ -19,7 +20,7 @@ namespace NHibernate.Search.Tests.Query
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             CreateTestBooks(s);
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Summary", new StopAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Summary", new StopAnalyzer(LuceneVersion.LUCENE_48));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:lucene");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Book));
@@ -42,7 +43,7 @@ namespace NHibernate.Search.Tests.Query
             // now the same query, but with a lucene sort specified.
             query = parser.Parse("Summary:lucene");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            Sort sort = new Sort(new SortField("Id", true));
+            Sort sort = new Sort(new SortField("Id", SortFieldType.STRING));
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);
@@ -57,7 +58,7 @@ namespace NHibernate.Search.Tests.Query
             // order by summary
             query = parser.Parse("Summary:lucene OR Summary:action");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            sort = new Sort(new SortField("summary_forSort", false)); //ASC
+            sort = new Sort(new SortField("summary_forSort", SortFieldType.STRING, true)); //ASC
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);
@@ -67,7 +68,7 @@ namespace NHibernate.Search.Tests.Query
             // order by summary backwards
             query = parser.Parse("Summary:lucene OR Summary:action");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            sort = new Sort(new SortField("summary_forSort", true)); //DESC
+            sort = new Sort(new SortField("summary_forSort", SortFieldType.STRING)); //DESC
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);
@@ -77,7 +78,7 @@ namespace NHibernate.Search.Tests.Query
             // order by date backwards
             query = parser.Parse("Summary:lucene OR Summary:action");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            sort = new Sort(new SortField("PublicationDate", SortField.STRING, true)); //DESC
+            sort = new Sort(new SortField("PublicationDate", SortFieldType.STRING)); //DESC
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);

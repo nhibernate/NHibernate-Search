@@ -19,8 +19,6 @@ namespace NHibernate.Search.Bridge
         /// <param name="value"></param>
         /// <param name="document"></param>
         /// <param name="store"></param>
-        /// <param name="index"></param>
-        /// <param name="boost"></param>
-        void Set(string name, object value, Document document, Field.Store store, Field.Index index, float? boost);
+        void Set(string name, object value, Document document, Field.Store store);
     }
 }
