@@ -4,7 +4,6 @@ using System.IO;
 using System.Reflection;
 using Iesi.Collections.Generic;
 using Lucene.Net.Index;
-using Lucene.Net.Store;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
@@ -17,7 +16,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class SharedReaderProvider : IReaderProvider
     {
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(SharedReaderProvider));
+        private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(SharedReaderProvider));
         private static FieldInfo subReadersField;
 
         /// <summary>
@@ -58,9 +57,9 @@ namespace NHibernate.Search.Reader
             bool closeOutOfDateReader = false;
             IndexReader reader;
             /**
-		     * Since out of lock protection, can have multiple readers created in //
-		     * not worse than NotShared and limit the locking time, hence scalability
-		     */
+             * Since out of lock protection, can have multiple readers created in //
+             * not worse than NotShared and limit the locking time, hence scalability
+             */
             try
             {
                 reader = IndexReader.Open(directoryProvider.Directory);
@@ -152,21 +151,18 @@ namespace NHibernate.Search.Reader
 
         public IndexReader OpenReader(IDirectoryProvider[] directoryProviders)
         {
-            var trace = log.IsInfoEnabled;
-            var length = directoryProviders.Length;
-            var readers = new IndexReader[length];
+            bool trace = log.IsInfoEnabled;
+            int length = directoryProviders.Length;
+            IndexReader[] readers = new IndexReader[length];
 
             if (trace) log.Info("Opening IndexReader for directoryProviders: " + length);
 
-            for (var index = 0; index < length; index++)
+            for (int index = 0; index < length; index++)
             {
-                var directoryProvider = directoryProviders[index];
+                IDirectoryProvider directoryProvider = directoryProviders[index];
                 IndexReader reader;
-                var directoryProviderLock = perDirectoryProviderManipulationLocks[directoryProvider];
-                if (trace)
-                {
-                    log.Info("Opening IndexReader from " + directoryProvider.Directory);
-                }
+                object directoryProviderLock = perDirectoryProviderManipulationLocks[directoryProvider];
+                if (trace) log.Info("Opening IndexReader from " + directoryProvider.Directory);
                 lock (directoryProviderLock)
                 {
                     activeSearchIndexReaders.TryGetValue(directoryProvider, out reader);
@@ -174,21 +170,49 @@ namespace NHibernate.Search.Reader
                 if (reader == null)
                 {
                     if (trace)
-                    {
                         log.Info("No shared IndexReader, opening a new one: " + directoryProvider.Directory);
-                    }
                     reader = ReplaceActiveReader(null, directoryProviderLock, directoryProvider, readers);
                 }
                 else
                 {
-                    if (trace)
+                    bool isCurrent;
+                    try
                     {
-                        log.Info("Out of date shared IndexReader found, opening a new one: " +
-                                 directoryProvider.Directory);
+                        isCurrent = (reader as DirectoryReader)?.IsCurrent() ?? false;
                     }
-                    var outOfDateReader = reader;
-                    reader = ReplaceActiveReader(outOfDateReader, directoryProviderLock, directoryProvider, readers);
+                    catch (IOException e)
+                    {
+                        throw new SearchException("Unable to read current status of Lucene IndexReader", e);
+                    }
 
+                    if (!isCurrent)
+                    {
+                        if (trace)
+                            log.Info("Out of date shared IndexReader found, opening a new one: " +
+                                     directoryProvider.Directory);
+                        IndexReader outOfDateReader = reader;
+                        reader = ReplaceActiveReader(outOfDateReader, directoryProviderLock, directoryProvider, readers);
+                    }
+                    else
+                    {
+                        if (trace)
+                            log.Info("Valid shared IndexReader: " + directoryProvider.Directory);
+
+                        lock (directoryProviderLock)
+                        {
+                            //read the latest active one, the current one could be out of date and closed already
+                            //the latest active is guaranteed to be active because it's protected by the dp lock
+                            reader = activeSearchIndexReaders[directoryProvider];
+                            lock (semaphoreIndexReaderLock)
+                            {
+                                ReaderData readerData = searchIndexReaderSemaphores[reader];
+                                //TODO if readerData is null????
+                                readerData.Semaphore++;
+                                searchIndexReaderSemaphores[reader] = readerData; //not necessary
+                                if (trace) log.Info("Semaphore increased: " + readerData.Semaphore + " for " + reader);
+                            }
+                        }
+                    }
                 }
                 readers[index] = reader;
             }
@@ -236,7 +260,7 @@ namespace NHibernate.Search.Reader
 
             if (readerData == null)
             {
-                log.Error("Trying to close a Lucene IndexReader not present");
+                log.Error("Trying to close a Lucene IndexReader not present: " + (subReader as DirectoryReader)?.Directory);
                 // TODO: Should we try to close?
                 return;
             }
@@ -249,13 +273,13 @@ namespace NHibernate.Search.Reader
                 IndexReader reader;
                 bool isActive = activeSearchIndexReaders.TryGetValue(readerData.Provider, out reader)
                     && reader == subReader;
-                if (trace) log.Info("IndexReader not active");
+                if (trace) log.Info("IndexReader not active: " + subReader);
                 lock (semaphoreIndexReaderLock)
                 {
                     readerData = searchIndexReaderSemaphores[subReader];
                     if (readerData == null)
                     {
-                        log.Error("Trying to close a Lucene IndexReader not present");
+                        log.Error("Trying to close a Lucene IndexReader not present: " + (subReader as DirectoryReader)?.Directory);
                         // TODO: Should we try to close?
                         return;
                     }
@@ -269,7 +293,7 @@ namespace NHibernate.Search.Reader
                     }
 
                     if (readerData.Semaphore < 0)
-                        log.Error("Semaphore negative");
+                        log.Error("Semaphore negative: " + (subReader as DirectoryReader)?.Directory);
 
                     if (!isActive && readerData.Semaphore == 0)
                     {

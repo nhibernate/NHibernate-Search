@@ -3,8 +3,10 @@ using System.Collections;
 using System.Threading;
 
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 using Lucene.Net.QueryParsers;
-
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Optimizer
@@ -86,7 +88,7 @@ namespace NHibernate.Search.Tests.Optimizer
                 {
                     ITransaction tx = s.BeginTransaction();
                     IFullTextSession fts = new Impl.FullTextSessionImpl(s);
-                    QueryParser parser = new QueryParser("id", new StopAnalyzer());
+                    QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StopAnalyzer(LuceneVersion.LUCENE_48));
                     Lucene.Net.Search.Query query = parser.Parse("name:Gavin");
 
                     bool results = fts.CreateFullTextQuery(query).List().Count > 0;

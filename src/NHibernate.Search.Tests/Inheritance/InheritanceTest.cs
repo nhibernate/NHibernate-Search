@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Inheritance
@@ -36,7 +39,7 @@ namespace NHibernate.Search.Tests.Inheritance
             tx.Commit(); //post commit events for lucene
             s.Clear();
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Name", new StopAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Name", new StopAnalyzer(LuceneVersion.LUCENE_48));
 
             Lucene.Net.Search.Query query = parser.Parse("Elephant");
             IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Mammal));

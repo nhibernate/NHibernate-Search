@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Data;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Query
@@ -39,7 +42,7 @@ namespace NHibernate.Search.Tests.Query
 
             IFullTextSession s = Search.CreateFullTextSession(sess);
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("title", new KeywordAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "title", new KeywordAnalyzer());
             Lucene.Net.Search.Query query = parser.Parse("name:moo");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Author), typeof(Music));
             IList result = hibQuery.List();

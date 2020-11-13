@@ -1,3 +1,7 @@
+using Lucene.Net.Analysis.Core;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
+
 namespace NHibernate.Search.Tests.Bridge
 {
     using System.Collections;
@@ -49,7 +53,7 @@ namespace NHibernate.Search.Tests.Bridge
             // the branch field and the network field of the Department
             // class. This is in the Lucene document but not in the
             // Department entity itself.
-            QueryParser parser = new QueryParser("branchnetwork", new SimpleAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "branchnetwork", new SimpleAnalyzer(LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("branchnetwork:layton 2B");
             IFullTextQuery hibQuery = session.CreateFullTextQuery(query, typeof(Department));
@@ -76,7 +80,7 @@ namespace NHibernate.Search.Tests.Bridge
             Assert.IsTrue(result.Count == 0, "problem with field cross-ups");
 
             // Non-ClassBridge field.
-            parser = new QueryParser("BranchHead", new SimpleAnalyzer());
+            parser = new QueryParser(LuceneVersion.LUCENE_48, "BranchHead", new SimpleAnalyzer(LuceneVersion.LUCENE_48));
             query = parser.Parse("BranchHead:Kent Lewin");
             hibQuery = session.CreateFullTextQuery(query, typeof(Department));
             result = hibQuery.List();
@@ -117,7 +121,7 @@ namespace NHibernate.Search.Tests.Bridge
             // Departments entity after being massaged by passing it
             // through the EquipmentType class. This field is in
             // the Lucene document but not in the Department entity itself.
-            QueryParser parser = new QueryParser("equipment", new SimpleAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "equipment", new SimpleAnalyzer(LuceneVersion.LUCENE_48));
 
             // Check the second ClassBridge annotation
             Query query = parser.Parse("equiptype:Cisco");
@@ -138,7 +142,7 @@ namespace NHibernate.Search.Tests.Bridge
             Assert.IsTrue(result.Count == 0, "problem with field cross-ups");
 
             // Non-ClassBridge field.
-            parser = new QueryParser("BranchHead", new SimpleAnalyzer());
+            parser = new QueryParser(LuceneVersion.LUCENE_48, "BranchHead", new SimpleAnalyzer(LuceneVersion.LUCENE_48));
             query = parser.Parse("BranchHead:Kent Lewin");
             hibQuery = session.CreateFullTextQuery(query, typeof(Departments));
             result = hibQuery.List();
@@ -147,7 +151,7 @@ namespace NHibernate.Search.Tests.Bridge
             Assert.AreEqual("Kent Lewin", ((Departments)result[0]).BranchHead, "incorrect entity returned");
 
             // Check other ClassBridge annotation.
-            parser = new QueryParser("branchnetwork", new SimpleAnalyzer());
+            parser = new QueryParser(LuceneVersion.LUCENE_48, "branchnetwork", new SimpleAnalyzer(LuceneVersion.LUCENE_48));
             query = parser.Parse("branchnetwork:st. george 1D");
             hibQuery = session.CreateFullTextQuery(query, typeof(Departments));
             result = hibQuery.List();
@@ -189,7 +193,7 @@ namespace NHibernate.Search.Tests.Bridge
             // Departments entity after being massaged by passing it
             // through the EquipmentType class. This field is in
             // the Lucene document but not in the Department entity itself.
-            QueryParser parser = new QueryParser("equipment", new SimpleAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "equipment", new SimpleAnalyzer(LuceneVersion.LUCENE_48));
 
             // Check the second ClassBridge annotation
             Query query = parser.Parse("equiptype:Cisco");
@@ -207,14 +211,14 @@ namespace NHibernate.Search.Tests.Bridge
             // Note: This assertion fails when run with other tests because the id is assigned by the database, and previous tests have already used this value
             //Assert.AreEqual(1, ((Departments)projection[0]).Id, "id incorrect");
             Assert.IsTrue(projection[1] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(8, ((Document)projection[1]).GetFields().Count, "DOCUMENT size incorrect");
+                        Assert.AreEqual(8, ((Document)projection[1]).Fields.Count, "DOCUMENT size incorrect");
             Assert.IsNotNull(((Document)projection[1]).GetField("equiptype"), "equiptype is null");
             Assert.AreEqual(
-                    "Cisco", ((Document)projection[1]).GetField("equiptype").StringValue(), "equiptype incorrect");
+                    "Cisco", ((Document)projection[1]).GetField("equiptype").GetStringValue(), "equiptype incorrect");
             Assert.IsNotNull(((Document)projection[1]).GetField("branchnetwork"), "branchnetwork is null");
             Assert.AreEqual(
                     "Salt Lake City 1A",
-                    ((Document)projection[1]).GetField("branchnetwork").StringValue(),
+                    ((Document)projection[1]).GetField("branchnetwork").GetStringValue(),
                     "branchnetwork incorrect");
 
             projections.MoveNext();
@@ -224,14 +228,14 @@ namespace NHibernate.Search.Tests.Bridge
             // NB This assertion causes the test to break when run with other tests - some leakage?
             //Assert.AreEqual(4, ((Departments)projection[0]).Id, "id incorrect");
             Assert.IsTrue(projection[1] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(8, ((Document)projection[1]).GetFields().Count, "DOCUMENT size incorrect");
+                        Assert.AreEqual(8, ((Document)projection[1]).Fields.Count, "DOCUMENT size incorrect");
             Assert.IsNotNull(((Document)projection[1]).GetField("equiptype"), "equiptype is null");
             Assert.AreEqual(
-                    "Cisco", ((Document)projection[1]).GetField("equiptype").StringValue(), "equiptype incorrect");
+                    "Cisco", ((Document)projection[1]).GetField("equiptype").GetStringValue(), "equiptype incorrect");
             Assert.IsNotNull(((Document)projection[1]).GetField("branchnetwork"), "branchnetwork is null");
             Assert.AreEqual(
                     "St. George 1D",
-                    ((Document)projection[1]).GetField("branchnetwork").StringValue(),
+                    ((Document)projection[1]).GetField("branchnetwork").GetStringValue(),
                     "branchnetwork incorrect");
 
             Assert.AreEqual(false, projections.MoveNext(), "incorrect result count returned");

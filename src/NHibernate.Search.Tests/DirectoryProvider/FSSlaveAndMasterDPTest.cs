@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
 using NHibernate.Cfg;
 using NHibernate.Search.Store;
 using NUnit.Framework;
@@ -33,7 +36,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
             // Assert that the slave index is empty
             IFullTextSession fullTextSession = Search.CreateFullTextSession(GetSlaveSession());
             ITransaction tx = fullTextSession.BeginTransaction();
-            QueryParser parser = new QueryParser("id", new StopAnalyzer());
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StopAnalyzer(LuceneVersion.LUCENE_48));
             IList result = fullTextSession.CreateFullTextQuery(parser.Parse("Location:texas")).List();
             Assert.AreEqual(0, result.Count, "No copy yet, fresh index expected");
             tx.Commit();

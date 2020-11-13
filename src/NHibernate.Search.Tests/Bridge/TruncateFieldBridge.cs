@@ -9,24 +9,25 @@ namespace NHibernate.Search.Tests.Bridge
     {
         #region IFieldBridge Members
 
-        public void Set(String name, Object value, Document document, Field.Store store, Field.Index index, float? boost)
+        public void Set(String name, Object value, Document document, Field.Store store)
         {
-            String indexedString = (String) value;
-            //Do not add fields on empty strings, seems a sensible default in most situations
-            if (StringHelper.IsNotEmpty(indexedString))
-            {
-                Field field = new Field(name, indexedString.Substring(0, indexedString.Length/2), store, index);
-                if (boost != null) field.SetBoost(boost.Value);
-                document.Add(field);
-            }
+            throw new NotImplementedException();
+            //String indexedString = (String) value;
+            ////Do not add fields on empty strings, seems a sensible default in most situations
+            //if (StringHelper.IsNotEmpty(indexedString))
+            //{
+            //    Field field = new Field(name, indexedString.Substring(0, indexedString.Length/2), store, index);
+            //    if (boost != null) field.SetBoost(boost.Value);
+            //    document.Add(field);
+            //}
         }
 
         #endregion
 
         public Object Get(String name, Document document)
         {
-            Field field = document.GetField(name);
-            return field.StringValue();
+            var field = document.GetField(name);
+            return field.GetStringValue();
         }
     }
 }

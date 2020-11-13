@@ -1,5 +1,5 @@
 using Lucene.Net.Analysis;
-
+using Lucene.Net.Analysis.Core;
 using NHibernate.Cfg;
 using NHibernate.Event;
 using NHibernate.Impl;
