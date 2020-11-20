@@ -10,7 +10,7 @@
     <RootNamespace>NHibernate.Search</RootNamespace>
     <AssemblyName>NHibernate.Search</AssemblyName>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
