@@ -115,6 +115,47 @@ namespace NHibernate.Search.Impl
         }
 
         private static Analyzer InitAnalyzer(Configuration cfg) => new StandardAnalyzer(LuceneVersion.LUCENE_48);
+        // StandardAnalyzer requires at least a LuceneVersion as parameter
+        // For the sake of simplicity, we are returning a new StandardAnalyzer, and ignoring any configured type
+        //  This way, we can defer configuration of parameters until such a time as we require an analyzer other than the Standard
+        //    --Ethan Eiter (February 18, 2021)
+
+        //{
+        //    System.Type analyzerClass;
+
+        //    String analyzerClassName = cfg.GetProperty(Environment.AnalyzerClass);
+        //    if (analyzerClassName != null)
+        //        try
+        //        {
+        //            analyzerClass = ReflectHelper.ClassForName(analyzerClassName);
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            throw new SearchException(
+        //                string.Format("Lucene analyzer class '{0}' defined in property '{1}' could not be found.",
+        //                              analyzerClassName, Environment.AnalyzerClass), e);
+        //        }
+        //    else
+        //        analyzerClass = typeof(StandardAnalyzer);
+        //    // Initialize analyzer
+        //    Analyzer defaultAnalyzer;
+        //    try
+        //    {
+        //        defaultAnalyzer = (Analyzer) Activator.CreateInstance(analyzerClass);
+        //    }
+        //    catch (InvalidCastException)
+        //    {
+        //        throw new SearchException(
+        //            string.Format("Lucene analyzer does not implement {0}: {1}", typeof(Analyzer).FullName,
+        //                          analyzerClassName)
+        //            );
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw new SearchException("Failed to instantiate lucene analyzer with type " + analyzerClassName);
+        //    }
+        //    return defaultAnalyzer;
+        //}
 
         private void BindFilterDefs(DocumentMapping mappedClass)
         {
