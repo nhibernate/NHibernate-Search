@@ -53,10 +53,8 @@ namespace NHibernate.Search.Event
         }
 
         /// <inheritdoc />
-        public Task OnPostDeleteAsync(PostDeleteEvent @event, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task OnPostDeleteAsync(PostDeleteEvent e, CancellationToken cancellationToken) =>
+            await Task.Run(() => OnPostDelete(e), cancellationToken);
 
         public virtual void OnPostDelete(PostDeleteEvent e)
         {
@@ -67,10 +65,8 @@ namespace NHibernate.Search.Event
         }
 
         /// <inheritdoc />
-        public Task OnPostInsertAsync(PostInsertEvent @event, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task OnPostInsertAsync(PostInsertEvent e, CancellationToken cancellationToken) =>
+            await Task.Run(() => OnPostInsert(e), cancellationToken);
 
         public virtual void OnPostInsert(PostInsertEvent e)
         {
@@ -81,10 +77,8 @@ namespace NHibernate.Search.Event
         }
 
         /// <inheritdoc />
-        public Task OnPostUpdateAsync(PostUpdateEvent @event, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task OnPostUpdateAsync(PostUpdateEvent e, CancellationToken cancellationToken) =>
+            await Task.Run(() => OnPostUpdate(e), cancellationToken);
 
         public virtual void OnPostUpdate(PostUpdateEvent e)
         {
