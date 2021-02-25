@@ -103,7 +103,7 @@
     <packageReference Include="Iesi.Collections" version="4.0.4" />
     <packageReference Include="NHibernate" version="5.3.4" />
     <packageReference Include="SharpZipLib" version="0.86.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

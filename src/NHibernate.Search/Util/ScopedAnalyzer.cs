@@ -23,7 +23,7 @@ namespace NHibernate.Search.Util
 
         public void AddScopedAnalyzer(string scope, Analyzer analyzer)
         {
-            scopedAnalyzers.Add(scope, analyzer);
+            allscopedAnalyzers.Add(scope, analyzer);
         }
 
 
