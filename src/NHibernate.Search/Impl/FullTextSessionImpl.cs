@@ -32,321 +32,208 @@ namespace NHibernate.Search.Impl
 
         public FullTextSessionImpl(ISession session)
         {
-            this.session = session;
-            this.eventSource = (IEventSource) session;
-            this.sessionImplementor = (ISessionImplementor) session;
+            this.session = session ?? throw new ArgumentNullException(nameof(session));
+            this.eventSource = (IEventSource)session;
+            this.sessionImplementor = (ISessionImplementor)session;
         }
 
-        public ISearchFactory SearchFactory
-        {
-            get
-            {
-                if (searchFactory == null)
-                {
-                    searchFactory = ContextHelper.GetSearchFactory(session);
-                }
+        public ISearchFactory SearchFactory => searchFactory ??= ContextHelper.GetSearchFactory(session);
 
-                return searchFactory;
-            }
-        }
-
-        private ISearchFactoryImplementor SearchFactoryImplementor
-        {
-            get
-            {
-                if (searchFactory == null)
-                {
-                    searchFactory = ContextHelper.GetSearchFactory(session);
-                }
-
-                return searchFactory;
-            }
-        }
+        private ISearchFactoryImplementor SearchFactoryImplementor => searchFactory ??= ContextHelper.GetSearchFactory(session);
 
         #region Delegating to Inner Session
 
         /// <inheritdoc />
-        public Task FlushAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task FlushAsync(CancellationToken cancellationToken = default) => session.FlushAsync(cancellationToken);
 
         /// <inheritdoc />
-        public Task<Boolean> IsDirtyAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Boolean> IsDirtyAsync(CancellationToken cancellationToken = default) => session.IsDirtyAsync(cancellationToken);
 
         /// <inheritdoc />
-        public Task EvictAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task EvictAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.EvictAsync(obj, cancellationToken);
 
         /// <inheritdoc />
         public Task<Object> LoadAsync(System.Type theType, Object id, LockMode lockMode,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.LoadAsync(theType, id, lockMode, cancellationToken);
 
         /// <inheritdoc />
         public Task<Object> LoadAsync(String entityName, Object id, LockMode lockMode,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.LoadAsync(entityName, id, lockMode, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> LoadAsync(System.Type theType, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> LoadAsync(System.Type theType, Object id, CancellationToken cancellationToken = default) =>
+            session.LoadAsync(theType, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task<T> LoadAsync<T>(Object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<T> LoadAsync<T>(Object id, LockMode lockMode, CancellationToken cancellationToken = default) =>
+            session.LoadAsync<T>(id, lockMode, cancellationToken);
 
         /// <inheritdoc />
-        public Task<T> LoadAsync<T>(Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<T> LoadAsync<T>(Object id, CancellationToken cancellationToken = default) =>
+            session.LoadAsync<T>(id, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> LoadAsync(String entityName, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> LoadAsync(String entityName, Object id, CancellationToken cancellationToken = default) =>
+            session.LoadAsync(entityName, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task LoadAsync(Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task LoadAsync(Object obj, Object id, CancellationToken cancellationToken = default) =>
+            session.LoadAsync(obj, id, cancellationToken);
 
         /// <inheritdoc />
         public Task ReplicateAsync(Object obj, ReplicationMode replicationMode,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.ReplicateAsync(obj, replicationMode, cancellationToken);
 
         /// <inheritdoc />
         public Task ReplicateAsync(String entityName, Object obj, ReplicationMode replicationMode,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.ReplicateAsync(entityName, obj, replicationMode, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> SaveAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> SaveAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.SaveAsync(obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task SaveAsync(Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task SaveAsync(Object obj, Object id, CancellationToken cancellationToken = default) =>
+            session.SaveAsync(obj, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> SaveAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> SaveAsync(String entityName, Object obj, CancellationToken cancellationToken = default) =>
+            session.SaveAsync(entityName, obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task SaveAsync(String entityName, Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task SaveAsync(String entityName, Object obj, Object id, CancellationToken cancellationToken = default) =>
+            session.SaveAsync(entityName, obj, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task SaveOrUpdateAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task SaveOrUpdateAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.SaveOrUpdateAsync(obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task SaveOrUpdateAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task SaveOrUpdateAsync(String entityName, Object obj, CancellationToken cancellationToken = default) =>
+            session.SaveOrUpdateAsync(entityName, obj, cancellationToken);
 
         /// <inheritdoc />
         public Task SaveOrUpdateAsync(String entityName, Object obj, Object id,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.SaveOrUpdateAsync(entityName, obj, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task UpdateAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task UpdateAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.UpdateAsync(obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task UpdateAsync(Object obj, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task UpdateAsync(Object obj, Object id, CancellationToken cancellationToken = default) =>
+            session.UpdateAsync(obj, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task UpdateAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task UpdateAsync(String entityName, Object obj, CancellationToken cancellationToken = default) =>
+            session.UpdateAsync(entityName, obj, cancellationToken);
 
         /// <inheritdoc />
         public Task UpdateAsync(String entityName, Object obj, Object id,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.UpdateAsync(entityName, obj, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> MergeAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> MergeAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.MergeAsync(obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> MergeAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> MergeAsync(String entityName, Object obj, CancellationToken cancellationToken = default) =>
+            session.MergeAsync(entityName, obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
-        {
-            throw new NotImplementedException();
-        }
+        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = default) where T : class =>
+            session.MergeAsync<T>(entity, cancellationToken);
 
         /// <inheritdoc />
-        public Task<T> MergeAsync<T>(String entityName, T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
-        {
-            throw new NotImplementedException();
-        }
+        public Task<T> MergeAsync<T>(String entityName, T entity, CancellationToken cancellationToken = default) where T : class =>
+            session.MergeAsync<T>(entityName, entity, cancellationToken);
 
         /// <inheritdoc />
-        public Task PersistAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task PersistAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.PersistAsync(obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task PersistAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task PersistAsync(String entityName, Object obj, CancellationToken cancellationToken = default) =>
+            session.PersistAsync(entityName, obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task DeleteAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task DeleteAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.DeleteAsync(obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task DeleteAsync(String entityName, Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task DeleteAsync(String entityName, Object obj, CancellationToken cancellationToken = default) =>
+            session.DeleteAsync(entityName, obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Int32> DeleteAsync(String query, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Int32> DeleteAsync(String query, CancellationToken cancellationToken = default) =>
+            session.DeleteAsync(query, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Int32> DeleteAsync(String query, Object value, IType type, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Int32> DeleteAsync(String query, Object value, IType type, CancellationToken cancellationToken = default) =>
+            session.DeleteAsync(query, value, type, cancellationToken);
 
         /// <inheritdoc />
         public Task<Int32> DeleteAsync(String query, Object[] values, IType[] types,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.DeleteAsync(query, values, types, cancellationToken);
 
         /// <inheritdoc />
-        public Task LockAsync(Object obj, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task LockAsync(Object obj, LockMode lockMode, CancellationToken cancellationToken = default) =>
+            session.LockAsync(obj, lockMode, cancellationToken);
 
         /// <inheritdoc />
         public Task LockAsync(String entityName, Object obj, LockMode lockMode,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.LockAsync(entityName, obj, lockMode, cancellationToken);
 
         /// <inheritdoc />
-        public Task RefreshAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task RefreshAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.RefreshAsync(obj, cancellationToken);
 
         /// <inheritdoc />
-        public Task RefreshAsync(Object obj, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task RefreshAsync(Object obj, LockMode lockMode, CancellationToken cancellationToken = default) =>
+            session.RefreshAsync(obj, lockMode, cancellationToken);
 
         /// <inheritdoc />
         public Task<IQuery> CreateFilterAsync(Object collection, String queryString,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+            CancellationToken cancellationToken = default) =>
+            session.CreateFilterAsync(collection, queryString, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> GetAsync(System.Type clazz, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> GetAsync(System.Type clazz, Object id, CancellationToken cancellationToken = default) =>
+            session.GetAsync(clazz, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> GetAsync(System.Type clazz, Object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> GetAsync(System.Type clazz, Object id, LockMode lockMode, CancellationToken cancellationToken = default) =>
+            session.GetAsync(clazz, id, lockMode, cancellationToken);
 
         /// <inheritdoc />
-        public Task<Object> GetAsync(String entityName, Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<Object> GetAsync(String entityName, Object id, CancellationToken cancellationToken = default) =>
+            session.GetAsync(entityName, id, cancellationToken);
 
         /// <inheritdoc />
-        public Task<T> GetAsync<T>(Object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<T> GetAsync<T>(Object id, CancellationToken cancellationToken = default) =>
+            session.GetAsync<T>(id, cancellationToken);
 
         /// <inheritdoc />
-        public Task<T> GetAsync<T>(Object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<T> GetAsync<T>(Object id, LockMode lockMode, CancellationToken cancellationToken = default) =>
+            session.GetAsync<T>(id, lockMode, cancellationToken);
 
         /// <inheritdoc />
-        public Task<String> GetEntityNameAsync(Object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
+        public Task<String> GetEntityNameAsync(Object obj, CancellationToken cancellationToken = default) =>
+            session.GetEntityNameAsync(obj, cancellationToken);
 
         /// <inheritdoc />
         public ISharedSessionBuilder SessionWithOptions()
         {
+            // TODO: not sure how to return a builder on this session, instead of leaking out the wrapped session
             throw new NotImplementedException();
         }
 
@@ -355,13 +242,7 @@ namespace NHibernate.Search.Impl
             session.Flush();
         }
 
-        /// <inheritdoc />
-        DbConnection ISession.Disconnect()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDbConnection Disconnect()
+        public DbConnection Disconnect()
         {
             return session.Disconnect();
         }
@@ -371,18 +252,12 @@ namespace NHibernate.Search.Impl
             session.Reconnect();
         }
         
-        /// <inheritdoc />
-        DbConnection ISession.Close()
-        {
-            throw new NotImplementedException();
-        }
-
         public void Reconnect(DbConnection connection)
         {
             session.Reconnect(connection);
         }
 
-        public IDbConnection Close()
+        public DbConnection Close()
         {
             return session.Close();
         }
@@ -399,13 +274,13 @@ namespace NHibernate.Search.Impl
 
         public bool IsReadOnly(object entityOrProxy)
         {
-                return session.IsReadOnly(entityOrProxy);
+            return session.IsReadOnly(entityOrProxy);
         }
 
         public void SetReadOnly(object entityOrProxy, bool readOnly)
         {
-                session.SetReadOnly(entityOrProxy, readOnly);
-            }
+            session.SetReadOnly(entityOrProxy, readOnly);
+        }
 
         public object GetIdentifier(object obj)
         {
@@ -489,11 +364,8 @@ namespace NHibernate.Search.Impl
         {
             get { return session.SessionFactory; }
         }
-
-        /// <inheritdoc />
-        DbConnection ISession.Connection => _connection;
-
-        public IDbConnection Connection
+        
+        public DbConnection Connection
         {
             get { return session.Connection; }
         }
@@ -511,7 +383,7 @@ namespace NHibernate.Search.Impl
         public bool DefaultReadOnly
         {
             get { return session.DefaultReadOnly; }
-                set { session.DefaultReadOnly = value; }
+            set { session.DefaultReadOnly = value; }
         }
 
         public ITransaction Transaction
@@ -552,7 +424,7 @@ namespace NHibernate.Search.Impl
         /// <inheritdoc />
         public void Save(String entityName, Object obj, Object id)
         {
-            throw new NotImplementedException();
+            session.Save(entityName, obj, id);
         }
 
         public void SaveOrUpdate(object obj)
@@ -568,7 +440,7 @@ namespace NHibernate.Search.Impl
         /// <inheritdoc />
         public void SaveOrUpdate(String entityName, Object obj, Object id)
         {
-            throw new NotImplementedException();
+            session.SaveOrUpdate(entityName, obj, id);
         }
 
         public void Update(object obj)
@@ -589,7 +461,7 @@ namespace NHibernate.Search.Impl
         /// <inheritdoc />
         public void Update(String entityName, Object obj, Object id)
         {
-            throw new NotImplementedException();
+            session.Update(entityName, obj, id);
         }
 
         public object Merge(object obj)
@@ -685,7 +557,7 @@ namespace NHibernate.Search.Impl
         /// <inheritdoc />
         public void JoinTransaction()
         {
-            throw new NotImplementedException();
+            session.JoinTransaction();
         }
 
         public ICriteria CreateCriteria<T>() where T : class
@@ -826,7 +698,7 @@ namespace NHibernate.Search.Impl
         /// <inheritdoc />
         public IQueryable<T> Query<T>()
         {
-            throw new NotImplementedException();
+            return session.Query<T>();
         }
 
         #endregion
@@ -839,7 +711,7 @@ namespace NHibernate.Search.Impl
             {
                 QueryParser queryParser = new QueryParser(LuceneVersion.LUCENE_48, defaultField, new StandardAnalyzer(LuceneVersion.LUCENE_48));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
-                return CreateFullTextQuery(query, typeof (TEntity));
+                return CreateFullTextQuery(query, typeof(TEntity));
             }
         }
 
@@ -849,7 +721,7 @@ namespace NHibernate.Search.Impl
             {
                 QueryParser queryParser = new QueryParser(LuceneVersion.LUCENE_48, string.Empty, new StandardAnalyzer(LuceneVersion.LUCENE_48));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
-                return CreateFullTextQuery(query, typeof (TEntity));
+                return CreateFullTextQuery(query, typeof(TEntity));
             }
         }
 
