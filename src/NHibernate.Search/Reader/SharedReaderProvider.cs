@@ -7,7 +7,7 @@ using Lucene.Net.Index;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
-using FieldInfo=System.Reflection.FieldInfo;
+using FieldInfo = System.Reflection.FieldInfo;
 
 namespace NHibernate.Search.Reader
 {
@@ -16,7 +16,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class SharedReaderProvider : IReaderProvider
     {
-        private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(SharedReaderProvider));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(SharedReaderProvider));
         private static FieldInfo subReadersField;
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace NHibernate.Search.Reader
         private IndexReader ReplaceActiveReader(IndexReader outOfDateReader, object directoryProviderLock,
                                                 IDirectoryProvider directoryProvider, IndexReader[] readers)
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             IndexReader oldReader;
             bool closeOldReader = false;
             bool closeOutOfDateReader = false;
@@ -62,7 +62,7 @@ namespace NHibernate.Search.Reader
              */
             try
             {
-                reader = IndexReader.Open(directoryProvider.Directory);
+                reader = DirectoryReader.Open(directoryProvider.Directory);
             }
             catch (IOException e)
             {
@@ -151,7 +151,7 @@ namespace NHibernate.Search.Reader
 
         public IndexReader OpenReader(IDirectoryProvider[] directoryProviders)
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             int length = directoryProviders.Length;
             IndexReader[] readers = new IndexReader[length];
 
@@ -222,17 +222,17 @@ namespace NHibernate.Search.Reader
 
         public void CloseReader(IndexReader reader)
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             if (reader == null) return;
             IndexReader[] readers;
 
             // TODO: Java says don't force this to be CacheableMultiReader, but if we do we could avoid the reflection
-            if (reader is MultiReader)
+            if (reader is BaseCompositeReader<IndexReader>)
             {
                 try
                 {
                     // TODO: Need to account for Medium Trust - can't reflect on private members
-                    readers = (IndexReader[]) subReadersField.GetValue(reader);
+                    readers = (IndexReader[])subReadersField.GetValue(reader);
                 }
                 catch (Exception e)
                 {
@@ -314,7 +314,7 @@ namespace NHibernate.Search.Reader
                 }
                 catch (IOException e)
                 {
-                    log.Warn("Unable to close Lucene IndexReader", e);
+                    log.Warn(e, "Unable to close Lucene IndexReader");
                 }
             }
         }
@@ -326,9 +326,8 @@ namespace NHibernate.Search.Reader
             {
                 // TODO: If we check for CacheableMultiReader we could avoid reflection here!
                 // TODO: Need to account for Medium Trust - can't reflect on private members
-                subReadersField = typeof(MultiReader).GetField("subReaders",
-                                                               BindingFlags.NonPublic | BindingFlags.Instance |
-                                                               BindingFlags.IgnoreCase);
+                subReadersField = typeof(BaseCompositeReader<IndexReader>).GetField("subReaders",
+                    BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
             }
 
             HashSet<IDirectoryProvider> providers =
@@ -340,7 +339,7 @@ namespace NHibernate.Search.Reader
 
         public void Destroy()
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             List<IndexReader> readers;
             lock (semaphoreIndexReaderLock)
             {

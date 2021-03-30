@@ -156,7 +156,7 @@ namespace NHibernate.Test
 
             if (fail)
             {
-                Assert.Fail("Test didn't clean up after itself");
+                Assert.Fail($"Test didn't clean up after itself - session closed: {wasClosed}; database cleaned: {wasCleaned}; connections closed: {wereConnectionsClosed}");
             }
 
             if (RunFixtureSetUpAndTearDownForEachTest)
@@ -277,9 +277,9 @@ namespace NHibernate.Test
             }
 
             /*foreach (Mapping.Collection coll in configuration.CollectionMappings)
-			{
-				configuration.SetCacheConcurrencyStrategy(coll.Role, CacheConcurrencyStrategy);
-			}*/
+            {
+                configuration.SetCacheConcurrencyStrategy(coll.Role, CacheConcurrencyStrategy);
+            }*/
         }
 
         #endregion

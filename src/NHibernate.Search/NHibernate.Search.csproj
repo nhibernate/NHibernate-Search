@@ -54,6 +54,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>NHSearch.snk</AssemblyOriginatorKeyFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>4.8.0-beta00012-prerelease020</Version>
   </PropertyGroup>
   <ItemGroup>   
     <Reference Include="System" />

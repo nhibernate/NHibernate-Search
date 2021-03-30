@@ -23,7 +23,7 @@ namespace NHibernate.Search.Engine
     public class DocumentBuilder
     {
         public const string CLASS_FIELDNAME = "_hibernate_class";
-        private static readonly IInternalLogger logger = LoggerProvider.LoggerFor(typeof(DocumentBuilder));
+        private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(DocumentBuilder));
 
         private readonly IDirectoryProvider[] directoryProviders;
         private readonly IIndexShardingStrategy shardingStrategy;
@@ -128,10 +128,10 @@ namespace NHibernate.Search.Engine
             }
 
             /**
-		     * When references are changed, either null or another one, we expect dirty checking to be triggered (both sides
-		     * have to be updated)
-		     * When the internal object is changed, we apply the {Add|Update}Work on containedIns
-		    */
+             * When references are changed, either null or another one, we expect dirty checking to be triggered (both sides
+             * have to be updated)
+             * When the internal object is changed, we apply the {Add|Update}Work on containedIns
+            */
             if (searchForContainers)
             {
                 ProcessContainedIn(entity, queue, rootClassMapping, searchFactoryImplementor);
@@ -243,9 +243,7 @@ namespace NHibernate.Search.Engine
                 }
                 catch (Exception e)
                 {
-                    logger.Error(
-                        string.Format(CultureInfo.InvariantCulture, "Error processing class bridge for {0}",
-                                      bridgeName), e);
+                    logger.Error(e, "Error processing class bridge for {0}", bridgeName);
                 }
             }
 
@@ -275,9 +273,7 @@ namespace NHibernate.Search.Engine
             }
             catch (Exception e)
             {
-                logger.Error(
-                    string.Format(CultureInfo.InvariantCulture, "Error processing field bridge for {0}.{1}",
-                                  unproxiedInstance.GetType().FullName, fieldName), e);
+                logger.Error(e, "Error processing field bridge for {0}.{1}", unproxiedInstance.GetType().FullName, fieldName);
             }
         }
 
@@ -425,7 +421,7 @@ namespace NHibernate.Search.Engine
                 if (fieldStore != Attributes.Store.No && fieldBridge is ITwoWayFieldBridge)
                 {
                     result[matchingPosition] = ((ITwoWayFieldBridge)fieldBridge).Get(fieldName, document);
-                    if (logger.IsInfoEnabled)
+                    if (logger.IsInfoEnabled())
                     {
                         logger.Info("Field " + fieldName + " projected as " + result[matchingPosition]);
                     }

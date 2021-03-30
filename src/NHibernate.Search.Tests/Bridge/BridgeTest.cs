@@ -68,14 +68,14 @@ namespace NHibernate.Search.Tests.Bridge
             cloud.DateTimeMonth = (date);
             cloud.DateTimeSecond = (date);
             cloud.DateTimeYear = (date);
-            ISession s = OpenSession();
-            ITransaction tx = s.BeginTransaction();
+            using ISession s = OpenSession();
+            using ITransaction tx = s.BeginTransaction();
             s.Save(cloud);
             s.Flush();
             tx.Commit();
 
-            tx = s.BeginTransaction();
-            IFullTextSession session = Search.CreateFullTextSession(s);
+            using ITransaction tx2 = s.BeginTransaction();
+            using IFullTextSession session = Search.CreateFullTextSession(s);
             QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StandardAnalyzer(LuceneVersion.LUCENE_48));
 
             Lucene.Net.Search.Query query = parser.Parse("DateTime:[19900101 TO 20060101]"
@@ -91,7 +91,7 @@ namespace NHibernate.Search.Tests.Bridge
             Assert.AreEqual(1, result.Count, "DateTime not found or not property truncated");
 
             s.Delete(s.Get(typeof(Cloud), cloud.Id));
-            tx.Commit();
+            tx2.Commit();
             s.Close();
         }
 

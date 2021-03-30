@@ -11,15 +11,18 @@ namespace NHibernate.Search.Tests.Bridge
 
         public void Set(String name, Object value, Document document, Field.Store store)
         {
-            throw new NotImplementedException();
-            //String indexedString = (String) value;
-            ////Do not add fields on empty strings, seems a sensible default in most situations
-            //if (StringHelper.IsNotEmpty(indexedString))
-            //{
-            //    Field field = new Field(name, indexedString.Substring(0, indexedString.Length/2), store, index);
-            //    if (boost != null) field.SetBoost(boost.Value);
-            //    document.Add(field);
-            //}
+            String indexedString = (String)value;
+            //Do not add fields on empty strings, seems a sensible default in most situations
+            if (StringHelper.IsNotEmpty(indexedString))
+            {
+                var fieldType = new FieldType
+                {
+                    IsIndexed = true,
+                    IsStored = store == Field.Store.YES
+                };
+                Field field = new Field(name, indexedString.Substring(0, indexedString.Length / 2), fieldType);
+                document.Add(field);
+            }
         }
 
         #endregion

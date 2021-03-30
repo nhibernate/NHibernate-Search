@@ -51,7 +51,7 @@ namespace NHibernate.Search.Query
             : base(query?.ToString() ?? throw new ArgumentNullException(nameof(query)),
                 FlushMode.Unspecified,
                 session?.GetSessionImplementation() ?? throw new ArgumentNullException(nameof(session)),
-                parameterMetadata ?? throw new ArgumentNullException(nameof(parameterMetadata)))
+                parameterMetadata) // ?? throw new ArgumentNullException(nameof(parameterMetadata)))
         {
             this.log = log ?? NHibernateLogger.For(typeof(FullTextQueryImpl));
             luceneQuery = query;
