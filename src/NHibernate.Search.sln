@@ -1,20 +1,15 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.Search", "NHibernate.Search\NHibernate.Search.csproj", "{CC25D767-990D-4CE0-9F64-3426E244403B}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NHibernate.Search", "NHibernate.Search\NHibernate.Search.csproj", "{CC25D767-990D-4CE0-9F64-3426E244403B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.Search.Tests", "NHibernate.Search.Tests\NHibernate.Search.Tests.csproj", "{71560152-A693-4F66-99CF-570685A33169}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NHibernate.Search.Tests", "NHibernate.Search.Tests\NHibernate.Search.Tests.csproj", "{71560152-A693-4F66-99CF-570685A33169}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF74CDB0-3031-4560-A74A-66CBE2F94828}"
 	ProjectSection(SolutionItems) = preProject
 		..\default.build = ..\default.build
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{675E5B84-A5BC-49D6-B72E-8E4BA3BB9A8B}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Global
@@ -34,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20F2DB9B-B568-49DA-AFB1-2A32FE5C27B2}
 	EndGlobalSection
 EndGlobal

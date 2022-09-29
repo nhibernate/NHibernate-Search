@@ -1,266 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CC25D767-990D-4CE0-9F64-3426E244403B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NHibernate.Search</RootNamespace>
-    <AssemblyName>NHibernate.Search</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug-2.0\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release-2.0\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
+    <TargetFramework>net40</TargetFramework>
+    <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>NHSearch.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>9</LangVersion>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <CLSCompliant>false</CLSCompliant>
+	<Version>2.0.3.4000</Version>
+	<Company>NHibernate.info</Company>
+	<Copyright>Licensed under LGPL.</Copyright>
+	<Authors>NHibernate community, Hibernate community</Authors>
+	<NeutralLanguage>en-US</NeutralLanguage>
+    <Description>NHibernate Search - Integration with Lucene.NET</Description>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Iesi.Collections.3.3.1.4000\lib\Net35\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Lucene.Net, Version=2.9.4.1, Culture=neutral, PublicKeyToken=85089178b9ac3181, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Lucene.Net.2.9.4.1\lib\net40\Lucene.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate, Version=3.3.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NHibernate.3.3.3.4000\lib\Net35\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <None Remove="**/*.xsd" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Attributes\AnalyzerAttribute.cs" />
-    <Compile Include="Attributes\BoostAttribute.cs" />
-    <Compile Include="Attributes\BridgeParameterAttribute.cs" />
-    <Compile Include="Attributes\ClassBridgeAttribute.cs" />
-    <Compile Include="Attributes\ContainedInAttribute.cs" />
-    <Compile Include="Attributes\DateBridgeAttribute.cs" />
-    <Compile Include="Attributes\DocumentIdAttribute.cs" />
-    <Compile Include="Attributes\FactoryAttribute.cs" />
-    <Compile Include="Attributes\FieldAttribute.cs" />
-    <Compile Include="Attributes\FieldBridgeAttribute.cs" />
-    <Compile Include="Attributes\FilterParameterAttribute.cs" />
-    <Compile Include="Attributes\FullTextFilterDefAttribute.cs" />
-    <Compile Include="Attributes\Index.cs" />
-    <Compile Include="Attributes\Indexed.cs" />
-    <Compile Include="Attributes\IndexedEmbedded.cs" />
-    <Compile Include="Attributes\KeyAttribute.cs" />
-    <Compile Include="Attributes\Resolution.cs" />
-    <Compile Include="Attributes\Store.cs" />
-    <Compile Include="Backend\ParameterSet.cs" />
-    <Compile Include="Util\TypeDictionary.cs" />
-    <Compile Include="Mapping\AttributeBased\AttributeSearchMappingBuilder.cs" />
-    <Compile Include="Mapping\ClassBridgeMapping.cs" />
-    <Compile Include="Mapping\ContainedInMapping.cs" />
-    <Compile Include="Mapping\Definition\IDateBridgeDefinition.cs" />
-    <Compile Include="Mapping\Definition\IFieldBridgeDefinition.cs" />
-    <Compile Include="Mapping\AttributeBased\AttributeUtil.cs" />
-    <Compile Include="Backend\Impl\PostTransactionWorkQueueSynchronization.cs" />
-    <Compile Include="Backend\Impl\TransactionalWorker.cs" />
-    <Compile Include="Backend\IWorker.cs" />
-    <Compile Include="Backend\LuceneIndexingParameters.cs" />
-    <Compile Include="Backend\OptimizeLuceneWork.cs" />
-    <Compile Include="Backend\PurgeAllLuceneWork.cs" />
-    <Compile Include="Backend\WorkerFactory.cs" />
-    <Compile Include="Backend\WorkQueue.cs" />
-    <Compile Include="Bridge\Builtin\GuidBridge.cs" />
-    <Compile Include="Cfg\CfgHelper.cs" />
-    <Compile Include="Cfg\CfgXmlHelper.cs" />
-    <Compile Include="Cfg\ConfigurationSectionHandler.cs" />
-    <Compile Include="Cfg\AmbiguousSearchCfgException.cs" />
-    <Compile Include="Cfg\INHSConfigCollection.cs" />
-    <Compile Include="Cfg\INHSConfiguration.cs" />
-    <Compile Include="Cfg\NHSConfigCollection.cs" />
-    <Compile Include="Cfg\NHSConfiguration.cs" />
-    <Compile Include="Cfg\SearchConfigurationException.cs" />
-    <Compile Include="Engine\DocumentExtractor.cs" />
-    <Compile Include="Engine\EntityInfo.cs" />
-    <Compile Include="Engine\FilterDef.cs" />
-    <Compile Include="Engine\ISearchFactoryImplementor.cs" />
-    <Compile Include="Engine\ILoader.cs" />
-    <Compile Include="Engine\LoaderHelper.cs" />
-    <Compile Include="Engine\ObjectLoader.cs" />
-    <Compile Include="Engine\ProjectionLoader.cs" />
-    <Compile Include="Engine\QueryLoader.cs" />
-    <Compile Include="Event\FullTextIndexCollectionEventListener.cs" />
-    <Compile Include="Event\FullTextIndexEventListener.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Filter\ChainedFilter.cs" />
-    <Compile Include="Filter\FilterKey.cs" />
-    <Compile Include="Filter\IFilterCachingStrategy.cs" />
-    <Compile Include="Filter\MruFilterCachingStrategy.cs" />
-    <Compile Include="Filter\StandardFilterKey.cs" />
-    <Compile Include="IFullTextFilter.cs" />
-    <Compile Include="Impl\SearchFactoryImpl.cs" />
-    <Compile Include="ISearchFactory.cs" />
-    <Compile Include="Mapping\AttributeBased\AttributeSearchMapping.cs" />
-    <Compile Include="Mapping\Definition\IClassBridgeDefinition.cs" />
-    <Compile Include="Mapping\DocumentIdMapping.cs" />
-    <Compile Include="Mapping\EmbeddedMapping.cs" />
-    <Compile Include="Mapping\FieldMapping.cs" />
-    <Compile Include="Mapping\PropertyMappingBase.cs" />
-    <Compile Include="Mapping\DocumentMapping.cs" />
-    <Compile Include="Mapping\ISearchMapping.cs" />
-    <Compile Include="Mapping\SearchMappingFactory.cs" />
-    <Compile Include="ProjectionConstants.cs" />
-    <Compile Include="Query\FullTextFilterImpl.cs" />
-    <Compile Include="Query\FullTextSearchHelper.cs" />
-    <Compile Include="LuceneQueryExpression.cs" />
-    <Compile Include="Backend\Impl\Lucene\LuceneWorker.cs" />
-    <Compile Include="SearchRestrictions.cs" />
-    <Compile Include="Util\DirectoryProviderHelper.cs" />
-    <Compile Include="Bridge\IFieldBridge.cs" />
-    <Compile Include="IFullTextSession.cs" />
-    <Compile Include="Backend\AddLuceneWork.cs" />
-    <Compile Include="Backend\Impl\BatchedQueueingProcessor.cs" />
-    <Compile Include="Bridge\BridgeFactory.cs" />
-    <Compile Include="Bridge\Builtin\DateBridge.cs" />
-    <Compile Include="Backend\DeleteLuceneWork.cs" />
-    <Compile Include="Engine\DocumentBuilder.cs" />
-    <Compile Include="Bridge\Builtin\EnumBridge.cs" />
-    <Compile Include="Query\FullTextQueryImpl.cs" />
-    <Compile Include="Backend\IBackendQueueProcessorFactory.cs" />
-    <Compile Include="Bridge\IParameterizedBridge.cs" />
-    <Compile Include="Backend\IQueueingProcessor.cs" />
-    <Compile Include="Backend\Impl\Lucene\LuceneBackendQueueProcessor.cs" />
-    <Compile Include="Backend\Impl\Lucene\LuceneBackendQueueProcessorFactory.cs" />
-    <Compile Include="Bridge\Builtin\StringBridge.cs" />
-    <Compile Include="Environment.cs" />
-    <Compile Include="Impl\FullTextSessionImpl.cs" />
-    <Compile Include="Backend\LuceneWork.cs" />
-    <Compile Include="IFullTextQuery.cs" />
-    <Compile Include="Query\IteratorImpl.cs" />
-    <Compile Include="Query\ScrollableResultsImpl.cs" />
-    <Compile Include="Reader\CacheableMultiReader.cs" />
-    <Compile Include="Reader\IReaderProvider.cs" />
-    <Compile Include="Reader\NotSharedReaderProvider.cs" />
-    <Compile Include="Reader\ReaderProviderFactory.cs" />
-    <Compile Include="Reader\ReaderProviderHelper.cs" />
-    <Compile Include="Reader\SharedReaderProvider.cs" />
-    <Compile Include="SearchException.cs" />
-    <Compile Include="Bridge\Builtin\SimpleBridge.cs" />
-    <Compile Include="Bridge\TwoWayString2FieldBridgeAdaptor.cs" />
-    <Compile Include="Bridge\Builtin\ValueTypeBridge.cs" />
-    <Compile Include="Backend\Work.cs" />
-    <Compile Include="Backend\Workspace.cs" />
-    <Compile Include="Backend\WorkType.cs" />
-    <Compile Include="Bridge\IStringBridge.cs" />
-    <Compile Include="Bridge\ITwoWayFieldBridge.cs" />
-    <Compile Include="Bridge\ITwoWayStringBridge.cs" />
-    <Compile Include="Search.cs" />
-    <Compile Include="Store\DirectoryProviderFactory.cs" />
-    <Compile Include="Store\FileHelper.cs" />
-    <Compile Include="Store\FSDirectoryProvider.cs" />
-    <Compile Include="Store\FSMasterDirectoryProvider.cs" />
-    <Compile Include="Store\FSSlaveDirectoryProvider.cs" />
-    <Compile Include="Store\IdHashShardingStrategy.cs" />
-    <Compile Include="Store\IDirectoryProvider.cs" />
-    <Compile Include="Store\IIndexShardingStrategy.cs" />
-    <Compile Include="Store\NotShardedStrategy.cs" />
-    <Compile Include="Store\Optimization\IncrementalOptimizerStrategy.cs" />
-    <Compile Include="Store\Optimization\IOptimizerStrategy.cs" />
-    <Compile Include="Store\Optimization\NoOpOptimizerStrategy.cs" />
-    <Compile Include="Store\RAMDirectoryProvider.cs" />
-    <Compile Include="Bridge\String2FieldBridgeAdaptor.cs" />
-    <Compile Include="Util\ContextHelper.cs" />
-    <Compile Include="Util\ScopedAnalyzer.cs" />
-    <Compile Include="Util\TypeHelper.cs" />
+    <EmbeddedResource Include="**/*.xsd" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+    <PackageReference Include="Lucene.Net" Version="2.9.4.1" />
+    <PackageReference Include="NHibernate" Version="3.3.3.4000" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Cfg\nhs-configuration.xsd">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <None Include="Cfg\nhs-configuration.xsx">
-      <DependentUpon>nhs-configuration.xsd</DependentUpon>
-    </None>
-    <None Include="NHSearch.snk" />
-    <None Include="packages.config" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
