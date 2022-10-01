@@ -26,8 +26,8 @@ namespace NHibernate.Search.Impl
         public FullTextSessionImpl(ISession session)
         {
             this.session = session;
-            this.eventSource = (IEventSource) session;
-            this.sessionImplementor = (ISessionImplementor) session;
+            eventSource = (IEventSource) session;
+            sessionImplementor = (ISessionImplementor) session;
         }
 
         public ISearchFactory SearchFactory
@@ -296,11 +296,13 @@ namespace NHibernate.Search.Impl
             session.Persist(entityName, obj);
         }
 
+        [Obsolete("Use Merge(object) instead")]
         public object SaveOrUpdateCopy(object obj)
         {
             return session.SaveOrUpdateCopy(obj);
         }
 
+        [Obsolete("Use Merge(object) instead")]
         public object SaveOrUpdateCopy(object obj, object id)
         {
             return session.SaveOrUpdateCopy(obj, id);
@@ -509,7 +511,7 @@ namespace NHibernate.Search.Impl
         {
             using (new SessionIdLoggingContext(sessionImplementor.SessionId))
             {
-                QueryParser queryParser = new QueryParser(defaultField, new StandardAnalyzer());
+                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, defaultField, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
                 return CreateFullTextQuery(query, typeof (TEntity));
             }
@@ -519,7 +521,7 @@ namespace NHibernate.Search.Impl
         {
             using (new SessionIdLoggingContext(sessionImplementor.SessionId))
             {
-                QueryParser queryParser = new QueryParser(string.Empty, new StandardAnalyzer());
+                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24,string.Empty, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
                 return CreateFullTextQuery(query, typeof (TEntity));
             }

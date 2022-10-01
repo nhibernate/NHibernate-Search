@@ -10,7 +10,7 @@ namespace NHibernate.Search.Tests.IndexingStrategy
     {
         private int GetDocumentNbr()
         {
-            IndexReader reader = IndexReader.Open(GetDirectory(typeof(DocumentTop)));
+            IndexReader reader = IndexReader.Open(GetDirectory(typeof(DocumentTop)), false);
             try
             {
                 return reader.NumDocs();

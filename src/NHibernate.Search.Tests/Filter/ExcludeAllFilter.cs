@@ -7,7 +7,7 @@ namespace NHibernate.Search.Tests.Filter
 {
     public class ExcludeAllFilter : Lucene.Net.Search.Filter
     {
-        private static bool done = false;
+        //private static bool done = false;
 
         public override DocIdSet GetDocIdSet(IndexReader reader)
         {

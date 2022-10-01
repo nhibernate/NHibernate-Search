@@ -56,13 +56,12 @@ namespace NHibernate.Search.Reader
             bool closeOldReader = false;
             bool closeOutOfDateReader = false;
             IndexReader reader;
-            /**
-		     * Since out of lock protection, can have multiple readers created in //
-		     * not worse than NotShared and limit the locking time, hence scalability
-		     */
+
+            // Since out of lock protection, can have multiple readers created in //
+		    // not worse than NotShared and limit the locking time, hence scalability
             try
             {
-                reader = IndexReader.Open(directoryProvider.Directory);
+                reader = IndexReader.Open(directoryProvider.Directory, false);
             }
             catch (IOException e)
             {

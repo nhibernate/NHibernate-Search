@@ -9,6 +9,7 @@ using Lucene.Net.Index;
 using Lucene.Net.Store;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
+using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Store
 {
@@ -129,22 +130,22 @@ namespace NHibernate.Search.Store
                 bool create;
 
                 DirectoryInfo subDir = new DirectoryInfo(Path.Combine(indexName, "1"));
-                create = !IndexReader.IndexExists(subDir.FullName); 
-                directory1 = FSDirectory.GetDirectory(subDir.FullName, create);
+                directory1 = FSDirectory.Open(subDir);
+                create = !IndexReader.IndexExists(directory1);
                 if (create)
                 {
                     log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
-                    IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(), create);
+                    IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
                     iw1.Close();
                 }
 
                 subDir = new DirectoryInfo(Path.Combine(indexName, "2"));
-                create = !IndexReader.IndexExists(subDir.FullName); 
-                directory2 = FSDirectory.GetDirectory(subDir.FullName, create);
+                directory2 = FSDirectory.Open(subDir);
+                create = !IndexReader.IndexExists(directory2); 
                 if (create)
                 {
                     log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
-                    IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(), create);
+                    IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
                     iw2.Close();
                 }
 

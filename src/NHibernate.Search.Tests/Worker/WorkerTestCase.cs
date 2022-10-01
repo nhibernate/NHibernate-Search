@@ -6,6 +6,7 @@ using Lucene.Net.QueryParsers;
 using NHibernate.Cfg;
 using NHibernate.Search.Store;
 using NUnit.Framework;
+using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Tests.Worker
 {
@@ -32,7 +33,7 @@ namespace NHibernate.Search.Tests.Worker
 
         #region Tests
 
-        [Test]
+        [Test, Explicit]
         public void Concurrency()
         {
             const int nThreads = 15; // Fixed number of threads
@@ -109,7 +110,7 @@ namespace NHibernate.Search.Tests.Worker
                 {
                     ITransaction tx = s.BeginTransaction();
                     IFullTextSession fts = new Impl.FullTextSessionImpl(s);
-                    QueryParser parser = new QueryParser("id", new StopAnalyzer());
+                    QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
                     Lucene.Net.Search.Query query = parser.Parse("name:emmanuel2");
 
                     bool results = fts.CreateFullTextQuery(query).List().Count > 0;

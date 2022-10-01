@@ -6,6 +6,7 @@ using Lucene.Net.Index;
 using Lucene.Net.Store;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
+using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Store
 {
@@ -28,7 +29,7 @@ namespace NHibernate.Search.Store
             directory = new RAMDirectory();
             try
             {
-                IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(), true);
+                IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
                 iw.Close();
                 //searchFactory.RegisterDirectoryProviderForLocks(this);
             }

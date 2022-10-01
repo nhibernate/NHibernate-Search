@@ -194,7 +194,7 @@ namespace NHibernate.Search.Tests.Filter
 
 				IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
 				ftQuery.EnableFullTextFilter("bestDriver");
-				Lucene.Net.Search.Filter dateFilter = new RangeFilter("delivery", "2001", "2005", true, true);
+                Lucene.Net.Search.Filter dateFilter = new TermRangeFilter("delivery", "2001", "2005", true, true);
 				ftQuery.SetFilter(dateFilter);
 				Assert.AreEqual(1, ftQuery.ResultSize, "Should select only liz");
 

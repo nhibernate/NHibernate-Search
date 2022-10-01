@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Lucene.Net.Search;
 using NHibernate.Engine;
@@ -10,6 +11,7 @@ using NHibernate.Impl;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Util;
+using NHibernate.Util;
 
 namespace NHibernate.Search.Query
 {
@@ -83,10 +85,11 @@ namespace NHibernate.Search.Query
 
                 try
                 {
-                    Hits hits = GetHits(searcher);
-                    SetResultSize(hits);
+                    searcher.SetDefaultFieldSortScoring(true, true);
+                    TopDocs topDocs = GetTopDocs(searcher);
+                    SetResultSize(topDocs);
                     int first = First();
-                    int max = Max(first, hits);
+                    int max = Max(first, topDocs);
 
                     int size = max - first + 1 < 0 ? 0 : max - first + 1;
                     IList<EntityInfo> infos = new List<EntityInfo>(size);
@@ -94,7 +97,7 @@ namespace NHibernate.Search.Query
                     for (int index = first; index <= max; index++)
                     {
                         //TODO use indexSearcher.getIndexReader().document( hits.id(index), FieldSelector(indexProjection) );
-                        infos.Add(extractor.Extract(hits, index));
+                        infos.Add(extractor.Extract(topDocs, searcher, index));
                     }
                     return new IteratorImpl<T>(infos, this.GetLoader((ISession)Session)).Iterate();
                 }
@@ -208,7 +211,7 @@ namespace NHibernate.Search.Query
                         else
                             try
                             {
-                                resultSize = GetHits(searcher).Length();
+                                resultSize = GetTopDocs(searcher).TotalHits;
                             }
                             catch (IOException e)
                             {
@@ -262,10 +265,10 @@ namespace NHibernate.Search.Query
 
                 try
                 {
-                    Hits hits = GetHits(searcher);
-                    SetResultSize(hits);
+                    TopDocs topDocs = GetTopDocs(searcher);
+                    SetResultSize(topDocs);
                     int first = First();
-                    int max = Max(first, hits);
+                    int max = Max(first, topDocs);
                     int size = max - first + 1;
                     if (size <= 0)
                     {
@@ -277,7 +280,7 @@ namespace NHibernate.Search.Query
                     DocumentExtractor extractor = new DocumentExtractor(SearchFactory, indexProjection);
                     for (int index = first; index <= max; index++)
                     {
-                        infos.Add(extractor.Extract(hits, index));
+                        infos.Add(extractor.Extract(topDocs, searcher, index));
                     }
 
                     ILoader loader = GetLoader(sess);
@@ -397,18 +400,19 @@ namespace NHibernate.Search.Query
             return this;
         }
 
-        private Hits GetHits(Searcher searcher)
+        private TopDocs GetTopDocs(Searcher searcher)
         {
             using (new SessionIdLoggingContext(Session.SessionId))
             {
                 LogQuery();
                 Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
                 BuildFilters();
-                Hits hits = searcher.Search(query, this.filter, this.sort);
-                log.DebugFormat("Lucene query returned {0} results", hits.Length());
-                this.SetResultSize(hits);
+                TopDocs topDocs = searcher.Search(query, this.filter, int.MaxValue, this.sort ?? Sort.RELEVANCE);
 
-                return hits;
+                log.DebugFormat("Lucene query returned {0} results", topDocs.TotalHits);
+                this.SetResultSize(topDocs);
+
+                return topDocs;
             }
         }
 
@@ -583,19 +587,19 @@ namespace NHibernate.Search.Query
             return FullTextSearchHelper.BuildSearcher(SearchFactory, out classesAndSubclasses, classes);
         }
 
-        private int Max(int first, Hits hits)
+        private int Max(int first, TopDocs hits)
         {
             if (Selection.MaxRows == NHibernate.Engine.RowSelection.NoValue)
             {
-                return hits.Length() - 1;
+                return hits.TotalHits - 1;
             }
 
-            if (Selection.MaxRows + first < hits.Length())
+            if (Selection.MaxRows + first < hits.TotalHits)
             {
                 return first + Selection.MaxRows - 1;
             }
 
-            return hits.Length() - 1;
+            return hits.TotalHits - 1;
         }
 
         private int First()
@@ -603,9 +607,9 @@ namespace NHibernate.Search.Query
             return Selection.FirstRow != NHibernate.Engine.RowSelection.NoValue ? Selection.FirstRow : 0;
         }
 
-        private void SetResultSize(Hits hits)
+        private void SetResultSize(TopDocs hits)
         {
-            resultSize = hits.Length();
+            resultSize = hits.TotalHits;
         }
 
         #region Nested type: ImplFilterKey

@@ -40,7 +40,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Dept", new StandardAnalyzer());
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -72,7 +72,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Dept", new StandardAnalyzer());
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -112,7 +112,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Dept", new StandardAnalyzer());
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -155,7 +155,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Dept", new StandardAnalyzer());
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
 
             Query query = parser.Parse("Dept:Accounting");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -180,7 +180,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual("Accounting", projection[2], "dept incorrect");
             Assert.AreEqual("Jackson", ((Employee)projection[3]).Lastname, "THIS incorrect");
             Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
-            Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
+            Assert.AreEqual(float.NaN, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
             Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
@@ -208,7 +208,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.IsTrue(projection[0] is Document, "DOCUMENT incorrect");
             Assert.AreEqual(4, ((Document)projection[0]).GetFields().Count, "DOCUMENT size incorrect");
             Assert.AreEqual(projection[1], s.Get<Employee>(projection[4]), "THIS incorrect");
-            Assert.AreEqual(1.0F, projection[2], "SCORE incorrect");
+            Assert.AreEqual(float.NaN, projection[2], "SCORE incorrect");
             Assert.IsNull(projection[3], "BOOST not removed");
             Assert.AreEqual(1001, projection[4], "ID incorrect");
             Assert.AreEqual(1001, projection[5], "id incorrect");

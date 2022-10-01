@@ -100,7 +100,7 @@ namespace NHibernate.Search.Backend
 
             try
             {
-                reader = IndexReader.Open(provider.Directory);
+                reader = IndexReader.Open(provider.Directory, false);
                 readers.Add(provider, reader);
             }
             catch (IOException e)
@@ -165,8 +165,8 @@ namespace NHibernate.Search.Backend
             {
                 Analyzer analyzer = entity != null
                                         ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
-                                        : new StandardAnalyzer();
-                IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false);
+                                        : new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24);
+                IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false,IndexWriter.MaxFieldLength.UNLIMITED);
 
                 LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
                 if (IsBatch)

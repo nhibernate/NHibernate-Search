@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Lucene.Net.Documents;
 using Lucene.Net.Search;
@@ -28,6 +29,7 @@ namespace NHibernate.Search.Engine
             return entityInfo;
         }
 
+        [Obsolete("Please use Extract(TopDocs, Searcher, int)")]
         public EntityInfo Extract(Hits hits, int index)
         {
             Document doc = hits.Doc(index);
@@ -55,6 +57,56 @@ namespace NHibernate.Search.Engine
 
                         case ProjectionConstants.DOCUMENT_ID:
                             eip[x] = hits.Id(index);
+                            break;
+
+                        case ProjectionConstants.BOOST:
+                            eip[x] = doc.GetBoost();
+                            break;
+
+                        case ProjectionConstants.THIS:
+                            //THIS could be projected more than once
+                            //THIS loading delayed to the Loader phase
+                            if (entityInfo.IndexesOfThis == null)
+                            {
+                                entityInfo.IndexesOfThis = new List<int>(1);
+                            }
+                            entityInfo.IndexesOfThis.Add(x);
+                            break;
+                    }
+                }
+            }
+
+            return entityInfo;
+        }
+
+        public EntityInfo Extract(TopDocs topDocs, Searcher searcher, int index)
+        {
+            ScoreDoc scoreDoc = topDocs.ScoreDocs[index];
+            Document doc = searcher.Doc(scoreDoc.doc);
+            //TODO if we are lonly looking for score (unlikely), avoid accessing doc (lazy load)
+            EntityInfo entityInfo = Extract(doc);
+            object[] eip = entityInfo.Projection;
+
+            if (eip != null && eip.Length > 0)
+            {
+                for (int x = 0; x < projection.Length; x++)
+                {
+                    switch (projection[x])
+                    {
+                        case ProjectionConstants.SCORE:
+                            eip[x] = scoreDoc.score;
+                            break;
+
+                        case ProjectionConstants.ID:
+                            eip[x] = entityInfo.Id;
+                            break;
+
+                        case ProjectionConstants.DOCUMENT:
+                            eip[x] = doc;
+                            break;
+
+                        case ProjectionConstants.DOCUMENT_ID:
+                            eip[x] = scoreDoc.doc;
                             break;
 
                         case ProjectionConstants.BOOST:

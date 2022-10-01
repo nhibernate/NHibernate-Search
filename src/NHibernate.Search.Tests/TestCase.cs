@@ -299,7 +299,7 @@ namespace NHibernate.Test
 
         private bool CheckDatabaseWasCleaned()
         {
-            if (sessions.GetAllClassMetadata().Count == 0)
+            if (sessions == null || sessions.GetAllClassMetadata().Count == 0)
             {
                 // Return early in the case of no mappings, also avoiding
                 // a warning when executing the HQL below.
@@ -367,7 +367,7 @@ namespace NHibernate.Test
 
         private void Cleanup()
         {
-            sessions.Close();
+            if (sessions != null) sessions.Close();
             sessions = null;
             connectionProvider = null;
             lastOpenedSession = null;

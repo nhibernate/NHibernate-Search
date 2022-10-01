@@ -5,7 +5,8 @@ using Lucene.Net.Analysis;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.QueryParsers;
-
+using Lucene.Net.Store;
+using Lucene.Net.Util;
 using NHibernate.Cfg;
 using NHibernate.Search.Store;
 
@@ -71,7 +72,7 @@ namespace NHibernate.Search.Tests.Shards
 
             tx = s.BeginTransaction();
             IFullTextSession fts = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser("id", new StopAnalyzer());
+            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
 
             IList results = fts.CreateFullTextQuery(parser.Parse("name:mouse OR name:bear")).List();
             Assert.AreEqual(2, results.Count, "Either double insert, single update, or query fails with shards");
@@ -103,8 +104,7 @@ namespace NHibernate.Search.Tests.Shards
             tx.Commit();
 
             s.Clear();
-
-            IndexReader reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "\\Animal00"));
+            IndexReader reader = IndexReader.Open(FSDirectory.Open(new DirectoryInfo(BaseIndexDir.FullName + "\\Animal00")), false);
             try
             {
                 int num = reader.NumDocs();
@@ -115,7 +115,7 @@ namespace NHibernate.Search.Tests.Shards
                 reader.Close();
             }
 
-            reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "\\Animal.1"));
+            reader = IndexReader.Open(FSDirectory.Open(new DirectoryInfo(BaseIndexDir.FullName + "\\Animal.1")), false);
             try
             {
                 int num = reader.NumDocs();
@@ -133,7 +133,7 @@ namespace NHibernate.Search.Tests.Shards
 
             s.Clear();
 
-            reader = IndexReader.Open(new FileInfo(BaseIndexDir.FullName + "\\Animal.1"));
+            reader = IndexReader.Open(FSDirectory.Open(new DirectoryInfo(BaseIndexDir.FullName + "\\Animal.1")), false);
             try
             {
                 int num = reader.NumDocs();
@@ -150,7 +150,7 @@ namespace NHibernate.Search.Tests.Shards
 
             tx = s.BeginTransaction();
             IFullTextSession fts = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser("id", new StopAnalyzer());
+            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
 
             IList results = fts.CreateFullTextQuery(parser.Parse("name:mouse OR name:bear")).List();
             Assert.AreEqual(2, results.Count, "Either double insert, single update, or query fails with shards");

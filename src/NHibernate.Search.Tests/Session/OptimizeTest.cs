@@ -1,3 +1,5 @@
+using Lucene.Net.Util;
+
 namespace NHibernate.Search.Tests.Session
 {
     using System.Collections;
@@ -40,7 +42,7 @@ namespace NHibernate.Search.Tests.Session
             // Check non-indexed object get indexed by s.index;
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("id", new StopAnalyzer());
+            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
             int result = s.CreateFullTextQuery(parser.Parse("Body:wrote")).List().Count;
             Assert.AreEqual(2000, result);
 

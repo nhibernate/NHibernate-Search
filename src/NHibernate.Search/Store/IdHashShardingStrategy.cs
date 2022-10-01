@@ -51,7 +51,7 @@ namespace NHibernate.Search.Store
                 hash = (31 * hash) + c;
             }
 
-            return hash % providers.GetLength(0);;
+            return hash % providers.GetLength(0);
         }
 
         #endregion

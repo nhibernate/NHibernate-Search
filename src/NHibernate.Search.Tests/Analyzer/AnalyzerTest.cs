@@ -1,6 +1,7 @@
 using System.Collections;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
+using Lucene.Net.Util;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Analyzer
@@ -31,7 +32,7 @@ namespace NHibernate.Search.Tests.Analyzer
 
             tx = s.BeginTransaction();
 
-            QueryParser parser = new QueryParser("id", new StandardAnalyzer());
+            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StandardAnalyzer(Version.LUCENE_24));
             Lucene.Net.Search.Query luceneQuery = parser.Parse("entity:alarm");
             IFullTextQuery query = s.CreateFullTextQuery(luceneQuery, typeof(MyEntity));
             Assert.AreEqual(1, query.ResultSize, "Entity query");

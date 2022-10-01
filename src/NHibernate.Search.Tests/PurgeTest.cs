@@ -1,3 +1,5 @@
+using Lucene.Net.Util;
+
 namespace NHibernate.Search.Tests
 {
     using System.Collections;
@@ -32,7 +34,7 @@ namespace NHibernate.Search.Tests
             s.Clear();
 
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Brand", new StopAnalyzer());
+            QueryParser parser = new QueryParser(Version.LUCENE_24, "Brand", new StopAnalyzer(Version.LUCENE_24));
 
             Lucene.Net.Search.Query query = parser.Parse("Brand:Seiko");
             IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
@@ -78,7 +80,7 @@ namespace NHibernate.Search.Tests
             s.Clear();
 
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Brand", new StopAnalyzer());
+            QueryParser parser = new QueryParser(Version.LUCENE_24, "Brand", new StopAnalyzer(Version.LUCENE_24));
             tx = s.BeginTransaction();
             s.PurgeAll(typeof(Clock));
 

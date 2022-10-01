@@ -21,8 +21,9 @@
     <EmbeddedResource Include="**/*.xsd" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lucene.Net" Version="2.9.4.1" />
+	<PackageReference Include="Lucene.Net" Version="2.9.4.1" />
     <PackageReference Include="NHibernate" Version="3.3.3.4000" />
+    <PackageReference Include="Iesi.Collections" Version="3.2.0.4000" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />

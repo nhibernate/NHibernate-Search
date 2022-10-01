@@ -19,7 +19,7 @@ namespace NHibernate.Search.Tests.Query
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             CreateTestBooks(s);
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser("Summary", new StopAnalyzer());
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Summary", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:lucene");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Book));
@@ -42,7 +42,7 @@ namespace NHibernate.Search.Tests.Query
             // now the same query, but with a lucene sort specified.
             query = parser.Parse("Summary:lucene");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            Sort sort = new Sort(new SortField("Id", true));
+            Sort sort = new Sort(new SortField("Id", SortField.INT,  true));
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);
@@ -57,7 +57,7 @@ namespace NHibernate.Search.Tests.Query
             // order by summary
             query = parser.Parse("Summary:lucene OR Summary:action");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            sort = new Sort(new SortField("summary_forSort", false)); //ASC
+            sort = new Sort(new SortField("summary_forSort", SortField.STRING, false)); //ASC
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);
@@ -67,7 +67,7 @@ namespace NHibernate.Search.Tests.Query
             // order by summary backwards
             query = parser.Parse("Summary:lucene OR Summary:action");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            sort = new Sort(new SortField("summary_forSort", true)); //DESC
+            sort = new Sort(new SortField("summary_forSort", SortField.STRING, true)); //DESC
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);

@@ -180,9 +180,9 @@ namespace NHibernate.Search.Engine
 
             // TODO: Check if that should be an else?
             {
-                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entityType), Field.Store.YES, Field.Index.UN_TOKENIZED);
+                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entityType), Field.Store.YES, Field.Index.NOT_ANALYZED);
                 doc.Add(classField);
-                idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES, Field.Index.UN_TOKENIZED, idMapping.Boost);
+                idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES, Field.Index.NOT_ANALYZED, idMapping.Boost);
             }
 
             BuildDocumentFields(instance, doc, rootClassMapping, string.Empty);
@@ -386,11 +386,11 @@ namespace NHibernate.Search.Engine
                 case Index.No:
                     return Field.Index.NO;
                 case Index.NoNorms:
-                    return Field.Index.NO_NORMS;
+                    return Field.Index.NOT_ANALYZED_NO_NORMS;
                 case Index.Tokenized:
-                    return Field.Index.TOKENIZED;
+                    return Field.Index.ANALYZED;
                 case Index.UnTokenized:
-                    return Field.Index.UN_TOKENIZED;
+                    return Field.Index.NOT_ANALYZED;
                 default:
                     throw new AssertionFailure("Unexpected Index: " + index);
             }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Lucene.Net.Analysis;
 
@@ -24,6 +25,7 @@ namespace NHibernate.Search.Tests.Analyzer
                 this.tokens = tokens;
             }
 
+            [Obsolete]
             public override Token Next()
             {
                 return position >= tokens.Length ? null : new Token(tokens[position++], 0, 0);
