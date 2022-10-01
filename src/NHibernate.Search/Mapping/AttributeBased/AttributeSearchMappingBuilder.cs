@@ -230,7 +230,8 @@ namespace NHibernate.Search.Mapping.AttributeBased
                     ) {
                         Store = fieldAttribute.Store,
                         Index = fieldAttribute.Index,
-                        Analyzer = fieldAnalyzer
+                        Analyzer = fieldAnalyzer,
+                        Boost = boost
                     };
 
                     documentMapping.Fields.Add(field);

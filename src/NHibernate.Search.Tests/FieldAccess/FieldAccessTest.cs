@@ -10,6 +10,8 @@ namespace NHibernate.Search.Tests.FieldAccess
     [TestFixture]
     public class FieldAccessTest : SearchTestCase
     {
+        protected override bool RunFixtureSetUpAndTearDownForEachTest => true;
+
         protected override IList Mappings
         {
             get
