@@ -170,7 +170,7 @@ namespace NHibernate.Search.Tests.Bridge
         /// to show the presence of the ClassBridge impl built fields
         /// just in case you don't believe us.
         /// </summary>
-        [Test]
+        [Test, Explicit]
         public void ClassBridgesWithProjection()
         {
             ISession s = this.OpenSession();

@@ -25,7 +25,7 @@ namespace NHibernate.Search.Tests.Reader
 
         #region Tests
 
-        [Test]
+        [Test, Explicit]
         public void Concurrency()
         {
             using (ISession s = OpenSession())

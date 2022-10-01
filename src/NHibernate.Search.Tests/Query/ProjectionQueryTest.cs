@@ -32,7 +32,7 @@ namespace NHibernate.Search.Tests.Query
         //{
         //}
 
-        [Test]
+        [Test, Explicit]
         public void ResultTransformToDelimString()
         {
             IFullTextSession s = Search.CreateFullTextSession(this.OpenSession());
@@ -64,7 +64,7 @@ namespace NHibernate.Search.Tests.Query
             s.Close();
         }
 
-        [Test]
+        [Test, Explicit]
         public void ResultTransformMap()
         {
             IFullTextSession s = Search.CreateFullTextSession(this.OpenSession());

@@ -42,7 +42,7 @@ namespace NHibernate.Search.Tests.Shards
             Assert.AreSame(dps[0], shardingStrategy.GetDirectoryProviderForAddition(typeof(Animal), 2, "2", null));
         }
 
-        [Test]
+        [Test, Explicit]
         public void StandardBehavior()
         {
             ISession s = OpenSession();
@@ -87,7 +87,7 @@ namespace NHibernate.Search.Tests.Shards
             s.Close();
         }
 
-        [Test]
+        [Test, Explicit]
         public void InternalSharding()
         {
             ISession s = OpenSession();

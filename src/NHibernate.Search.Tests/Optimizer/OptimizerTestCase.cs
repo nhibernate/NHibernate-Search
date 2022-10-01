@@ -21,7 +21,7 @@ namespace NHibernate.Search.Tests.Optimizer
             get { return new string[] { "Optimizer.Worker.hbm.xml", "Optimizer.Construction.hbm.xml" }; }
         }
 
-        [Test]
+        [Test, Explicit]
         public void Concurrency()
         {
             const int nThreads = 15; // Fixed number of threads
