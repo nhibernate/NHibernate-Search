@@ -19,7 +19,7 @@ namespace NHibernate.Search.Query
 
     using Transform;
 
-    public class FullTextQueryImpl : QueryImpl, IFullTextQuery
+    public partial class FullTextQueryImpl : QueryImpl, IFullTextQuery
     {
 		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FullTextQueryImpl));
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
@@ -639,7 +639,7 @@ namespace NHibernate.Search.Query
 
         private static readonly ILoader noLoader = new NoLoader();
 
-        private class NoLoader : ILoader
+        private partial class NoLoader : ILoader
         {
             public void Init(ISession session, ISearchFactoryImplementor searchFactoryImplementor)
             {
@@ -650,7 +650,7 @@ namespace NHibernate.Search.Query
                 throw new NotSupportedException("noLoader should not be used");
             }
 
-            public IList Load(params EntityInfo[] entityInfos)
+            public IList Load(EntityInfo[] entityInfos)
             {
                 throw new NotSupportedException("noLoader should not be used");
             }
@@ -660,7 +660,7 @@ namespace NHibernate.Search.Query
 
         #region Nested type: IteratorImpl
 
-        private class IteratorImpl<T>
+        private partial class IteratorImpl<T>
         {
             private readonly IList<EntityInfo> entityInfos;
             private readonly ILoader loader;

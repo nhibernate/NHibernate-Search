@@ -1,0 +1,67 @@
+projects:
+- filePath: src/NHibernate.Search/NHibernate.Search.csproj
+  targetFramework: net461
+  concurrentRun: true
+  applyChanges: true
+  analyzation:
+    callForwarding: true
+    cancellationTokens:
+      enabled: true
+      guards: true
+    scanMethodBody: true
+    scanForMissingAsyncMembers:
+    - all: true
+    asyncExtensionMethods:
+      assemblyTypes:
+      - fullTypeName: NHibernate.Linq.LinqExtensionMethods
+        assemblyName: NHibernate
+      # - fullTypeName: NHibernate.SessionExtensions
+      #   assemblyName: NHibernate
+      # - fullTypeName: NHibernate.StatelessSessionExtensions
+      #   assemblyName: NHibernate
+      # - fullTypeName: NHibernate.TransactionExtensions
+      #   assemblyName: NHibernate
+  registerPlugin:
+  - type: AsyncGenerator.Core.Plugins.TransactionScopeAsyncFlowAdder
+    assemblyName: AsyncGenerator.Core
+
+- filePath: src/NHibernate.Search.Tests/NHibernate.Search.Tests.csproj
+  targetFramework: net461
+  concurrentRun: true
+  applyChanges: true
+  analyzation:
+    callForwarding: true
+    cancellationTokens:
+      enabled: true
+    scanMethodBody: true
+    scanForMissingAsyncMembers:
+    - all: true
+    asyncExtensionMethods:
+      assemblyTypes:
+      - fullTypeName: NHibernate.Linq.LinqExtensionMethods
+        assemblyName: NHibernate
+      # - fullTypeName: NHibernate.SessionExtensions
+      #   assemblyName: NHibernate
+      # - fullTypeName: NHibernate.StatelessSessionExtensions
+      #   assemblyName: NHibernate
+      # - fullTypeName: NHibernate.TransactionExtensions
+      #   assemblyName: NHibernate
+    typeConversion:
+    - conversion: Ignore
+      rule: IsTestCase
+    - conversion: Ignore
+      anyBaseTypeRule: IsTestCase
+      executionPhase: PostProviders
+  registerPlugin:
+  - type: AsyncGenerator.Core.Plugins.NUnitPlugin
+    parameters:
+    - name: createNewTypes
+      value: true
+    assemblyName: AsyncGenerator.Core
+  - type: AsyncGenerator.Core.Plugins.TransactionScopeAsyncFlowAdder
+    assemblyName: AsyncGenerator.Core
+typeRules:
+- filters:
+  - name: TestCase
+  - name: MultiplySessionFactoriesTestCase
+  name: IsTestCase

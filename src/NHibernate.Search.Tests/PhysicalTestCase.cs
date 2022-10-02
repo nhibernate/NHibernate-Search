@@ -7,7 +7,7 @@ using NHibernate.Search.Store;
 
 namespace NHibernate.Search.Tests
 {
-    public abstract class PhysicalTestCase : SearchTestCase
+    public abstract partial class PhysicalTestCase : SearchTestCase
     {
         protected FileInfo BaseIndexDir
         {

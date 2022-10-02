@@ -7,7 +7,7 @@ using NHibernate.Search.Impl;
 
 namespace NHibernate.Search.Event
 {
-    public class FullTextIndexEventListener : IPostDeleteEventListener, IPostInsertEventListener,
+    public partial class FullTextIndexEventListener : IPostDeleteEventListener, IPostInsertEventListener,
                                               IPostUpdateEventListener,
                                               IInitializable,
                                               IDestructible

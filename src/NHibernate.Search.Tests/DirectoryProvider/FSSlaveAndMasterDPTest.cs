@@ -126,14 +126,14 @@ namespace NHibernate.Search.Tests.DirectoryProvider
         protected override void Configure(IList<Configuration> cfg)
         {
             // master
-            cfg[0].SetProperty("hibernate.search.default.sourceBase", "./lucenedirs/master/copy");
-            cfg[0].SetProperty("hibernate.search.default.indexBase", "./lucenedirs/master/main");
+            cfg[0].SetProperty("hibernate.search.default.sourceBase", $"./lucenedirs/{nameof(FSSlaveAndMasterDPTest)}/master/copy");
+            cfg[0].SetProperty("hibernate.search.default.indexBase", $"./lucenedirs/{nameof(FSSlaveAndMasterDPTest)}/master/main");
             cfg[0].SetProperty("hibernate.search.default.refresh", "1"); // 1 sec
             cfg[0].SetProperty("hibernate.search.default.directory_provider", typeof(FSMasterDirectoryProvider).AssemblyQualifiedName);
 
             // slave(s)
-            cfg[1].SetProperty("hibernate.search.default.sourceBase", "./lucenedirs/master/copy");
-            cfg[1].SetProperty("hibernate.search.default.indexBase", "./lucenedirs/slave");
+            cfg[1].SetProperty("hibernate.search.default.sourceBase", $"./lucenedirs/{nameof(FSSlaveAndMasterDPTest)}/master/copy");
+            cfg[1].SetProperty("hibernate.search.default.indexBase", $"./lucenedirs/{nameof(FSSlaveAndMasterDPTest)}/slave");
             cfg[1].SetProperty("hibernate.search.default.refresh", "1"); // 1sec
             cfg[1].SetProperty("hibernate.search.default.directory_provider", typeof(FSSlaveDirectoryProvider).AssemblyQualifiedName);
         }

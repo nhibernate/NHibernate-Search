@@ -3,7 +3,7 @@ using NHibernate.Transform;
 
 namespace NHibernate.Search.Engine
 {
-    public class ProjectionLoader : ILoader
+    public partial class ProjectionLoader : ILoader
     {
         private string[] aliases;
         private ObjectLoader objectLoader;
@@ -62,7 +62,7 @@ namespace NHibernate.Search.Engine
                        : entityInfo.Projection;
         }
 
-        public IList Load(params EntityInfo[] entityInfos)
+        public IList Load(EntityInfo[] entityInfos)
         {
             IList results = new ArrayList(entityInfos.Length);
             if (entityInfos.Length == 0) return results;

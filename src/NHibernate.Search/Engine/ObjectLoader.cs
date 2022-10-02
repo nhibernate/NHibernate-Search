@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace NHibernate.Search.Engine
 {
-    public class ObjectLoader : ILoader
+    public partial class ObjectLoader : ILoader
     {
         private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(ObjectLoader));
 
@@ -39,7 +39,7 @@ namespace NHibernate.Search.Engine
             return maybeProxy;
         }
 
-        public IList Load(params EntityInfo[] entityInfos)
+        public IList Load(EntityInfo[] entityInfos)
         {
             // Use load to benefit from the batch-size
             // We don't face proxy casting issues since the exact class is extracted from the index

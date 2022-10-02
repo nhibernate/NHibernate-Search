@@ -9,7 +9,7 @@ namespace NHibernate.Search.Event
     /// Support collection event listening
     /// </summary>
     /// HACK: Deprecate as soon as we target Core 3.3 and merge back into the superclass
-    public class FullTextIndexCollectionEventListener : FullTextIndexEventListener, 
+    public partial class FullTextIndexCollectionEventListener : FullTextIndexEventListener, 
                                     IPostCollectionRecreateEventListener, IPostCollectionRemoveEventListener, IPostCollectionUpdateEventListener
     {
 		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FullTextIndexCollectionEventListener));

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net40</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>NHSearch.snk</AssemblyOriginatorKeyFile>
     <LangVersion>9</LangVersion>
@@ -23,7 +23,7 @@
   </ItemGroup>
   <ItemGroup>
 	<PackageReference Include="Lucene.Net" Version="2.9.4.1" />
-    <PackageReference Include="NHibernate" Version="4.1.2.4000" />
+    <PackageReference Include="NHibernate" Version="5.0.8" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
   </ItemGroup>
   <ItemGroup>

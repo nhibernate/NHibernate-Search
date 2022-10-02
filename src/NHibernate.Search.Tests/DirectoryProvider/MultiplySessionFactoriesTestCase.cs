@@ -13,7 +13,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
     /// <summary>
     /// The multiply session factories test case.
     /// </summary>
-    public abstract class MultiplySessionFactoriesTestCase
+    public abstract partial class MultiplySessionFactoriesTestCase
     {
         private readonly List<ISessionFactory> sessionFactories = new List<ISessionFactory>();
         private List<Configuration> configurations;

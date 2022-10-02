@@ -20,7 +20,7 @@ namespace NHibernate.Test
 {
     using System.IO;
 
-    public abstract class TestCase
+    public abstract partial class TestCase
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(TestCase));
         private const bool OutputDdl = false;
@@ -214,21 +214,19 @@ namespace NHibernate.Test
 
             using (IConnectionProvider prov = ConnectionProviderFactory.NewConnectionProvider(cfg.Properties))
             {
-                IDbConnection conn = prov.GetConnection();
+                var conn = prov.GetConnection();
 
                 try
                 {
-                    using (IDbTransaction tran = conn.BeginTransaction())
+                    using (var tran = conn.BeginTransaction())
+                    using (var comm = conn.CreateCommand())
                     {
-                        using (IDbCommand comm = conn.CreateCommand())
-                        {
-                            comm.CommandText = sql;
-                            comm.Transaction = tran;
-                            comm.CommandType = CommandType.Text;
-                            int result = comm.ExecuteNonQuery();
-                            tran.Commit();
-                            return result;
-                        }
+                        comm.CommandText = sql;
+                        comm.Transaction = tran;
+                        comm.CommandType = CommandType.Text;
+                        int result = comm.ExecuteNonQuery();
+                        tran.Commit();
+                        return result;
                     }
                 }
                 finally

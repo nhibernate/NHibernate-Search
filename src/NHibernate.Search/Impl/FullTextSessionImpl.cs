@@ -1,7 +1,11 @@
 using System;
 using System.Collections;
 using System.Data;
+using System.Data.Common;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using NHibernate.Engine;
@@ -16,7 +20,7 @@ using NHibernate.Type;
 
 namespace NHibernate.Search.Impl
 {
-    public class FullTextSessionImpl : IFullTextSession
+    public partial class FullTextSessionImpl : IFullTextSession
     {
         private readonly ISession session;
         private readonly IEventSource eventSource;
@@ -58,12 +62,17 @@ namespace NHibernate.Search.Impl
 
         #region Delegating to Inner Session
 
+        public ISharedSessionBuilder SessionWithOptions()
+        {
+            return session.SessionWithOptions();
+        }
+
         public void Flush()
         {
             session.Flush();
         }
 
-        public IDbConnection Disconnect()
+        public DbConnection Disconnect()
         {
             return session.Disconnect();
         }
@@ -73,12 +82,12 @@ namespace NHibernate.Search.Impl
             session.Reconnect();
         }
 
-        public void Reconnect(IDbConnection connection)
+        public void Reconnect(DbConnection connection)
         {
             session.Reconnect(connection);
         }
 
-        public IDbConnection Close()
+        public DbConnection Close()
         {
             return session.Close();
         }
@@ -93,17 +102,17 @@ namespace NHibernate.Search.Impl
             return session.IsDirty();
         }
 
-    	public bool IsReadOnly(object entityOrProxy)
-    	{
-				return session.IsReadOnly(entityOrProxy);
-    	}
+        public bool IsReadOnly(object entityOrProxy)
+        {
+            return session.IsReadOnly(entityOrProxy);
+        }
 
-    	public void SetReadOnly(object entityOrProxy, bool readOnly)
-    	{
-				session.SetReadOnly(entityOrProxy, readOnly);
-			}
+        public void SetReadOnly(object entityOrProxy, bool readOnly)
+        {
+            session.SetReadOnly(entityOrProxy, readOnly);
+        }
 
-    	public object GetIdentifier(object obj)
+        public object GetIdentifier(object obj)
         {
             return session.GetIdentifier(obj);
         }
@@ -163,10 +172,10 @@ namespace NHibernate.Search.Impl
             get { return session.Statistics; }
         }
 
-		public EntityMode ActiveEntityMode
-		{
-			get { return session.ActiveEntityMode; }
-		}
+        public IQueryable<T> Query<T>(string entityName)
+        {
+            return session.Query<T>(entityName);
+        }
 
         public FlushMode FlushMode
         {
@@ -185,7 +194,7 @@ namespace NHibernate.Search.Impl
             get { return session.SessionFactory; }
         }
 
-        public IDbConnection Connection
+        public DbConnection Connection
         {
             get { return session.Connection; }
         }
@@ -371,7 +380,12 @@ namespace NHibernate.Search.Impl
             return session.BeginTransaction(isolationLevel);
         }
 
-		public ICriteria CreateCriteria<T>() where T : class
+        public void JoinTransaction()
+        {
+            session.JoinTransaction();
+        }
+
+        public ICriteria CreateCriteria<T>() where T : class
         {
             return session.CreateCriteria<T>();
         }
@@ -501,9 +515,15 @@ namespace NHibernate.Search.Impl
             return session.CreateMultiCriteria();
         }
 
+        [Obsolete("Please use SessionWithOptions instead. Now requires to be flushed and disposed of.")]
         public ISession GetSession(EntityMode entityMode)
         {
             return session.GetSession(entityMode);
+        }
+
+        public IQueryable<T> Query<T>()
+        {
+            return session.Query<T>();
         }
 
         #endregion

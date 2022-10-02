@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using Iesi.Collections;
 using NHibernate.Connection;
 
@@ -11,18 +12,18 @@ namespace NHibernate.Test
 	/// This connection provider keeps a list of all open connections,
 	/// it is used when testing to check that tests clean up after themselves.
 	/// </summary>
-	public class DebugConnectionProvider : DriverConnectionProvider
+	public partial class DebugConnectionProvider : DriverConnectionProvider
 	{
 		private readonly ISet<IDbConnection> connections = new HashSet<IDbConnection>();
 
-		public override IDbConnection GetConnection()
+		public override DbConnection GetConnection()
 		{
-			IDbConnection connection = base.GetConnection();
+			var connection = base.GetConnection();
 			connections.Add(connection);
 			return connection;
 		}
 
-		public override void CloseConnection(IDbConnection conn)
+		public override void CloseConnection(DbConnection conn)
 		{
 			base.CloseConnection(conn);
 			connections.Remove(conn);
@@ -65,14 +66,16 @@ namespace NHibernate.Test
 		{
 			while (connections.Count != 0)
 			{
-                IEnumerator en = connections.GetEnumerator();
-                if (en.MoveNext())
+                using (var en = connections.GetEnumerator())
                 {
-                    IDbConnection conn = en.Current as IDbConnection;
-                    en.Reset();
-                    CloseConnection(conn);
+                    if (en.MoveNext())
+                    {
+                        var conn = en.Current as DbConnection;
+                        en.Reset();
+                        CloseConnection(conn);
+                    }
                 }
-			}
+            }
 		}
 	}
 }

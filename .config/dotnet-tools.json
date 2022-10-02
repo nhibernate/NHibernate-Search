@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "csharpasyncgenerator.tool": {
+      "version": "0.21.0",
+      "commands": [
+        "async-generator"
+      ]
+    }
+  }
+}

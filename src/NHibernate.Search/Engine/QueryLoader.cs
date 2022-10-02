@@ -4,7 +4,7 @@ using NHibernate.Criterion;
 
 namespace NHibernate.Search.Engine
 {
-    public class QueryLoader : ILoader
+    public partial class QueryLoader : ILoader
     {
 		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(QueryLoader));
         private static readonly IList EMPTY_LIST = new ArrayList();
@@ -43,7 +43,7 @@ namespace NHibernate.Search.Engine
             return maybeProxy;
         }
 
-        public IList Load(params EntityInfo[] entityInfos)
+        public IList Load(EntityInfo[] entityInfos)
         {
             int maxResults = entityInfos.Length;
             if (maxResults == 0) return EMPTY_LIST;

@@ -25,7 +25,7 @@ namespace NHibernate.Search.Tests.Session
             int loop = 14;
             for (int i = 0; i < loop; i++)
             {
-                using (IDbCommand cmd = s.Connection.CreateCommand())
+                using (var cmd = s.Connection.CreateCommand())
                 {
                     s.Transaction.Enlist(cmd);
                     cmd.CommandText = "insert into Email(Id, Title, Body, Header) values( + " + (i + 1)
@@ -88,7 +88,7 @@ namespace NHibernate.Search.Tests.Session
 
             s = new FullTextSessionImpl(OpenSession());
             s.Transaction.Begin();
-            using (IDbCommand cmd = s.Connection.CreateCommand()) 
+            using (var cmd = s.Connection.CreateCommand()) 
             {
                 s.Transaction.Enlist(cmd);
                 cmd.CommandText = "update Email set Body='Meet the guys who write the software'";
