@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
@@ -18,7 +19,7 @@ namespace NHibernate.Search.Tests.Bridge
             configuration.SetProperty(Environment.AnalyzerClass, typeof(SimpleAnalyzer).AssemblyQualifiedName);
         }
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] {"Bridge.Cloud.hbm.xml"}; }
         }

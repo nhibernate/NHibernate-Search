@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Backend.Impl.Lucene;
 using NHibernate.Search.Impl;
@@ -10,7 +11,7 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
     [TestFixture]
     public class LuceneWorkerFixture : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] {"LuceneWorker.Document.hbm.xml"}; }
         }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Inheritance
@@ -6,7 +7,7 @@ namespace NHibernate.Search.Tests.Inheritance
     [TestFixture]
     public class ProxyObjectInheritanceTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

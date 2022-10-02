@@ -40,3 +40,7 @@ available-test-configurations
 current-test-configuration
 NHibernate.VisualState.xml
 .vs/
+consumable/
+employee/
+employer/
+lucenedirs/

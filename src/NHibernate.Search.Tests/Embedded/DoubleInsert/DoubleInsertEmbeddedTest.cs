@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-
+using System.Collections.Generic;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 
@@ -25,7 +25,7 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
         /// <summary>
         /// Gets Mappings.
         /// </summary>
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

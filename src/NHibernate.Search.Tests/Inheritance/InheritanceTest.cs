@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
 using NUnit.Framework;
@@ -9,7 +10,7 @@ namespace NHibernate.Search.Tests.Inheritance
     [TestFixture]
     public class InheritanceTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

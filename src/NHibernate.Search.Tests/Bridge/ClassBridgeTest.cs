@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Bridge
@@ -21,7 +22,7 @@ namespace NHibernate.Search.Tests.Bridge
     [TestFixture]
     public class ClassBridgeTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] {"Bridge.Department.hbm.xml", "Bridge.Departments.hbm.xml"}; }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
@@ -17,7 +18,7 @@ namespace NHibernate.Search.Tests.Worker
         private volatile int reverseWorksCount;
         private volatile int errorsCount;
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

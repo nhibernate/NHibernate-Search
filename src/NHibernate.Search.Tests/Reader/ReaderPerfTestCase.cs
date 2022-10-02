@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using Lucene.Net.QueryParsers;
 using NUnit.Framework;
@@ -17,7 +18,7 @@ namespace NHibernate.Search.Tests.Reader
 
         #region Property methods
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] { "Reader.Detective.hbm.xml", "Reader.Suspect.hbm.xml" }; }
         }

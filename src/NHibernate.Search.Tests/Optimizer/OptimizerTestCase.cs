@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 
 using Lucene.Net.Analysis;
@@ -16,7 +17,7 @@ namespace NHibernate.Search.Tests.Optimizer
         private volatile int reverseWorksCount;
         private volatile int errorsCount;
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] { "Optimizer.Worker.hbm.xml", "Optimizer.Construction.hbm.xml" }; }
         }

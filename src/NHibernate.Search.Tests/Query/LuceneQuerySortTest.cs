@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
@@ -132,7 +133,7 @@ namespace NHibernate.Search.Tests.Query
             s.Clear();
         }
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using NHibernate.Cfg;
 using NHibernate.Search.Store;
 using NUnit.Framework;
@@ -8,7 +9,7 @@ namespace NHibernate.Search.Tests.Bridge
     [TestFixture]
     public class UnresolvedBridgeTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] {}; }
         }

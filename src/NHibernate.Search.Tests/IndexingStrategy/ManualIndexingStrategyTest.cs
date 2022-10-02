@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Lucene.Net.Index;
 using NHibernate.Cfg;
 using NUnit.Framework;
@@ -21,7 +22,7 @@ namespace NHibernate.Search.Tests.IndexingStrategy
             }
         }
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] { "DocumentTop.hbm.xml", "AlternateDocument.hbm.xml" }; }
         }

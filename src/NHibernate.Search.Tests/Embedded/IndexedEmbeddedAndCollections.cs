@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Embedded
@@ -23,7 +24,7 @@ namespace NHibernate.Search.Tests.Embedded
         private ISession s;
         private ITransaction tx;
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

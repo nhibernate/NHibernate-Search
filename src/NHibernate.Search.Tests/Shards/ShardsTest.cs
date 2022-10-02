@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 using Lucene.Net.Analysis;
@@ -17,7 +18,7 @@ namespace NHibernate.Search.Tests.Shards
     [TestFixture]
     public class ShardsTest : PhysicalTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new[]
                              {

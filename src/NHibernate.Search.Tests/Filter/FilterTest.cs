@@ -5,6 +5,7 @@ using Lucene.Net.Search;
 using NUnit.Framework;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Version = Lucene.Net.Util.Version;
 
@@ -13,7 +14,7 @@ namespace NHibernate.Search.Tests.Filter
 	[TestFixture]
 	public class FilterTest : SearchTestCase
 	{
-		protected override IList Mappings
+		protected override IEnumerable<string> Mappings
 		{
 			get { return new string[] { "Filter.Driver.hbm.xml" }; }
 		}

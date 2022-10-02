@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Session
@@ -14,7 +15,7 @@ namespace NHibernate.Search.Tests.Session
     [TestFixture]
     public class OptimizeTest : PhysicalTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] { "Session.Email.hbm.xml" }; }
         }

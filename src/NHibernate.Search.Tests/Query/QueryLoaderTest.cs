@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Query
@@ -12,7 +13,7 @@ namespace NHibernate.Search.Tests.Query
     [TestFixture]
     public class QueryLoaderTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

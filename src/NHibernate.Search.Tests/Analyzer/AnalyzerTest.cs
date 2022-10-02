@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Util;
@@ -9,7 +10,7 @@ namespace NHibernate.Search.Tests.Analyzer
     [TestFixture]
     public class AnalyzerTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] {"Analyzer.MyEntity.hbm.xml"}; }
         }

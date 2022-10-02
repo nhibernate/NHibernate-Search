@@ -1,5 +1,5 @@
 using System.Collections;
-
+using System.Collections.Generic;
 using NHibernate.Search.Event;
 
 using NUnit.Framework;
@@ -9,7 +9,7 @@ namespace NHibernate.Search.Tests.ListenerCfg
     [TestFixture]
     public class ListenerRegistrationTests : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

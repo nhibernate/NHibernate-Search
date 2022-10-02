@@ -1,5 +1,5 @@
 using System.Collections;
-
+using System.Collections.Generic;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Util;
@@ -12,7 +12,7 @@ namespace NHibernate.Search.Tests.FieldAccess
     {
         protected override bool RunFixtureSetUpAndTearDownForEachTest => true;
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

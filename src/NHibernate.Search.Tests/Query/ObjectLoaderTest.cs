@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
@@ -10,7 +11,7 @@ namespace NHibernate.Search.Tests.Query
     [TestFixture]
     public class ObjectLoaderTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Worker
@@ -6,7 +7,7 @@ namespace NHibernate.Search.Tests.Worker
     [TestFixture]
     public class ConcurrencyTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] { "Worker.Drink.hbm.xml", "Worker.Food.hbm.xml" }; }
         }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
@@ -11,7 +12,7 @@ namespace NHibernate.Search.Tests.Session
     [TestFixture]
     public class MassIndexTest : SearchTestCase 
     {
-        protected override IList Mappings 
+        protected override IEnumerable<string> Mappings 
         {
             get { return new string[] {"Session.Email.hbm.xml"}; }
         }

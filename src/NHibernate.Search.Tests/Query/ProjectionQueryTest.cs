@@ -14,7 +14,7 @@ namespace NHibernate.Search.Tests.Query
     [TestFixture]
     public class ProjectionQueryTest : SearchTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[]
                              {

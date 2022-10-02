@@ -14,7 +14,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
     [TestFixture]
     public class FSSlaveAndMasterDPTest : MultiplySessionFactoriesTestCase
     {
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[] { "DirectoryProvider.SnowStorm.hbm.xml" }; }
         }

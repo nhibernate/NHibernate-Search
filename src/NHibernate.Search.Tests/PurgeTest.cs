@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests
@@ -103,7 +104,7 @@ namespace NHibernate.Search.Tests
             s.Close();
         }
 
-        protected override IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get
             {

@@ -21,7 +21,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
         /// <summary>
         /// Mapping files used in the TestCase
         /// </summary>
-        protected abstract IList Mappings { get; }
+        protected abstract IEnumerable<string> Mappings { get; }
 
         protected abstract int NumberOfSessionFactories { get; }
 

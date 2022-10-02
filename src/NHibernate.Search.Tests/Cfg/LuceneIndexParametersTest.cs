@@ -1,4 +1,6 @@
-﻿namespace NHibernate.Search.Tests.Cfg
+﻿using System.Collections.Generic;
+
+namespace NHibernate.Search.Tests.Cfg
 {
     using Backend;
 
@@ -11,7 +13,7 @@
     [TestFixture]
     public class LuceneIndexParametersTest : SearchTestCase
     {
-        protected override System.Collections.IList Mappings
+        protected override IEnumerable<string> Mappings
         {
             get { return new string[]
                              {
