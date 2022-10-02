@@ -5,7 +5,7 @@ namespace NHibernate.Search.Engine
 {
     public partial class ObjectLoader : ILoader
     {
-        private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(ObjectLoader));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(ObjectLoader));
 
         private ISession session;
 

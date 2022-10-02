@@ -6,7 +6,7 @@ namespace NHibernate.Search.Engine
 {
     public partial class QueryLoader : ILoader
     {
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(QueryLoader));
+		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(QueryLoader));
         private static readonly IList EMPTY_LIST = new ArrayList();
         private const int MAX_IN_CLAUSE = 500;
 

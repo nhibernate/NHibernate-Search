@@ -16,7 +16,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class SharedReaderProvider : IReaderProvider
     {
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(SharedReaderProvider));
+		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(SharedReaderProvider));
         private static FieldInfo subReadersField;
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace NHibernate.Search.Reader
         private IndexReader ReplaceActiveReader(IndexReader outOfDateReader, object directoryProviderLock,
                                                 IDirectoryProvider directoryProvider, IndexReader[] readers)
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             IndexReader oldReader;
             bool closeOldReader = false;
             bool closeOutOfDateReader = false;
@@ -150,7 +150,7 @@ namespace NHibernate.Search.Reader
 
         public IndexReader OpenReader(IDirectoryProvider[] directoryProviders)
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             int length = directoryProviders.Length;
             IndexReader[] readers = new IndexReader[length];
 
@@ -221,7 +221,7 @@ namespace NHibernate.Search.Reader
 
         public void CloseReader(IndexReader reader)
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             if (reader == null) return;
             IndexReader[] readers;
 
@@ -313,7 +313,7 @@ namespace NHibernate.Search.Reader
                 }
                 catch (IOException e)
                 {
-                    log.Warn("Unable to close Lucene IndexReader", e);
+                    log.Warn(e, "Unable to close Lucene IndexReader");
                 }
             }
         }
@@ -339,7 +339,7 @@ namespace NHibernate.Search.Reader
 
         public void Destroy()
         {
-            bool trace = log.IsInfoEnabled;
+            bool trace = log.IsInfoEnabled();
             List<IndexReader> readers;
             lock (semaphoreIndexReaderLock)
             {

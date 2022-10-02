@@ -11,7 +11,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 {
     public class LuceneWorker
     {
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(LuceneWorker));
+		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(LuceneWorker));
         private readonly Workspace workspace;
 
         #region Constructors
@@ -62,7 +62,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         public void PerformWork(OptimizeLuceneWork work, IDirectoryProvider provider)
         {
             System.Type entity = work.EntityClass;
-            if (log.IsDebugEnabled)
+            if (log.IsDebugEnabled())
             {
                 log.Debug("Optimize Lucene index: " + entity);
             }
@@ -82,7 +82,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         public void PerformWork(PurgeAllLuceneWork work, IDirectoryProvider provider)
         {
             System.Type entity = work.EntityClass;
-            if (log.IsDebugEnabled)
+            if (log.IsDebugEnabled())
             {
                 log.Debug("PurgeAll Lucene index: " + entity);
             }
@@ -105,7 +105,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 
         private void Add(System.Type entity, object id, Document document, IDirectoryProvider provider)
         {
-            if (log.IsDebugEnabled)
+            if (log.IsDebugEnabled())
             {
                 log.Debug("Add to Lucene index: " + entity + "#" + id + ": " + document);
             }
@@ -129,7 +129,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             * We can only delete by term, and the index doesn't have a termt that
             * uniquely identify the entry. See logic below
             */
-            log.DebugFormat("remove from Lucene index: {0}#{1}", entity, id);
+            log.Debug("remove from Lucene index: {0}#{1}", entity, id);
             DocumentBuilder builder = workspace.GetDocumentBuilder(entity);
             Term term = builder.GetTerm(id);
             IndexReader reader = workspace.GetIndexReader(provider, entity);
@@ -165,7 +165,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                     }
                     catch (IOException e)
                     {
-                        log.Warn("Unable to close termDocs properly", e);
+                        log.Warn(e, "Unable to close termDocs properly");
                     }
                 }
             }

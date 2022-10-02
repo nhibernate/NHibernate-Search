@@ -19,7 +19,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
     using Type = System.Type;
     
     public class AttributeSearchMappingBuilder {
-		private static readonly IInternalLogger logger = LoggerProvider.LoggerFor(typeof(AttributeSearchMappingBuilder));
+		private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(AttributeSearchMappingBuilder));
 
         private int level;
         private int maxLevel = int.MaxValue;
@@ -290,7 +290,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
                     documentMapping.Embedded.Add(embedded);
                     context.Processed.Remove(actualFieldType); // pop
                 }
-                else if (logger.IsDebugEnabled)
+                else if (logger.IsDebugEnabled())
                 {
                     logger.Debug("Depth reached, ignoring " + path + localPrefix);
                 }

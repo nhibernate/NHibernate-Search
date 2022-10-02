@@ -7,7 +7,7 @@ namespace NHibernate.Search.Store
     public class FileHelper
     {
         private const int LastWriteTimePrecision = 2000;
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FileHelper));
+		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FileHelper));
 
         public static void Synchronize(DirectoryInfo source, DirectoryInfo destination, bool smart)
         {
@@ -41,9 +41,9 @@ namespace NHibernate.Search.Store
                     }
                     catch (IOException e)
                     {
-                        if (log.IsWarnEnabled)
+                        if (log.IsWarnEnabled())
                         {
-                            log.Warn("Unable to delete file " + file.Name + ", maybe in use per another reader", e);
+                            log.Warn(e, "Unable to delete file " + file.Name + ", maybe in use per another reader");
                         }
                     }
                 }

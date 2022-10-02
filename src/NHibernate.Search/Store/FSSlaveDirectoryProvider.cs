@@ -24,7 +24,7 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class FSSlaveDirectoryProvider : IDirectoryProvider
     {
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FSSlaveDirectoryProvider));
+		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FSSlaveDirectoryProvider));
         private FSDirectory directory1;
         private FSDirectory directory2;
         private string indexName;
@@ -103,7 +103,7 @@ namespace NHibernate.Search.Store
                 bool create = !indexDir.Exists;
                 if (create)
                 {
-                    log.DebugFormat("Index directory not found, creating '{0}'", indexDir.FullName);
+                    log.Debug("Index directory not found, creating '{0}'", indexDir.FullName);
                     indexDir.Create();
                 }
                 indexName = indexDir.FullName;
@@ -123,7 +123,7 @@ namespace NHibernate.Search.Store
                 period = 3600;
                 log.Warn("Error parsing refresh period, defaulting to 1 hour");
             }
-            log.DebugFormat("Refresh period {0} seconds", period);
+            log.Debug("Refresh period {0} seconds", period);
             period *= 1000;  // per second
             try
             {
@@ -134,7 +134,7 @@ namespace NHibernate.Search.Store
                 create = !IndexReader.IndexExists(directory1);
                 if (create)
                 {
-                    log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
+                    log.Debug("Initialize index: '{0}'", subDir.FullName);
                     IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
                     iw1.Close();
                 }
@@ -144,7 +144,7 @@ namespace NHibernate.Search.Store
                 create = !IndexReader.IndexExists(directory2); 
                 if (create)
                 {
-                    log.DebugFormat("Initialize index: '{0}'", subDir.FullName);
+                    log.Debug("Initialize index: '{0}'", subDir.FullName);
                     IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
                     iw2.Close();
                 }
@@ -290,7 +290,7 @@ namespace NHibernate.Search.Store
                     catch (IOException e)
                     {
                         //don't change current
-                        log.Error("Unable to synchronize " + parent.indexName, e);
+                        log.Error(e, "Unable to synchronize " + parent.indexName);
                         inProgress = false;
                         return;
                     }
@@ -301,7 +301,7 @@ namespace NHibernate.Search.Store
                     }
                     catch (Exception e)
                     {
-                        log.Warn("Unable to remove previous marker file in " + parent.indexName, e);
+                        log.Warn(e, "Unable to remove previous marker file in " + parent.indexName);
                     }
 
                     try
@@ -310,7 +310,7 @@ namespace NHibernate.Search.Store
                     }
                     catch (IOException e)
                     {
-                        log.Warn("Unable to create current marker file in " + parent.indexName, e);
+                        log.Warn(e, "Unable to create current marker file in " + parent.indexName);
                     }
                 }
                 finally

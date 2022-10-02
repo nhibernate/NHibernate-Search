@@ -21,7 +21,7 @@ namespace NHibernate.Search.Query
 
     public partial class FullTextQueryImpl : QueryImpl, IFullTextQuery
     {
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FullTextQueryImpl));
+		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FullTextQueryImpl));
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
         private readonly Lucene.Net.Search.Query luceneQuery;
         private System.Type[] classes;
@@ -409,7 +409,7 @@ namespace NHibernate.Search.Query
                 BuildFilters();
                 TopDocs topDocs = searcher.Search(query, this.filter, int.MaxValue, this.sort ?? Sort.RELEVANCE);
 
-                log.DebugFormat("Lucene query returned {0} results", topDocs.TotalHits);
+                log.Debug("Lucene query returned {0} results", topDocs.TotalHits);
                 this.SetResultSize(topDocs);
 
                 return topDocs;
@@ -418,7 +418,7 @@ namespace NHibernate.Search.Query
 
         private void LogQuery()
         {
-            if (log.IsDebugEnabled == false)
+            if (log.IsDebugEnabled() == false)
             {
                 return;
             }
@@ -449,7 +449,7 @@ namespace NHibernate.Search.Query
                 firstRow = -1;
             }
 
-            log.DebugFormat("Execute lucene query [{0}]: {1}. Max rows: {2}, First result: {3}", sb, luceneQuery, maxRows, firstRow);
+            log.Debug("Execute lucene query [{0}]: {1}. Max rows: {2}, First result: {3}", sb, luceneQuery, maxRows, firstRow);
         }
 
         private void BuildFilters()
@@ -576,7 +576,7 @@ namespace NHibernate.Search.Query
                 }
                 catch (IOException e)
                 {
-                    log.Warn("Unable to properly close searcher during lucene query: " + QueryString, e);
+                    log.Warn(e, "Unable to properly close searcher during lucene query: " + QueryString);
                 }
             }
         }

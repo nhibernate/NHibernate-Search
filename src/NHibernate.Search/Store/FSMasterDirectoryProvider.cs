@@ -22,7 +22,7 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class FSMasterDirectoryProvider : IDirectoryProvider
     {
-		private static readonly IInternalLogger log = LoggerProvider.LoggerFor(typeof(FSMasterDirectoryProvider));
+		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FSMasterDirectoryProvider));
         private FSDirectory directory;
         private int current;
         private string indexName;
@@ -88,7 +88,7 @@ namespace NHibernate.Search.Store
                 bool create = !IndexReader.IndexExists(directory);
                 if (create)
                 {
-                    log.DebugFormat("Index directory not found, creating '{0}'", indexDir.FullName);
+                    log.Debug("Index directory not found, creating '{0}'", indexDir.FullName);
                     indexDir.Create();
                 }
 
@@ -118,7 +118,7 @@ namespace NHibernate.Search.Store
                 log.Warn("Error parsing refresh period, defaulting to 1 hour");
             }
 
-            log.DebugFormat("Refresh period {0} seconds", period);            
+            log.Debug("Refresh period {0} seconds", period);            
             period *= 1000;  // per second
 
             try
@@ -134,7 +134,7 @@ namespace NHibernate.Search.Store
                 }
                 else
                 {
-                    log.DebugFormat("Source directory for '{0}' will be initialized", indexName);
+                    log.Debug("Source directory for '{0}' will be initialized", indexName);
                     current = 1;
                 }
 
@@ -252,7 +252,7 @@ namespace NHibernate.Search.Store
                         catch (IOException e)
                         {
                             // Don't change current
-                            log.Error("Unable to synchronize source of " + parent.indexName, e);
+                            log.Error(e, "Unable to synchronize source of " + parent.indexName);
                             return;
                         }
 
@@ -262,7 +262,7 @@ namespace NHibernate.Search.Store
                         }
                         catch (IOException e)
                         {
-                            log.Warn("Unable to remove previous marker file from source of " + parent.indexName, e);
+                            log.Warn(e, "Unable to remove previous marker file from source of " + parent.indexName);
                         }
 
                         try
@@ -271,7 +271,7 @@ namespace NHibernate.Search.Store
                         }
                         catch (IOException e)
                         {
-                            log.Warn("Unable to create current marker in source of " + parent.indexName, e);
+                            log.Warn(e, "Unable to create current marker in source of " + parent.indexName);
                         }
                     }
                 }
@@ -280,7 +280,7 @@ namespace NHibernate.Search.Store
                     inProgress = false;
                 }
 
-                log.InfoFormat("Copy for {0} took {1}.", parent.indexName, (DateTime.Now - start));
+                log.Info("Copy for {0} took {1}.", parent.indexName, (DateTime.Now - start));
             }
 
             #endregion
