@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using Iesi.Collections.Generic;
 using Lucene.Net.Analysis;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
@@ -33,7 +32,7 @@ namespace NHibernate.Search.Engine
         private readonly IIndexShardingStrategy shardingStrategy;
         private readonly ScopedAnalyzer analyzer;
         private DocumentIdMapping idMapping;
-        private Iesi.Collections.Generic.ISet<Type> mappedSubclasses = new HashedSet<System.Type>();
+        private ISet<Type> mappedSubclasses = new HashSet<System.Type>();
 
         private readonly DocumentMapping rootClassMapping;
 
@@ -50,7 +49,7 @@ namespace NHibernate.Search.Engine
 
             rootClassMapping = classMapping;
 
-            Set<System.Type> processedClasses = new HashedSet<System.Type>();
+            ISet<System.Type> processedClasses = new HashSet<System.Type>();
             processedClasses.Add(classMapping.MappedClass);
             CollectAnalyzers(rootClassMapping, defaultAnalyzer, true, string.Empty, processedClasses);
             //processedClasses.remove( clazz ); for the sake of completness
@@ -83,7 +82,7 @@ namespace NHibernate.Search.Engine
             get { return idMapping.Bridge; }
         }
 
-        public Iesi.Collections.Generic.ISet<System.Type> MappedSubclasses
+        public ISet<System.Type> MappedSubclasses
         {
             get { return mappedSubclasses; }
         }
@@ -243,11 +242,11 @@ namespace NHibernate.Search.Engine
             return result;
         }
 
-        public void PostInitialize(Iesi.Collections.Generic.ISet<System.Type> indexedClasses)
+        public void PostInitialize(ISet<System.Type> indexedClasses)
         {
             // this method does not requires synchronization
             Type plainClass = rootClassMapping.MappedClass;
-            Iesi.Collections.Generic.ISet<Type> tempMappedSubclasses = new HashedSet<System.Type>();
+            ISet<Type> tempMappedSubclasses = new HashSet<System.Type>();
 
             // together with the caller this creates a o(2), but I think it's still faster than create the up hierarchy for each class
             foreach (Type currentClass in indexedClasses)
@@ -338,9 +337,9 @@ namespace NHibernate.Search.Engine
             try
             {
                 prefix += embeddedMapping.Prefix;
-                if (value is IDictionary)
+                if (value is IDictionary dictionary)
                 {
-                    foreach (object collectionValue in (value as IDictionary).Values)
+                    foreach (object collectionValue in dictionary.Values)
                     {
                         BuildDocumentFields(collectionValue, doc, embeddedMapping.Class, prefix);
                     }
@@ -412,7 +411,7 @@ namespace NHibernate.Search.Engine
         }
 
         private void CollectAnalyzers(
-            DocumentMapping @class, Analyzer parentAnalyzer, bool isRoot, string prefix, Iesi.Collections.Generic.ISet<System.Type> processedClasses
+            DocumentMapping @class, Analyzer parentAnalyzer, bool isRoot, string prefix, ISet<System.Type> processedClasses
         )
         {
             foreach (var bridge in @class.ClassBridges)

@@ -110,13 +110,13 @@ namespace NHibernate.Search.Tests.Embedded
             Assert.AreEqual(1, result.Count, "collection of embedded (set) ignored");
         }
 
-        [Test]
+        [Test, Explicit("many-to-many is not supported")]
         public void CanLookupEntityByValueOfEmbeddedDictionaryValue()
         {
             IFullTextSession session = Search.CreateFullTextSession(s);
             
             // PhraseQuery
-            TermQuery query = new TermQuery(new Term("orders.orderNumber", "ZERTYD"));
+            TermQuery query = new TermQuery(new Term("orders.value.orderNumber", "ZERTYD"));
             IList result = session.CreateFullTextQuery(query, typeof(Product)).List();
             Assert.AreEqual(1, result.Count, "collection of untokenized ignored");
 

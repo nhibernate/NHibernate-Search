@@ -25,7 +25,7 @@ namespace NHibernate.Search.Query
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
         private readonly Lucene.Net.Search.Query luceneQuery;
         private System.Type[] classes;
-        private Iesi.Collections.Generic.ISet<System.Type> classesAndSubclasses;
+        private ISet<System.Type> classesAndSubclasses;
         private int resultSize;
         private Sort sort;
         private Lucene.Net.Search.Filter filter;
