@@ -73,7 +73,7 @@ namespace NHibernate.Search.Tests.Shards
 
             tx = s.BeginTransaction();
             IFullTextSession fts = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
 
             IList results = fts.CreateFullTextQuery(parser.Parse("name:mouse OR name:bear")).List();
             Assert.AreEqual(2, results.Count, "Either double insert, single update, or query fails with shards");
@@ -113,7 +113,7 @@ namespace NHibernate.Search.Tests.Shards
             }
             finally
             {
-                reader.Close();
+                reader.Dispose();
             }
 
             reader = IndexReader.Open(FSDirectory.Open(new DirectoryInfo(BaseIndexDir.FullName + "\\Animal.1")), false);
@@ -124,7 +124,7 @@ namespace NHibernate.Search.Tests.Shards
             }
             finally
             {
-                reader.Close();
+                reader.Dispose();
             }
 
             tx = s.BeginTransaction();
@@ -141,17 +141,17 @@ namespace NHibernate.Search.Tests.Shards
                 Assert.AreEqual(1, num);
                 TermDocs docs = reader.TermDocs(new Term("name", "mouse"));
                 Assert.IsTrue(docs.Next());
-                Document doc = reader.Document(docs.Doc());
+                Document doc = reader.Document(docs.Doc);
                 Assert.IsFalse(docs.Next());
             }
             finally
             {
-                reader.Close();
+                reader.Dispose();
             }
 
             tx = s.BeginTransaction();
             IFullTextSession fts = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
 
             IList results = fts.CreateFullTextQuery(parser.Parse("name:mouse OR name:bear")).List();
             Assert.AreEqual(2, results.Count, "Either double insert, single update, or query fails with shards");

@@ -135,8 +135,8 @@ namespace NHibernate.Search.Store
                 if (create)
                 {
                     log.Debug("Initialize index: '{0}'", subDir.FullName);
-                    IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
-                    iw1.Close();
+                    IndexWriter iw1 = new IndexWriter(directory1, new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.UNLIMITED);
+                    iw1.Dispose();
                 }
 
                 subDir = new DirectoryInfo(Path.Combine(indexName, "2"));
@@ -145,8 +145,8 @@ namespace NHibernate.Search.Store
                 if (create)
                 {
                     log.Debug("Initialize index: '{0}'", subDir.FullName);
-                    IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
-                    iw2.Close();
+                    IndexWriter iw2 = new IndexWriter(directory2, new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.UNLIMITED);
+                    iw2.Dispose();
                 }
 
                 string current1Marker = Path.Combine(indexName, "current1");

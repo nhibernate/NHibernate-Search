@@ -46,7 +46,7 @@ namespace NHibernate.Search.Tests.Query
             tx.Commit();
             s.Clear();
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:noword");
             IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
@@ -100,7 +100,7 @@ namespace NHibernate.Search.Tests.Query
             tx.Commit();
             s.Clear();
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:noword");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
@@ -153,7 +153,7 @@ namespace NHibernate.Search.Tests.Query
             tx.Commit();
             s.Clear();
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:Festina Or Brand:Seiko");
             IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
@@ -200,7 +200,7 @@ namespace NHibernate.Search.Tests.Query
             tx.Commit(); //post Commit events for lucene
             s.Clear();
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:noword");
             IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
@@ -285,7 +285,7 @@ namespace NHibernate.Search.Tests.Query
             tx.Commit();
             s.Clear();
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:Festina");
             IQuery hibQuery = s.CreateFullTextQuery(query, typeof(Clock), typeof(Book));
@@ -335,7 +335,7 @@ namespace NHibernate.Search.Tests.Query
             s.Clear();
 
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:Festina");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Book));

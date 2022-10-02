@@ -53,7 +53,7 @@ namespace NHibernate.Search.Tests.Query
             s.Clear();
 
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Title", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:Festina");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Book));

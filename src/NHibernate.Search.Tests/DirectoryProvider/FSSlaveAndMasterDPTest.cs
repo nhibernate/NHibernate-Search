@@ -33,7 +33,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
             // Assert that the slave index is empty
             IFullTextSession fullTextSession = Search.CreateFullTextSession(GetSlaveSession());
             ITransaction tx = fullTextSession.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "id", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "id", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
             IList result = fullTextSession.CreateFullTextQuery(parser.Parse("Location:texas")).List();
             Assert.AreEqual(0, result.Count, "No copy yet, fresh index expected");
             tx.Commit();

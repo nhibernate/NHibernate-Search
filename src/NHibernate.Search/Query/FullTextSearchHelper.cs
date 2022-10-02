@@ -22,17 +22,17 @@ namespace NHibernate.Search.Query
             BooleanQuery classFilter = new BooleanQuery();
 
             // annihilate the scoring impact of DocumentBuilder.CLASS_FIELDNAME
-            classFilter.SetBoost(0);
+            classFilter.Boost = 0;
             foreach (System.Type clazz in classesAndSubclasses)
             {
                 Term t = new Term(DocumentBuilder.CLASS_FIELDNAME, TypeHelper.LuceneTypeName(clazz));
                 TermQuery termQuery = new TermQuery(t);
-                classFilter.Add(termQuery, BooleanClause.Occur.SHOULD);
+                classFilter.Add(termQuery, Occur.SHOULD);
             }
 
             BooleanQuery filteredQuery = new BooleanQuery();
-            filteredQuery.Add(luceneQuery, BooleanClause.Occur.MUST);
-            filteredQuery.Add(classFilter, BooleanClause.Occur.MUST);
+            filteredQuery.Add(luceneQuery, Occur.MUST);
+            filteredQuery.Add(classFilter, Occur.MUST);
             return filteredQuery;
         }
 

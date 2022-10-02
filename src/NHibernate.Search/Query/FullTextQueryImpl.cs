@@ -107,7 +107,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    CloseSearcher(searcher);
+                    DisposeSearcher(searcher);
                 }
             }
         }
@@ -219,7 +219,7 @@ namespace NHibernate.Search.Query
                             }
                             finally
                             {
-                                CloseSearcher(searcher);
+                                DisposeSearcher(searcher);
                             }
                     }
                     return resultSize;
@@ -315,7 +315,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    CloseSearcher(searcher);
+                    DisposeSearcher(searcher);
                 }
             }
         }
@@ -560,7 +560,7 @@ namespace NHibernate.Search.Query
             }
         }
 
-        private void CloseSearcher(IndexSearcher searcher)
+        private void DisposeSearcher(IndexSearcher searcher)
         {
             using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
@@ -571,8 +571,8 @@ namespace NHibernate.Search.Query
 
                 try
                 {
-                    SearchFactory.ReaderProvider.CloseReader(searcher.GetIndexReader());
-                    searcher.Close();
+                    SearchFactory.ReaderProvider.CloseReader(searcher.IndexReader);
+                    searcher.Dispose();
                 }
                 catch (IOException e)
                 {

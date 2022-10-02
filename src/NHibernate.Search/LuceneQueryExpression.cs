@@ -34,7 +34,7 @@ namespace NHibernate.Search
             List<object> ids = new List<object>();
             foreach (var scoreDoc in topDocs.ScoreDocs)
             {
-                object id = DocumentBuilder.GetDocumentId(searchFactory, type, searcher.Doc(scoreDoc.doc));
+                object id = DocumentBuilder.GetDocumentId(searchFactory, type, searcher.Doc(scoreDoc.Doc));
                 ids.Add(id);
             }
 

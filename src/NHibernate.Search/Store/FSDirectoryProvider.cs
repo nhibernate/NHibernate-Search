@@ -35,11 +35,11 @@ namespace NHibernate.Search.Store
                 }
 
                 IndexWriter iw = new IndexWriter(directory,
-                    new StandardAnalyzer(Version.LUCENE_24),
+                    new StandardAnalyzer(Version.LUCENE_30),
                     true,
                     new KeepOnlyLastCommitDeletionPolicy(),
                     IndexWriter.MaxFieldLength.UNLIMITED);
-                iw.Close();
+                iw.Dispose();
 
                 //searchFactory.RegisterDirectoryProviderForLocks(this);
             }

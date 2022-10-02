@@ -29,7 +29,7 @@ namespace NHibernate.Search.Tests.IndexingStrategy
             }
             finally
             {
-                reader.Close();
+                reader.Dispose();
             }
         }
 

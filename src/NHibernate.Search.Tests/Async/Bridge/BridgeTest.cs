@@ -49,7 +49,7 @@ namespace NHibernate.Search.Tests.Bridge
 
             tx = s.BeginTransaction();
             IFullTextSession session = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new SimpleAnalyzer());
+            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new SimpleAnalyzer());
 
             Lucene.Net.Search.Query query = parser.Parse("CustomFieldBridge:This AND CustomStringBridge:This");
             IList result = await (session.CreateFullTextQuery(query).ListAsync());
@@ -86,7 +86,7 @@ namespace NHibernate.Search.Tests.Bridge
 
             tx = s.BeginTransaction();
             IFullTextSession session = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StandardAnalyzer(Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StandardAnalyzer(Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("DateTime:[19900101 TO 20060101]"
                                        + " AND DateTimeDay:[20001214 TO 2000121501]"
@@ -129,7 +129,7 @@ namespace NHibernate.Search.Tests.Bridge
 
             tx = s.BeginTransaction();
             IFullTextSession session = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StandardAnalyzer(Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StandardAnalyzer(Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Double2:[2 TO 2.1] AND Float2:[2 TO 2.1] " +
                                        "AND Int2:[2 TO 2.1] AND Long2:[2 TO 2.1] AND Type:\"Dog\" AND Storm:false");

@@ -32,7 +32,7 @@ namespace NHibernate.Search.Reader
             {
                 try
                 {
-                    reader.Close();
+                    reader.Dispose();
                 }
                 catch (Exception)
                 {

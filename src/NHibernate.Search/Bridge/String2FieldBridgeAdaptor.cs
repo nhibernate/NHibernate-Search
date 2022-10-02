@@ -29,7 +29,7 @@ namespace NHibernate.Search.Bridge
                 Field field = new Field(name, indexedString, store, index);
                 if (boost != null)
                 {
-                    field.SetBoost(boost.Value);
+                    field.Boost = boost.Value;
                 }
 
                 document.Add(field);

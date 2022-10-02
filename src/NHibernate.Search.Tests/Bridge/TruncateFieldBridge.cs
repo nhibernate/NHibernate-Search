@@ -16,7 +16,7 @@ namespace NHibernate.Search.Tests.Bridge
             if (StringHelper.IsNotEmpty(indexedString))
             {
                 Field field = new Field(name, indexedString.Substring(0, indexedString.Length/2), store, index);
-                if (boost != null) field.SetBoost(boost.Value);
+                if (boost != null) field.Boost = boost.Value;
                 document.Add(field);
             }
         }
@@ -26,7 +26,7 @@ namespace NHibernate.Search.Tests.Bridge
         public Object Get(String name, Document document)
         {
             Field field = document.GetField(name);
-            return field.StringValue();
+            return field.StringValue;
         }
     }
 }

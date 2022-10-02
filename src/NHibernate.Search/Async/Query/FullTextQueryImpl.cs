@@ -84,7 +84,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    CloseSearcher(searcher);
+                    DisposeSearcher(searcher);
                 }
             }
         }
@@ -189,7 +189,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    CloseSearcher(searcher);
+                    DisposeSearcher(searcher);
                 }
             }
         }

@@ -29,8 +29,8 @@ namespace NHibernate.Search.Store
             directory = new RAMDirectory();
             try
             {
-                IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_24), true, IndexWriter.MaxFieldLength.UNLIMITED);
-                iw.Close();
+                IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.UNLIMITED);
+                iw.Dispose();
                 //searchFactory.RegisterDirectoryProviderForLocks(this);
             }
             catch (IOException e)

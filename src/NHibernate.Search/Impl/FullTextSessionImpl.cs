@@ -537,7 +537,7 @@ namespace NHibernate.Search.Impl
         {
             using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
-                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, defaultField, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, defaultField, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
                 return CreateFullTextQuery(query, typeof (TEntity));
             }
@@ -547,7 +547,7 @@ namespace NHibernate.Search.Impl
         {
             using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
-                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24,string.Empty, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30,string.Empty, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
                 return CreateFullTextQuery(query, typeof (TEntity));
             }

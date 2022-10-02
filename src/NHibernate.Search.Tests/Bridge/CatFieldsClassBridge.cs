@@ -24,7 +24,7 @@ namespace NHibernate.Search.Tests.Bridge
             Field field = new Field(name, fieldValue, store, index);
             if (boost != null)
             {
-                field.SetBoost((float) boost);
+                field.Boost = (float)boost;
             }
 
             document.Add(field);

@@ -174,7 +174,7 @@ namespace NHibernate.Search.Engine
 
             if (rootClassMapping.Boost != null)
             {
-                doc.SetBoost(rootClassMapping.Boost.Value);
+                doc.Boost = rootClassMapping.Boost.Value;
             }
 
             // TODO: Check if that should be an else?
@@ -398,9 +398,10 @@ namespace NHibernate.Search.Engine
                 case Attributes.Store.No:
                     return Field.Store.NO;
                 case Attributes.Store.Yes:
-                    return Field.Store.YES;
+#pragma warning disable CS0618
                 case Attributes.Store.Compress:
-                    return Field.Store.COMPRESS;
+#pragma warning restore CS0618
+                    return Field.Store.YES;
                 default:
                     throw new AssertionFailure("Unexpected Store: " + store);
             }

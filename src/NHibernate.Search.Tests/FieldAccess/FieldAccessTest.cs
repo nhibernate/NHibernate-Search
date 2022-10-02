@@ -33,7 +33,7 @@ namespace NHibernate.Search.Tests.FieldAccess
 
             IFullTextSession session = Search.CreateFullTextSession(s);
             tx = session.BeginTransaction();
-            QueryParser p = new QueryParser(Version.LUCENE_24, "id", new StandardAnalyzer(Version.LUCENE_24));
+            QueryParser p = new QueryParser(Version.LUCENE_30, "id", new StandardAnalyzer(Version.LUCENE_30));
             IList result = session.CreateFullTextQuery(p.Parse("title:Action OR Abstract:Action")).List();
             Assert.AreEqual(2, result.Count, "Query by field");
             Assert.AreEqual("Hibernate in Action", ((Document)result[0]).Title, "@Boost fails");
@@ -57,7 +57,7 @@ namespace NHibernate.Search.Tests.FieldAccess
 
             IFullTextSession session = Search.CreateFullTextSession(s);
             tx = session.BeginTransaction();
-            QueryParser p = new QueryParser(Version.LUCENE_24, "id", new StandardAnalyzer(Version.LUCENE_24));
+            QueryParser p = new QueryParser(Version.LUCENE_30, "id", new StandardAnalyzer(Version.LUCENE_30));
             IList result = session.CreateFullTextQuery(p.Parse("Abstract:Hibernate")).List();
             Assert.AreEqual(1, result.Count, "Query by field");
             s.Delete(result[0]);

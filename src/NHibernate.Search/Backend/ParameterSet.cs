@@ -48,12 +48,12 @@
             {
                 if (MergeFactor != null)
                 {
-                    writer.SetMergeFactor((int) MergeFactor);
+                    writer.MergeFactor = (int)MergeFactor;
                 }
 
                 if (MaxMergeDocs != null)
                 {
-                    writer.SetMaxMergeDocs((int) MaxMergeDocs);
+                    writer.MaxMergeDocs = (int)MaxMergeDocs;
                 }
 
                 if (MaxBufferedDocs != null)
@@ -68,7 +68,7 @@
 
                 if (TermIndexInterval != null)
                 {
-                    writer.SetTermIndexInterval((int) TermIndexInterval);
+                    writer.TermIndexInterval = (int)TermIndexInterval;
                 }
             }
             catch (ArgumentOutOfRangeException)

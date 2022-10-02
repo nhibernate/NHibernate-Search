@@ -32,7 +32,7 @@ namespace NHibernate.Search.Tests.Query
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             await (CreateTestBooksAsync(s));
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Summary", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Summary", new StopAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Lucene.Net.Search.Query query = parser.Parse("Summary:lucene");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Book));

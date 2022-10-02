@@ -55,7 +55,7 @@ namespace NHibernate.Search.Tests.Session
             s.Clear();
 
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
             IList result = s.CreateFullTextQuery(parser.Parse("Body:create")).List();
             Assert.AreEqual(14, result.Count);
 
@@ -80,7 +80,7 @@ namespace NHibernate.Search.Tests.Session
             // check non created object does get found!!1
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
             IList result = s.CreateFullTextQuery(parser.Parse("Body:create")).List();
             Assert.IsEmpty(result);
             tx.Commit();
@@ -104,7 +104,7 @@ namespace NHibernate.Search.Tests.Session
 
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
-            parser = new QueryParser(Version.LUCENE_24, "id", new StopAnalyzer(Version.LUCENE_24));
+            parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
             result = s.CreateFullTextQuery(parser.Parse("Body:write")).List();
             Assert.IsEmpty(result);
             result = s.CreateCriteria(typeof (Email)).List();

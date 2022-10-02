@@ -40,7 +40,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -72,7 +72,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -95,7 +95,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.IsTrue(map[ProjectionConstants.DOCUMENT] is Document, "incorrect transformation");
             Assert.AreEqual(
                     "1002",
-                    ((Document)map[ProjectionConstants.DOCUMENT]).GetField("Id").StringValue(),
+                    ((Document)map[ProjectionConstants.DOCUMENT]).GetField("Id").StringValue,
                     "incorrect transformation");
 
             // cleanup
@@ -112,7 +112,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -155,7 +155,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
 
             Query query = parser.Parse("Dept:Accounting");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));

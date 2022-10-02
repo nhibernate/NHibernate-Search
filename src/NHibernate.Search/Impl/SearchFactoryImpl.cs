@@ -19,6 +19,7 @@ using NHibernate.Search.Store;
 using NHibernate.Search.Store.Optimization;
 using NHibernate.Search.Util;
 using NHibernate.Util;
+using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Impl
 {
@@ -132,11 +133,23 @@ namespace NHibernate.Search.Impl
                 }
             else
                 analyzerClass = typeof(StandardAnalyzer);
+            
             // Initialize analyzer
-            Analyzer defaultAnalyzer;
             try
             {
-                defaultAnalyzer = (Analyzer) Activator.CreateInstance(analyzerClass);
+                var constructor = analyzerClass.GetConstructor(System.Type.EmptyTypes);
+                if (constructor != null)
+                {
+                    return (Analyzer)constructor.Invoke(Array.Empty<object>());
+                }
+
+                constructor = analyzerClass.GetConstructor(new[] { typeof(Version) });
+                if (constructor != null)
+                {
+                    return (Analyzer)constructor.Invoke(new object[] { Version.LUCENE_30 });
+                }
+
+                throw new SearchException("Failed to instantiate lucene analyzer with type " + analyzerClassName);
             }
             catch (InvalidCastException)
             {
@@ -149,7 +162,6 @@ namespace NHibernate.Search.Impl
             {
                 throw new SearchException("Failed to instantiate lucene analyzer with type " + analyzerClassName);
             }
-            return defaultAnalyzer;
         }
 
         private void BindFilterDefs(DocumentMapping mappedClass)

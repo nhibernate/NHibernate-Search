@@ -132,7 +132,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    reader.Close();
+                    reader.Dispose();
                 }
                 catch (IOException ex)
                 {
@@ -165,7 +165,7 @@ namespace NHibernate.Search.Backend
             {
                 Analyzer analyzer = entity != null
                                         ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
-                                        : new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24);
+                                        : new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
                 IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false,IndexWriter.MaxFieldLength.UNLIMITED);
 
                 LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
@@ -230,7 +230,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    reader.Close();
+                    reader.Dispose();
                 }
                 catch (IOException e)
                 {
@@ -274,7 +274,7 @@ namespace NHibernate.Search.Backend
             {
                 try
                 {
-                    writer.Close();
+                    writer.Dispose();
                 }
                 catch (IOException e)
                 {

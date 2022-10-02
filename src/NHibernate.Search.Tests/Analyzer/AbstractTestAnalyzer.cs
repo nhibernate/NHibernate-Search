@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Analysis.Tokenattributes;
 
 namespace NHibernate.Search.Tests.Analyzer
 {
@@ -19,16 +21,27 @@ namespace NHibernate.Search.Tests.Analyzer
         {
             private readonly string[] tokens;
             private int position;
+            private readonly ITermAttribute termAttribute;
 
             public InternalTokenStream(string[] tokens)
             {
                 this.tokens = tokens;
+                termAttribute = AddAttribute<ITermAttribute>();
             }
 
-            [Obsolete]
-            public override Token Next()
+            public override bool IncrementToken()
             {
-                return position >= tokens.Length ? null : new Token(tokens[position++], 0, 0);
+                ClearAttributes();
+                if (position < tokens.Length)
+                {
+                    termAttribute.SetTermBuffer(tokens[position++]);
+                }
+
+                return false;
+            }
+
+            protected override void Dispose(bool disposing)
+            {
             }
         }
 

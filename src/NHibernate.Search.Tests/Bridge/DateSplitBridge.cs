@@ -20,7 +20,7 @@ namespace NHibernate.Search.Tests.Bridge
             Field field = new Field(name + ".year", year.ToString(), store, index);
             if (boost != null)
             {
-                field.SetBoost(boost.Value);
+                field.Boost = boost.Value;
             }
             document.Add(field);
 
@@ -28,7 +28,7 @@ namespace NHibernate.Search.Tests.Bridge
             field = new Field(name + ".month", month.ToString("D2"), store, index);
             if (boost != null)
             {
-                field.SetBoost(boost.Value);
+                field.Boost = boost.Value;
             }
             document.Add(field);
 
@@ -36,7 +36,7 @@ namespace NHibernate.Search.Tests.Bridge
             field = new Field(name + ".day", day.ToString("D2"), store, index);
             if (boost != null)
             {
-                field.SetBoost(boost.Value);
+                field.Boost = boost.Value;
             }
             document.Add(field);
 

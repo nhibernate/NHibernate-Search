@@ -25,7 +25,7 @@ namespace NHibernate.Search.Bridge
                 return null;
             }
 
-            return stringBridge.StringToObject(field.StringValue());
+            return stringBridge.StringToObject(field.StringValue);
         }
 
         public string ObjectToString(object obj)
