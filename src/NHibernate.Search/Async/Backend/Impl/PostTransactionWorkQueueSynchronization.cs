@@ -50,6 +50,5 @@ namespace NHibernate.Search.Backend.Impl
                 return Task.FromException<object>(ex);
             }
         }
-
     }
 }

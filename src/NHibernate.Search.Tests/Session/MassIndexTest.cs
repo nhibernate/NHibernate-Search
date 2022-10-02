@@ -20,14 +20,14 @@ namespace NHibernate.Search.Tests.Session
         [Test]
         public void BatchSize()
         {
-            IFullTextSession s = Search.CreateFullTextSession(OpenSession());
-            ITransaction tx = s.BeginTransaction();
+            var s = Search.CreateFullTextSession(OpenSession());
+            var tx = s.BeginTransaction();
             int loop = 14;
             for (int i = 0; i < loop; i++)
             {
                 using (var cmd = s.Connection.CreateCommand())
                 {
-                    s.Transaction.Enlist(cmd);
+                    tx.Enlist(cmd);
                     cmd.CommandText = "insert into Email(Id, Title, Body, Header) values( + " + (i + 1)
                                       + ", 'Bob Sponge', 'Meet the guys who create the software', 'nope')";
                     cmd.ExecuteNonQuery();
@@ -87,10 +87,10 @@ namespace NHibernate.Search.Tests.Session
             s.Close();
 
             s = new FullTextSessionImpl(OpenSession());
-            s.Transaction.Begin();
+            var t = s.BeginTransaction();
             using (var cmd = s.Connection.CreateCommand()) 
             {
-                s.Transaction.Enlist(cmd);
+               t.Enlist(cmd);
                 cmd.CommandText = "update Email set Body='Meet the guys who write the software'";
                 cmd.ExecuteNonQuery();
 
@@ -99,7 +99,7 @@ namespace NHibernate.Search.Tests.Session
                 cmd.ExecuteNonQuery();
             }
 
-            s.Transaction.Commit();
+            t.Commit();
             s.Close();
 
             s = new FullTextSessionImpl(OpenSession());

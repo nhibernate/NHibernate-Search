@@ -47,10 +47,6 @@ namespace NHibernate.Search.Tests
         protected override void OnTearDown()
         {
             base.OnTearDown();
-            if (sessions != null)
-            {
-                sessions.Close(); // Close the files in the indexDir
-            }
 
             DeleteBaseIndexDir();
         }

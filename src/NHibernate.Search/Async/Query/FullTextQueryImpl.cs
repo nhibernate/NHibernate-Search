@@ -46,7 +46,7 @@ namespace NHibernate.Search.Query
         public override async Task<IEnumerable<T>> EnumerableAsync<T>(CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 //implement an interator which keep the id/class for each hit and get the object on demand
                 //cause I can't keep the searcher and hence the hit opened. I dont have any hook to know when the
@@ -92,7 +92,7 @@ namespace NHibernate.Search.Query
         public override async Task<IEnumerable> EnumerableAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 return await (EnumerableAsync<object>(cancellationToken));
             }
@@ -101,7 +101,7 @@ namespace NHibernate.Search.Query
         public override async Task<IList<T>> ListAsync<T>(CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 ArrayList arrayList = new ArrayList();
                 await (ListAsync(arrayList, cancellationToken));
@@ -117,7 +117,7 @@ namespace NHibernate.Search.Query
         public override async Task<IList> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 ArrayList arrayList = new ArrayList();
                 await (ListAsync(arrayList, cancellationToken));
@@ -128,7 +128,7 @@ namespace NHibernate.Search.Query
         public override async Task ListAsync(IList list, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 // Find the directories
                 IndexSearcher searcher = BuildSearcher();

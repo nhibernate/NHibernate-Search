@@ -43,20 +43,22 @@ namespace NHibernate.Search.Tests.Filter
 			try
 			{
 				await (CreateDataAsync());
-				IFullTextSession s = Search.CreateFullTextSession(OpenSession());
-				s.Transaction.Begin();
-				BooleanQuery query = new BooleanQuery();
-				query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
+                using (var s = Search.CreateFullTextSession(OpenSession()))
+                using (var t = s.BeginTransaction())
+                {
+                    BooleanQuery query = new BooleanQuery();
+                    query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
 
-				IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
-				ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
-				Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
+                    IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
+                    ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
+                    Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
 
-				await (s.Transaction.CommitAsync());
-				s.Close();
-			}
+                    await (t.CommitAsync());
+                    s.Close();
+                }
+            }
 			finally
 			{
 				await (DeleteDataAsync());
@@ -72,29 +74,28 @@ namespace NHibernate.Search.Tests.Filter
 				const string y = "Match";
 
 				using (var session = OpenSession())
-				{
-					session.Transaction.Begin();
-					
-					var deliveryDate = new DateTime(2000, 1, 1);
-					await (saveNewDriverAsync(session, 1, n, n, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 2, y, y, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 3, y, y, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 4, n, n, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 5, y, y, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 6, n, y, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 7, n, n, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 8, y, n, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 9, y, y, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 10, n, n, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 11, y, y, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 12, n, n, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 13, n, n, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 14, n, y, deliveryDate, -1));
-					await (saveNewDriverAsync(session, 15, y, n, deliveryDate, -1));
-					await (session.Transaction.CommitAsync());
-				}
+                using (var t = session.BeginTransaction())
+                {
+                    var deliveryDate = new DateTime(2000, 1, 1);
+                    await (saveNewDriverAsync(session, 1, n, n, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 2, y, y, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 3, y, y, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 4, n, n, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 5, y, y, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 6, n, y, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 7, n, n, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 8, y, n, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 9, y, y, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 10, n, n, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 11, y, y, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 12, n, n, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 13, n, n, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 14, n, y, deliveryDate, -1));
+                    await (saveNewDriverAsync(session, 15, y, n, deliveryDate, -1));
+                    await (t.CommitAsync());
+                }
 
-				using (var session = OpenSession())
+                using (var session = OpenSession())
 				using (var ftSession = Search.CreateFullTextSession(session))
 				{
 					var parser = new QueryParser(Version.LUCENE_29, "name", new StandardAnalyzer(Version.LUCENE_29));
@@ -121,17 +122,17 @@ namespace NHibernate.Search.Tests.Filter
 		private async Task DeleteDataAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			ISession s = OpenSession();
-			s.Transaction.Begin();
+			var t = s.BeginTransaction();
 			await (s.CreateQuery("delete Driver").ExecuteUpdateAsync(cancellationToken));
 			Search.CreateFullTextSession(s).PurgeAll(typeof(Driver));
-			await (s.Transaction.CommitAsync(cancellationToken));
+			await (t.CommitAsync(cancellationToken));
 			s.Close();
 		}
 
 		private async Task CreateDataAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			ISession s = OpenSession();
-			s.Transaction.Begin();
+			var t = s.BeginTransaction();
 			Driver driver = new Driver();
 			driver.Delivery = new DateTime(2006, 10, 11);
 			driver.Id = 1;
@@ -155,7 +156,7 @@ namespace NHibernate.Search.Tests.Filter
 			driver.Score = 5;
 			driver.Teacher = "max";
 			await (s.SaveAsync(driver, cancellationToken));
-			await (s.Transaction.CommitAsync(cancellationToken));
+			await (t.CommitAsync(cancellationToken));
 			s.Close();
 		}
 

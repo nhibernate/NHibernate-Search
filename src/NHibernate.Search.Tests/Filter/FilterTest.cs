@@ -31,20 +31,22 @@ namespace NHibernate.Search.Tests.Filter
 			try
 			{
 				CreateData();
-				IFullTextSession s = Search.CreateFullTextSession(OpenSession());
-				s.Transaction.Begin();
-				BooleanQuery query = new BooleanQuery();
-				query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
+                using (var s = Search.CreateFullTextSession(OpenSession()))
+                using (var t = s.BeginTransaction())
+                {
+                    BooleanQuery query = new BooleanQuery();
+                    query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
 
-				IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
-				ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
-				Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
+                    IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
+                    ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
+                    Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
 
-				s.Transaction.Commit();
-				s.Close();
-			}
+                    t.Commit();
+                    s.Close();
+                }
+            }
 			finally
 			{
 				DeleteData();
@@ -60,29 +62,28 @@ namespace NHibernate.Search.Tests.Filter
 				const string y = "Match";
 
 				using (var session = OpenSession())
-				{
-					session.Transaction.Begin();
-					
-					var deliveryDate = new DateTime(2000, 1, 1);
-					saveNewDriver(session, 1, n, n, deliveryDate, -1);
-					saveNewDriver(session, 2, y, y, deliveryDate, -1);
-					saveNewDriver(session, 3, y, y, deliveryDate, -1);
-					saveNewDriver(session, 4, n, n, deliveryDate, -1);
-					saveNewDriver(session, 5, y, y, deliveryDate, -1);
-					saveNewDriver(session, 6, n, y, deliveryDate, -1);
-					saveNewDriver(session, 7, n, n, deliveryDate, -1);
-					saveNewDriver(session, 8, y, n, deliveryDate, -1);
-					saveNewDriver(session, 9, y, y, deliveryDate, -1);
-					saveNewDriver(session, 10, n, n, deliveryDate, -1);
-					saveNewDriver(session, 11, y, y, deliveryDate, -1);
-					saveNewDriver(session, 12, n, n, deliveryDate, -1);
-					saveNewDriver(session, 13, n, n, deliveryDate, -1);
-					saveNewDriver(session, 14, n, y, deliveryDate, -1);
-					saveNewDriver(session, 15, y, n, deliveryDate, -1);
-					session.Transaction.Commit();
-				}
+                using (var t = session.BeginTransaction())
+                {
+                    var deliveryDate = new DateTime(2000, 1, 1);
+                    saveNewDriver(session, 1, n, n, deliveryDate, -1);
+                    saveNewDriver(session, 2, y, y, deliveryDate, -1);
+                    saveNewDriver(session, 3, y, y, deliveryDate, -1);
+                    saveNewDriver(session, 4, n, n, deliveryDate, -1);
+                    saveNewDriver(session, 5, y, y, deliveryDate, -1);
+                    saveNewDriver(session, 6, n, y, deliveryDate, -1);
+                    saveNewDriver(session, 7, n, n, deliveryDate, -1);
+                    saveNewDriver(session, 8, y, n, deliveryDate, -1);
+                    saveNewDriver(session, 9, y, y, deliveryDate, -1);
+                    saveNewDriver(session, 10, n, n, deliveryDate, -1);
+                    saveNewDriver(session, 11, y, y, deliveryDate, -1);
+                    saveNewDriver(session, 12, n, n, deliveryDate, -1);
+                    saveNewDriver(session, 13, n, n, deliveryDate, -1);
+                    saveNewDriver(session, 14, n, y, deliveryDate, -1);
+                    saveNewDriver(session, 15, y, n, deliveryDate, -1);
+                    t.Commit();
+                }
 
-				using (var session = OpenSession())
+                using (var session = OpenSession())
 				using (var ftSession = Search.CreateFullTextSession(session))
 				{
 					var parser = new QueryParser(Version.LUCENE_29, "name", new StandardAnalyzer(Version.LUCENE_29));
@@ -109,28 +110,30 @@ namespace NHibernate.Search.Tests.Filter
 			try
 			{
 				CreateData();
-				IFullTextSession s = Search.CreateFullTextSession(OpenSession());
-				s.Transaction.Begin();
-				BooleanQuery query = new BooleanQuery();
-				query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
+                using (var s = Search.CreateFullTextSession(OpenSession()))
+                using (var t = s.BeginTransaction())
+                {
+                    BooleanQuery query = new BooleanQuery();
+                    query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
 
-				IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
-				ftQuery.EnableFullTextFilter("bestDriver");
-				ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
-				Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
+                    IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
+                    ftQuery.EnableFullTextFilter("bestDriver");
+                    ftQuery.EnableFullTextFilter("security").SetParameter("Login", "andre");
+                    Assert.AreEqual(1, ftQuery.ResultSize, "Should filter to limit to Emmanuel");
 
-				ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
-				ftQuery.EnableFullTextFilter("bestDriver");
-				ftQuery.EnableFullTextFilter("security").SetParameter("login", "andre");
-				ftQuery.DisableFullTextFilter("security");
-				ftQuery.DisableFullTextFilter("bestDriver");
-				Assert.AreEqual(3, ftQuery.ResultSize, "Should not filter anymore");
+                    ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
+                    ftQuery.EnableFullTextFilter("bestDriver");
+                    ftQuery.EnableFullTextFilter("security").SetParameter("login", "andre");
+                    ftQuery.DisableFullTextFilter("security");
+                    ftQuery.DisableFullTextFilter("bestDriver");
+                    Assert.AreEqual(3, ftQuery.ResultSize, "Should not filter anymore");
 
-				s.Transaction.Commit();
-				s.Close();
-			}
+                    t.Commit();
+                    s.Close();
+                }
+            }
 			finally
 			{
 				DeleteData();
@@ -145,7 +148,7 @@ namespace NHibernate.Search.Tests.Filter
 			{
 				CreateData();
 				IFullTextSession s = Search.CreateFullTextSession(OpenSession());
-				s.Transaction.Begin();
+				var t = s.BeginTransaction();
 				BooleanQuery query = new BooleanQuery();
 				query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
 				query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
@@ -169,7 +172,7 @@ namespace NHibernate.Search.Tests.Filter
 					Assert.Fail("Cache does not work");
 				}
 
-				s.Transaction.Commit();
+				t.Commit();
 				s.Close();
 
 			}
@@ -186,22 +189,24 @@ namespace NHibernate.Search.Tests.Filter
 			try
 			{
 				CreateData();
-				IFullTextSession s = Search.CreateFullTextSession(OpenSession());
-				s.Transaction.Begin();
-				BooleanQuery query = new BooleanQuery();
-				query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
-				query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
+                using (var s = Search.CreateFullTextSession(OpenSession()))
+                using (var t = s.BeginTransaction())
+                {
+                    BooleanQuery query = new BooleanQuery();
+                    query.Add(new TermQuery(new Term("teacher", "andre")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "max")), BooleanClause.Occur.SHOULD);
+                    query.Add(new TermQuery(new Term("teacher", "aaron")), BooleanClause.Occur.SHOULD);
 
-				IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
-				ftQuery.EnableFullTextFilter("bestDriver");
-                Lucene.Net.Search.Filter dateFilter = new TermRangeFilter("delivery", "2001", "2005", true, true);
-				ftQuery.SetFilter(dateFilter);
-				Assert.AreEqual(1, ftQuery.ResultSize, "Should select only liz");
+                    IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
+                    ftQuery.EnableFullTextFilter("bestDriver");
+                    Lucene.Net.Search.Filter dateFilter = new TermRangeFilter("delivery", "2001", "2005", true, true);
+                    ftQuery.SetFilter(dateFilter);
+                    Assert.AreEqual(1, ftQuery.ResultSize, "Should select only liz");
 
-				s.Transaction.Commit();
-				s.Close();
-			}
+                    t.Commit();
+                    s.Close();
+                }
+            }
 			finally
 			{
 				DeleteData();
@@ -215,17 +220,17 @@ namespace NHibernate.Search.Tests.Filter
 		private void DeleteData()
 		{
 			ISession s = OpenSession();
-			s.Transaction.Begin();
+			var t = s.BeginTransaction();
 			s.CreateQuery("delete Driver").ExecuteUpdate();
 			Search.CreateFullTextSession(s).PurgeAll(typeof(Driver));
-			s.Transaction.Commit();
+			t.Commit();
 			s.Close();
 		}
 
 		private void CreateData()
 		{
 			ISession s = OpenSession();
-			s.Transaction.Begin();
+			var t = s.BeginTransaction();
 			Driver driver = new Driver();
 			driver.Delivery = new DateTime(2006, 10, 11);
 			driver.Id = 1;
@@ -249,7 +254,7 @@ namespace NHibernate.Search.Tests.Filter
 			driver.Score = 5;
 			driver.Teacher = "max";
 			s.Save(driver);
-			s.Transaction.Commit();
+			t.Commit();
 			s.Close();
 		}
 

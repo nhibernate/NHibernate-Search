@@ -69,7 +69,7 @@ namespace NHibernate.Search.Query
         /// </summary>
         public override IEnumerable<T> Enumerable<T>()
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 //implement an interator which keep the id/class for each hit and get the object on demand
                 //cause I can't keep the searcher and hence the hit opened. I dont have any hook to know when the
@@ -114,7 +114,7 @@ namespace NHibernate.Search.Query
 
         public override IEnumerable Enumerable()
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 return Enumerable<object>();
             }
@@ -122,7 +122,7 @@ namespace NHibernate.Search.Query
 
         private ILoader GetLoader(ISession session)
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 if (indexProjection != null)
                 {
@@ -199,7 +199,7 @@ namespace NHibernate.Search.Query
         {
             get
             {
-                using (new SessionIdLoggingContext(Session.SessionId))
+                using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
                 {
                     if (resultSize < 0)
                     {
@@ -229,7 +229,7 @@ namespace NHibernate.Search.Query
 
         public override IList<T> List<T>()
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 ArrayList arrayList = new ArrayList();
                 List(arrayList);
@@ -244,7 +244,7 @@ namespace NHibernate.Search.Query
 
         public override IList List()
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 ArrayList arrayList = new ArrayList();
                 List(arrayList);
@@ -254,7 +254,7 @@ namespace NHibernate.Search.Query
 
         public override void List(IList list)
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 // Find the directories
                 IndexSearcher searcher = BuildSearcher();
@@ -345,7 +345,7 @@ namespace NHibernate.Search.Query
 
         public IFullTextFilter EnableFullTextFilter(string name)
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 FullTextFilterImpl filterDefinition;
                 if (filterDefinitions.TryGetValue(name, out filterDefinition))
@@ -402,7 +402,7 @@ namespace NHibernate.Search.Query
 
         private TopDocs GetTopDocs(Searcher searcher)
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 LogQuery();
                 Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
@@ -454,7 +454,7 @@ namespace NHibernate.Search.Query
 
         private void BuildFilters()
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 if (filterDefinitions.Count > 0)
                 {
@@ -562,7 +562,7 @@ namespace NHibernate.Search.Query
 
         private void CloseSearcher(IndexSearcher searcher)
         {
-            using (new SessionIdLoggingContext(Session.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 if (searcher == null)
                 {

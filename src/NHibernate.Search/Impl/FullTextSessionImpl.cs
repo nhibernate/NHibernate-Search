@@ -215,6 +215,7 @@ namespace NHibernate.Search.Impl
 				set { session.DefaultReadOnly = value; }
     	}
 
+        [Obsolete("Use GetCurrentTransaction extension method instead, and check for null.")]
     	public ITransaction Transaction
         {
             get { return session.Transaction; }
@@ -534,7 +535,7 @@ namespace NHibernate.Search.Impl
 
         public IFullTextQuery CreateFullTextQuery<TEntity>(string defaultField, string queryString)
         {
-            using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
                 QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24, defaultField, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
@@ -544,7 +545,7 @@ namespace NHibernate.Search.Impl
 
         public IFullTextQuery CreateFullTextQuery<TEntity>(string queryString)
         {
-            using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
                 QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_24,string.Empty, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_24));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
@@ -561,7 +562,7 @@ namespace NHibernate.Search.Impl
         /// <returns></returns>
         public IFullTextQuery CreateFullTextQuery(Lucene.Net.Search.Query luceneQuery, params System.Type[] entities)
         {
-            using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
                 return new FullTextQueryImpl(luceneQuery, entities, session, null);
             }
@@ -576,7 +577,7 @@ namespace NHibernate.Search.Impl
         /// <returns></returns>
         public IFullTextSession Index(object entity)
         {
-            using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
                 if (entity == null)
                 {
@@ -602,7 +603,7 @@ namespace NHibernate.Search.Impl
 
         public void PurgeAll(System.Type clazz)
         {
-            using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
                 Purge(clazz, null);
             }
@@ -610,7 +611,7 @@ namespace NHibernate.Search.Impl
 
         public void Purge(System.Type clazz, object id)
         {
-            using (new SessionIdLoggingContext(sessionImplementor.SessionId))
+            using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
                 if (clazz == null)
                 {
