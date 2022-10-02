@@ -23,7 +23,7 @@
   </ItemGroup>
   <ItemGroup>
 	<PackageReference Include="Lucene.Net" Version="2.9.4.1" />
-    <PackageReference Include="NHibernate" Version="5.1.7" />
+    <PackageReference Include="NHibernate" Version="5.2.0" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
   </ItemGroup>
   <ItemGroup>

@@ -63,7 +63,7 @@ namespace NHibernate.Search.Tests.Query
             book = (Book) result[0];
             //Assert.IsFalse(NHibernate.IsInitialized(book.Authors), "Association should not be initialized");
 
-            result = await (s.CreateFullTextQuery(query).SetCriteriaQuery(s.CreateCriteria(typeof(Book)).SetFetchMode("Authors", FetchMode.Join)).ListAsync());
+            result = await (s.CreateFullTextQuery(query).SetCriteriaQuery(s.CreateCriteria(typeof(Book)).Fetch(SelectMode.Fetch, "Authors")).ListAsync());
             Assert.NotNull(result);
             Assert.AreEqual(1, result.Count, "Query with no explicit criteria");
             book = (Book)result[0];

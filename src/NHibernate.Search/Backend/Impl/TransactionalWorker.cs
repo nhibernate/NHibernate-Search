@@ -18,12 +18,10 @@ namespace NHibernate.Search.Backend.Impl
             if (session.TransactionInProgress)
             {
                 ITransaction transaction = ((ISession)session).Transaction;
-                PostTransactionWorkQueueSynchronization txSync = (PostTransactionWorkQueueSynchronization)
-                                                                 synchronizationPerTransaction[transaction];
+                PostTransactionWorkQueueSynchronization txSync = (PostTransactionWorkQueueSynchronization)synchronizationPerTransaction[transaction];
                 if (txSync == null || txSync.IsConsumed)
                 {
-                    txSync =
-                        new PostTransactionWorkQueueSynchronization(queueingProcessor, synchronizationPerTransaction);
+                    txSync = new PostTransactionWorkQueueSynchronization(queueingProcessor, synchronizationPerTransaction);
                     transaction.RegisterSynchronization(txSync);
                     lock (synchronizationPerTransaction.SyncRoot)
                         synchronizationPerTransaction[transaction] = txSync;

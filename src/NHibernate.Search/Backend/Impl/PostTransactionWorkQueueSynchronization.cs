@@ -3,7 +3,7 @@ using NHibernate.Util;
 
 namespace NHibernate.Search.Backend.Impl
 {
-    internal class PostTransactionWorkQueueSynchronization : ISynchronization
+    internal partial class PostTransactionWorkQueueSynchronization : ITransactionCompletionSynchronization
     {
         private bool isConsumed;
         private WorkQueue queue = new WorkQueue();
@@ -19,15 +19,12 @@ namespace NHibernate.Search.Backend.Impl
             this.queueingProcessor = queueingProcessor;
             this.queuePerTransaction = queuePerTransaction;
         }
-
-        #region ISynchronization Members
-
-        public void BeforeCompletion()
+        public void ExecuteBeforeTransactionCompletion()
         {
             queueingProcessor.PrepareWorks(queue);
         }
 
-        public void AfterCompletion(bool success)
+        public void ExecuteAfterTransactionCompletion(bool success)
         {
             try
             {
@@ -44,8 +41,6 @@ namespace NHibernate.Search.Backend.Impl
                 if (queuePerTransaction != null) queuePerTransaction.Remove(this);
             }
         }
-
-        #endregion
 
         public void Add(Work work)
         {

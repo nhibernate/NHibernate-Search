@@ -505,11 +505,13 @@ namespace NHibernate.Search.Impl
             session.DisableFilter(filterName);
         }
 
+        [Obsolete("Use ISession.CreateQueryBatch instead.")]
         public IMultiQuery CreateMultiQuery()
         {
             return session.CreateMultiQuery();
         }
 
+        [Obsolete("Use ISession.CreateQueryBatch instead.")]
         public IMultiCriteria CreateMultiCriteria()
         {
             return session.CreateMultiCriteria();
