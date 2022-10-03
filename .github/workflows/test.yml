@@ -1,4 +1,4 @@
-name: .NET
+name: test
 
 on: [push, pull_request]
 
@@ -16,6 +16,9 @@ jobs:
 
     name: ${{matrix.DB}}
 
+    env:
+      IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
+
     steps:
     - name: Set up SqlServer
       if: matrix.DB == 'SqlServer'
@@ -23,6 +26,8 @@ jobs:
         docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P@ssw0rd" -e "MSSQL_PID=Express" -p 1433:1433 -d --name sqlexpress mcr.microsoft.com/mssql/server:2019-latest;
     
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -30,10 +35,10 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Restore dependencies
-      run: dotnet restore src/NHibernate.Search.sln
+      run: dotnet restore src
 
     - name: Build
-      run: dotnet build src/NHibernate.Search.sln --no-restore
+      run: dotnet build src --no-restore
 
     - name: Configure
       run: |
@@ -42,4 +47,4 @@ jobs:
         xmlstarlet ed -L -N ns="urn:nhibernate-configuration-2.2" -u '//ns:property[@name="connection.connection_string"]' -v '${{matrix.CONNECTION_STRING}}' hibernate.cfg.xml        
 
     - name: Test
-      run: dotnet test src/NHibernate.Search.sln -f net6.0 --no-build --verbosity normal
+      run: dotnet test src -f net6.0 --no-build --verbosity normal
