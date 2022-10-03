@@ -1,8 +1,9 @@
 using System;
-using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Bridge
 {
+    using Attributes;
+
     [Indexed]
     public class Cloud
     {

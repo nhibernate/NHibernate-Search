@@ -18,10 +18,17 @@ namespace NHibernate.Test
 		{
 			string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 			string relativeSearchPath = AppDomain.CurrentDomain.RelativeSearchPath;
-			string binPath = relativeSearchPath == null ? baseDir : Path.Combine(baseDir, relativeSearchPath);
-			string fullPath = Path.Combine(binPath, Cfg.Configuration.DefaultHibernateCfgFileName);
-			return File.Exists(fullPath) ? fullPath : null;
-		}
+			string folder = relativeSearchPath == null ? baseDir : Path.Combine(baseDir, relativeSearchPath);
+            while (folder != null)
+            {
+                string current = Path.Combine(folder, Configuration.DefaultHibernateCfgFileName);
+                if (File.Exists(current))
+                    return current;
+                folder = Path.GetDirectoryName(folder);
+            }
+
+            return null;
+        }
 
 		/// <summary>
 		/// Standar Configuration for tests.

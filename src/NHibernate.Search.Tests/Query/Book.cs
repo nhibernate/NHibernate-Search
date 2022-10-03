@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Iesi.Collections.Generic;
-using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Query
 {
+    using Attributes;
+
     [Indexed(Index = "Book")]
     public class Book
     {

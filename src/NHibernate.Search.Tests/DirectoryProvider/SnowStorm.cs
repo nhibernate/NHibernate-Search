@@ -1,9 +1,9 @@
 using System;
 
-using NHibernate.Search.Attributes;
-
 namespace NHibernate.Search.Tests.DirectoryProvider
 {
+    using Attributes;
+
     [Indexed]
     public class SnowStorm
     {

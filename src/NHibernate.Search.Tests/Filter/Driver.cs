@@ -1,8 +1,9 @@
 using System;
-using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Filter
 {
+    using Attributes;
+
     [Indexed]
     [FullTextFilterDef("bestDriver", typeof(BestDriversFilter))] // Actual Filter implementation
     [FullTextFilterDef("security", typeof(SecurityFilterFactory))] // Filter factory with parameters

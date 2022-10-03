@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NHibernate.Search.Attributes;
-
 namespace NHibernate.Search.Tests.Bridge
 {
+    using Attributes;
+
     [Indexed]
     [ClassBridge(typeof(CatFieldsClassBridge),
                 Name="branchnetwork", 

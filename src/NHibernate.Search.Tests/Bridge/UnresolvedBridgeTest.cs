@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using NHibernate.Cfg;
 using NHibernate.Search.Store;
+using NHibernate.Test;
 using NUnit.Framework;
 
 namespace NHibernate.Search.Tests.Bridge
@@ -18,7 +19,7 @@ namespace NHibernate.Search.Tests.Bridge
         public void SystemTypeForDocumentId()
         {
             Configuration tempCfg = new Configuration();
-            tempCfg.Configure();
+            tempCfg.Configure(TestConfigurationHelper.GetDefaultConfigurationFilePath());
             tempCfg.SetProperty("hibernate.search.default.directory_provider", typeof(RAMDirectoryProvider).AssemblyQualifiedName);
             tempCfg.AddClass(typeof(Gangster));
 			Assert.Throws<HibernateException>(()=>tempCfg.BuildSessionFactory(),"Unable to guess IFieldBridge for Id");

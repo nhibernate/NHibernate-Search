@@ -1,8 +1,9 @@
 using System;
-using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Embedded.DoubleInsert
 {
+    using Attributes;
+
     [Indexed]
     public class Address
     {

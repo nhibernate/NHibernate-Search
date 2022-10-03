@@ -1,8 +1,9 @@
 using System;
-using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Query 
 {
+    using Attributes;
+
     [Indexed(Index = "Book")]
     public class AlternateBook 
     {
