@@ -10,7 +10,7 @@ namespace NHibernate.Search.Tests.Bridge
     {
         public void Set(string name, object value, Document document, FieldType fieldType, float? boost)
         {
-            DateTime date = (DateTime) value;
+            DateTime date = (DateTime)value;
 
             int year = date.Year;
             int month = date.Month;

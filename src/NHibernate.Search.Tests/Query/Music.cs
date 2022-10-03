@@ -18,13 +18,13 @@ namespace NHibernate.Search.Tests.Query
             set { id = value; }
         }
 
-        [IndexedEmbedded(Depth=1)]
+        [IndexedEmbedded(Depth = 1)]
         public virtual ISet<Author> Authors
         {
             get { return authors; }
         }
 
-        [Field(Name="title", Index=Index.Tokenized)]
+        [Field(Name = "title", Index = Index.Tokenized)]
         public virtual string Title
         {
             get { return title; }

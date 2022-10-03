@@ -21,7 +21,7 @@ namespace NHibernate.Search.Impl
 {
     public class SearchFactoryImpl : ISearchFactoryImplementor
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(SearchFactoryImpl));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(SearchFactoryImpl));
         private static readonly object searchFactoryKey = new object();
 
         private readonly ISearchMapping mapping;
@@ -129,7 +129,7 @@ namespace NHibernate.Search.Impl
                 }
             else
                 analyzerClass = typeof(StandardAnalyzer);
-            
+
             // Initialize analyzer
             try
             {
@@ -185,7 +185,7 @@ namespace NHibernate.Search.Impl
             {
                 try
                 {
-                    filterCachingStrategy = (IFilterCachingStrategy)Activator.CreateInstance(ReflectHelper.ClassForName(impl));                    
+                    filterCachingStrategy = (IFilterCachingStrategy)Activator.CreateInstance(ReflectHelper.ClassForName(impl));
                 }
                 catch (InvalidCastException)
                 {
@@ -255,7 +255,7 @@ namespace NHibernate.Search.Impl
                 contexts = new WeakHashtable();
             }
 
-            SearchFactoryImpl searchFactory = (SearchFactoryImpl) contexts[cfg];
+            SearchFactoryImpl searchFactory = (SearchFactoryImpl)contexts[cfg];
             if (searchFactory == null)
             {
                 searchFactory = new SearchFactoryImpl(cfg);
@@ -285,7 +285,7 @@ namespace NHibernate.Search.Impl
         public void PerformWork(object entity, object id, ISession session, WorkType workType)
         {
             Work work = new Work(entity, id, workType);
-            worker.PerformWork(work, (ISessionImplementor) session);
+            worker.PerformWork(work, (ISessionImplementor)session);
         }
 
         public void RegisterDirectoryProviderForLocks(IDirectoryProvider provider)

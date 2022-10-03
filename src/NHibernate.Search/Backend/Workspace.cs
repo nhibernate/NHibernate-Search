@@ -26,7 +26,7 @@ namespace NHibernate.Search.Backend
     /// TODO introduce the notion of read only IndexReader? We cannot enforce it because Lucene use abstract classes, not interfaces
     public class Workspace : IDisposable
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(Workspace));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(Workspace));
 
         private readonly Dictionary<IDirectoryProvider, IndexReader> readers;
         private readonly Dictionary<IDirectoryProvider, IndexWriter> writers;
@@ -192,7 +192,7 @@ namespace NHibernate.Search.Backend
                 Monitor.Exit(syncLock);
             }
         }
-        
+
         public void Optimize(IDirectoryProvider provider)
         {
             IOptimizerStrategy optimizerStrategy = searchFactoryImplementor.GetOptimizerStrategy(provider);

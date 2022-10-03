@@ -5,7 +5,7 @@ using NHibernate.Event;
 using NHibernate.Impl;
 using NHibernate.Search.Event;
 using NHibernate.Search.Store;
-using TestCase=NHibernate.Test.TestCase;
+using TestCase = NHibernate.Test.TestCase;
 
 namespace NHibernate.Search.Tests
 {

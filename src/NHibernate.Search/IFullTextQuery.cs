@@ -12,7 +12,7 @@ namespace NHibernate.Search
     /// The base interface for lucene powered searches.
     /// </summary>
     public interface IFullTextQuery : IQuery
-    {        
+    {
         /// <summary>
         /// Returns the number of hits for this search
         /// </summary>

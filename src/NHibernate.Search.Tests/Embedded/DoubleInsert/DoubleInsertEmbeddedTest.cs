@@ -31,10 +31,10 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
             {
                 return new[]
                            {
-                            "Embedded.DoubleInsert.Address.hbm.xml", 
-                            "Embedded.DoubleInsert.Contact.hbm.xml", 
-                            "Embedded.DoubleInsert.PersonalContact.hbm.xml", 
-                            "Embedded.DoubleInsert.BusinessContact.hbm.xml", 
+                            "Embedded.DoubleInsert.Address.hbm.xml",
+                            "Embedded.DoubleInsert.Contact.hbm.xml",
+                            "Embedded.DoubleInsert.PersonalContact.hbm.xml",
+                            "Embedded.DoubleInsert.BusinessContact.hbm.xml",
                             "Embedded.DoubleInsert.Phone.hbm.xml"
                            };
             }

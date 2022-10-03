@@ -8,7 +8,7 @@ namespace NHibernate.Search
 {
     public class DirectoryProviderHelper
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(DirectoryProviderHelper));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(DirectoryProviderHelper));
 
         /// <summary>
         /// Build a directory name out of a root and relative path, guessing the significant part
@@ -17,8 +17,8 @@ namespace NHibernate.Search
         public static string GetSourceDirectory(string rootPropertyName, string relativePropertyName, string directoryProviderName, IDictionary properties)
         {
             // TODO check that it's a directory
-            string root = (string) properties[rootPropertyName];
-            string relative = (string) properties[relativePropertyName];
+            string root = (string)properties[rootPropertyName];
+            string relative = (string)properties[relativePropertyName];
             if (log.IsDebugEnabled())
             {
                 log.Debug(

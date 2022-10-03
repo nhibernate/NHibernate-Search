@@ -9,7 +9,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
 {
     public class AttributeUtil
     {
-		private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(AttributeUtil));
+        private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(AttributeUtil));
 
         #region Public methods
 
@@ -21,7 +21,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
                 return null;
             }
 
-            return (T) objects[0];
+            return (T)objects[0];
         }
 
         public static bool HasAttribute<T>(ICustomAttributeProvider member) where T : Attribute

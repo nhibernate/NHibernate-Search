@@ -7,19 +7,19 @@ namespace NHibernate.Search.Tests.Embedded
     [Indexed]
     public class Address
     {
-        [IndexedEmbedded] 
+        [IndexedEmbedded]
         private Country country;
 
-        [DocumentId] 
+        [DocumentId]
         private long id;
 
-        [IndexedEmbedded(Depth = 1, Prefix = "ownedBy_", TargetElement = typeof(Owner))] 
+        [IndexedEmbedded(Depth = 1, Prefix = "ownedBy_", TargetElement = typeof(Owner))]
         private Owner ownedBy;
 
-        [Field(Index.Tokenized)] 
+        [Field(Index.Tokenized)]
         private string street;
 
-        [ContainedIn] 
+        [ContainedIn]
         private ISet<Tower> towers = new HashSet<Tower>();
 
         public virtual long Id

@@ -11,7 +11,7 @@ namespace NHibernate.Search.Tests.Bridge
 
         public void Set(string name, object value, Document document, FieldType fieldType, float? boost)
         {
-            String indexedString = (String) value;
+            String indexedString = (String)value;
             //Do not add fields on empty strings, seems a sensible default in most situations
             if (StringHelper.IsNotEmpty(indexedString))
             {

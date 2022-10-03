@@ -15,12 +15,15 @@ namespace NHibernate.Search.Tests.Cfg
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new string[]
+            get
+            {
+                return new string[]
                              {
-                             "DocumentTop.hbm.xml", 
-                             "Query.Author.hbm.xml", 
+                             "DocumentTop.hbm.xml",
+                             "Query.Author.hbm.xml",
                              "Query.Book.hbm.xml"
-                             }; }
+                             };
+            }
         }
 
         #region Tests
@@ -29,10 +32,10 @@ namespace NHibernate.Search.Tests.Cfg
         public void UnsetBatchValueTakesTransaction()
         {
             IFullTextSession fullTextSession = Search.CreateFullTextSession(OpenSession());
-            SearchFactoryImpl searchFactory = (SearchFactoryImpl) fullTextSession.SearchFactory;
+            SearchFactoryImpl searchFactory = (SearchFactoryImpl)fullTextSession.SearchFactory;
             LuceneIndexingParameters indexingParameters = searchFactory.GetIndexingParameters(searchFactory.GetDirectoryProviders(typeof(DocumentTop))[0]);
-            Assert.AreEqual(10, (int) indexingParameters.BatchIndexParameters.MergeFactor);
-            Assert.AreEqual(1000, (int) indexingParameters.BatchIndexParameters.MaxBufferedDocs);
+            Assert.AreEqual(10, (int)indexingParameters.BatchIndexParameters.MergeFactor);
+            Assert.AreEqual(1000, (int)indexingParameters.BatchIndexParameters.MaxBufferedDocs);
             Assert.AreEqual(99, (int)indexingParameters.BatchIndexParameters.TermIndexInterval);
             fullTextSession.Close();
         }

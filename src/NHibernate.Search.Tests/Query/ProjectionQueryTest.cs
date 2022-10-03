@@ -18,12 +18,15 @@ namespace NHibernate.Search.Tests.Query
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new string[]
+            get
+            {
+                return new string[]
                              {
-                                     "Query.Author.hbm.xml",                                      
-                                     "Query.Book.hbm.xml", 
+                                     "Query.Author.hbm.xml",
+                                     "Query.Book.hbm.xml",
                                      "Query.Employee.hbm.xml"
-                             }; }
+                             };
+            }
         }
 
         #region Tests
@@ -226,11 +229,11 @@ namespace NHibernate.Search.Tests.Query
         // Implementing these would increase test coverage
 
         public void ProjectionWithEmbedded()
-        {            
+        {
         }
 
         public void ProjectUnstoredField()
-        {            
+        {
         }
 
         #endregion
@@ -261,7 +264,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1004, projection[7], "legacy ID incorrect");
         }
 
@@ -275,7 +278,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1003, projection[7], "legacy ID incorrect");
         }
 

@@ -11,8 +11,8 @@ namespace NHibernate.Search.Tests.Bridge
         #region IParameterizedBridge Members
 
         public void SetParameterValues(Dictionary<string, object> parameters)
-        {            
-            div = parameters["dividedBy"] == null ? 0 : (int) parameters["dividedBy"];
+        {
+            div = parameters["dividedBy"] == null ? 0 : (int)parameters["dividedBy"];
         }
 
         #endregion

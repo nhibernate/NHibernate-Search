@@ -28,7 +28,7 @@ namespace NHibernate.Search.Tests.Util
 
         [Test]
         public void CreateViaExistingRoot()
-        {            
+        {
             var properties = new Dictionary<string, string>();
             properties["sourceBase"] = root;
 
@@ -60,7 +60,7 @@ namespace NHibernate.Search.Tests.Util
         [Test]
         public void CreateViaParent()
         {
-            var properties = new Dictionary<string, string>();            
+            var properties = new Dictionary<string, string>();
             properties["indexBase"] = "../Wilma";
             properties["indexName"] = "fakeIndex";
 
@@ -84,7 +84,7 @@ namespace NHibernate.Search.Tests.Util
         [TearDown]
         public void TearDown()
         {
-            ZapRoot();    
+            ZapRoot();
         }
 
         private void ZapRoot()

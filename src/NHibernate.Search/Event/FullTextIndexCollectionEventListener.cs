@@ -9,10 +9,10 @@ namespace NHibernate.Search.Event
     /// Support collection event listening
     /// </summary>
     /// HACK: Deprecate as soon as we target Core 3.3 and merge back into the superclass
-    public partial class FullTextIndexCollectionEventListener : FullTextIndexEventListener, 
+    public partial class FullTextIndexCollectionEventListener : FullTextIndexEventListener,
                                     IPostCollectionRecreateEventListener, IPostCollectionRemoveEventListener, IPostCollectionUpdateEventListener
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FullTextIndexCollectionEventListener));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FullTextIndexCollectionEventListener));
 
         #region Public methods
 
@@ -40,8 +40,8 @@ namespace NHibernate.Search.Event
             object id = @event.AffectedOwnerIdOrNull;
             if (id == null)
             {
-			    // most likely this recovery is unnecessary since Hibernate Core probably try that 
-                EntityEntry entityEntry = (EntityEntry) @event.Session.PersistenceContext.EntityEntries[entity];
+                // most likely this recovery is unnecessary since Hibernate Core probably try that 
+                EntityEntry entityEntry = (EntityEntry)@event.Session.PersistenceContext.EntityEntries[entity];
                 id = entityEntry == null ? null : entityEntry.Id;
             }
 

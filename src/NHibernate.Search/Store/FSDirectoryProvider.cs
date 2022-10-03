@@ -7,13 +7,13 @@ using Lucene.Net.Index;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
 using NHibernate.Search.Engine;
-using Directory=Lucene.Net.Store.Directory;
+using Directory = Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
 {
     public class FSDirectoryProvider : IDirectoryProvider
     {
-		private static INHibernateLogger log = NHibernateLogger.For(typeof(FSDirectoryProvider));
+        private static INHibernateLogger log = NHibernateLogger.For(typeof(FSDirectoryProvider));
         private FSDirectory directory;
         private String indexName;
 
@@ -24,7 +24,7 @@ namespace NHibernate.Search.Store
 
         public void Initialize(String directoryProviderName, IDictionary<string, string> properties, ISearchFactoryImplementor searchFactory)
         {
-            DirectoryInfo indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary) properties);
+            DirectoryInfo indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary)properties);
             try
             {
                 directory = FSDirectory.Open(indexDir);
@@ -62,7 +62,7 @@ namespace NHibernate.Search.Store
             // after initialize call
             if (obj == this) return true;
             if (obj == null || !(obj is FSDirectoryProvider)) return false;
-            return indexName.Equals(((FSDirectoryProvider) obj).indexName);
+            return indexName.Equals(((FSDirectoryProvider)obj).indexName);
         }
 
         public override int GetHashCode()
@@ -71,7 +71,7 @@ namespace NHibernate.Search.Store
             // but from a practical POV this is fine since we only call this method
             // after initialize call
             const int hash = 11;
-            return 37*hash + indexName.GetHashCode();
+            return 37 * hash + indexName.GetHashCode();
         }
     }
 }

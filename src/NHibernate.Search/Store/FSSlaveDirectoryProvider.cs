@@ -9,7 +9,7 @@ using Lucene.Net.Index;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
 using NHibernate.Search.Engine;
-using Directory=Lucene.Net.Store.Directory;
+using Directory = Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
 {
@@ -24,7 +24,7 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class FSSlaveDirectoryProvider : IDirectoryProvider
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FSSlaveDirectoryProvider));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FSSlaveDirectoryProvider));
         private FSDirectory directory1;
         private FSDirectory directory2;
         private string indexName;
@@ -84,7 +84,7 @@ namespace NHibernate.Search.Store
             this.directoryProviderName = directoryProviderName;
 
             // source guessing
-            source = DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source, directoryProviderName, (IDictionary) properties);
+            source = DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source, directoryProviderName, (IDictionary)properties);
             if (source == null)
             {
                 throw new ArgumentException("FSSlaveDirectoryProvider requires a viable source directory");
@@ -96,7 +96,7 @@ namespace NHibernate.Search.Store
             }
 
             log.Debug("Source directory: " + source);
-            indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary) properties);
+            indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary)properties);
             log.Debug("Index directory: " + indexDir.FullName);
             try
             {
@@ -142,7 +142,7 @@ namespace NHibernate.Search.Store
 
                 subDir = new DirectoryInfo(Path.Combine(indexName, "2"));
                 directory2 = FSDirectory.Open(subDir);
-                create = !DirectoryReader.IndexExists(directory2); 
+                create = !DirectoryReader.IndexExists(directory2);
                 if (create)
                 {
                     log.Debug("Initialize index: '{0}'", subDir.FullName);
@@ -218,7 +218,7 @@ namespace NHibernate.Search.Store
             // after initialize call
             if (obj == this) return true;
             if (obj == null || !(obj is FSSlaveDirectoryProvider)) return false;
-            return indexName.Equals(((FSSlaveDirectoryProvider) obj).indexName);
+            return indexName.Equals(((FSSlaveDirectoryProvider)obj).indexName);
         }
 
         public override int GetHashCode()
@@ -227,7 +227,7 @@ namespace NHibernate.Search.Store
             // but from a practical POV this is fine since we only call this method
             // after initialize call
             const int hash = 11;
-            return 37*hash + indexName.GetHashCode();
+            return 37 * hash + indexName.GetHashCode();
         }
 
         #endregion

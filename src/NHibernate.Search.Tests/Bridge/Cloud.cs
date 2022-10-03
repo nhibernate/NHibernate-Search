@@ -29,7 +29,7 @@ namespace NHibernate.Search.Tests.Bridge
         private bool storm;
         private string string1;
         private CloudType type;
-        private object[] fred = {"dividedBy"};
+        private object[] fred = { "dividedBy" };
 
         [Field(Index.Tokenized, Store = Attributes.Store.Yes)]
         [FieldBridge(typeof(TruncateFieldBridge))]

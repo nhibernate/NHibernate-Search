@@ -19,14 +19,14 @@ namespace NHibernate.Search.Engine
     using Proxy;
 
     using Type = System.Type;
-    
+
     /// <summary>
     /// Set up and provide a manager for indexes classes
     /// </summary>
     public class DocumentBuilder
     {
         public const string CLASS_FIELDNAME = "_hibernate_class";
-		private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(DocumentBuilder));
+        private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(DocumentBuilder));
 
         private readonly IDirectoryProvider[] directoryProviders;
         private readonly IIndexShardingStrategy shardingStrategy;
@@ -158,10 +158,10 @@ namespace NHibernate.Search.Engine
             }
 
             // 
-		    // When references are changed, either null or another one, we expect dirty checking to be triggered (both sides
-		    // have to be updated)
-		    // When the internal object is changed, we apply the {Add|Update}Work on containedIns
-		    // 
+            // When references are changed, either null or another one, we expect dirty checking to be triggered (both sides
+            // have to be updated)
+            // When the internal object is changed, we apply the {Add|Update}Work on containedIns
+            // 
             if (searchForContainers)
             {
                 ProcessContainedIn(entity, queue, rootClassMapping, searchFactoryImplementor);
@@ -433,7 +433,7 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private void CollectAnalyzer(FieldMapping field, Analyzer parentAnalyzer, string prefix) 
+        private void CollectAnalyzer(FieldMapping field, Analyzer parentAnalyzer, string prefix)
         {
             // Field > property > entity analyzer
             var localAnalyzer = field.Analyzer ?? parentAnalyzer;
@@ -454,7 +454,7 @@ namespace NHibernate.Search.Engine
                     fields,
                     result,
                     document
-               );                
+               );
             }
 
             foreach (var embedded in mapping.Embedded)
@@ -472,7 +472,8 @@ namespace NHibernate.Search.Engine
         private static void PopulateResult(
             string fieldName, IFieldBridge fieldBridge, Attributes.Store fieldStore,
             string[] fields, object[] result, Document document
-        ) {
+        )
+        {
             int matchingPosition = GetFieldPosition(fields, fieldName);
             if (matchingPosition != -1)
             {
@@ -528,7 +529,7 @@ namespace NHibernate.Search.Engine
                     IEnumerable collection = value as IEnumerable;
                     if (typeof(IDictionary).IsAssignableFrom(value.GetType()))
                     {
-                        collection = ((IDictionary) value).Values;
+                        collection = ((IDictionary)value).Values;
                     }
 
                     if (collection == null)

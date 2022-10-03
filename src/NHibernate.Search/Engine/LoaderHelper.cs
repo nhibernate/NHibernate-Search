@@ -9,7 +9,7 @@ namespace NHibernate.Search.Engine
 
         static LoaderHelper()
         {
-			objectNotFoundExceptions.Add(typeof(ObjectNotFoundException));
+            objectNotFoundExceptions.Add(typeof(ObjectNotFoundException));
             // TODO: Add NHibernate ObjectNotFoundException
         }
 

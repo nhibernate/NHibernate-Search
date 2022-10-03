@@ -30,8 +30,8 @@ namespace NHibernate.Search.Impl
         public FullTextSessionImpl(ISession session)
         {
             this.session = session;
-            eventSource = (IEventSource) session;
-            sessionImplementor = (ISessionImplementor) session;
+            eventSource = (IEventSource)session;
+            sessionImplementor = (ISessionImplementor)session;
         }
 
         public ISearchFactory SearchFactory
@@ -132,10 +132,10 @@ namespace NHibernate.Search.Impl
             return session.Load(theType, id, lockMode);
         }
 
-		public object Load(string entityName, object id, LockMode lockMode)
-		{
-			return session.Load(entityName, id, lockMode);
-		}
+        public object Load(string entityName, object id, LockMode lockMode)
+        {
+            return session.Load(entityName, id, lockMode);
+        }
 
         public object Load(System.Type theType, object id)
         {
@@ -152,10 +152,10 @@ namespace NHibernate.Search.Impl
             return session.Load<T>(id);
         }
 
-		public object Load(string entityName, object id)
-		{
-			return session.Load(entityName, id);
-		}
+        public object Load(string entityName, object id)
+        {
+            return session.Load(entityName, id);
+        }
 
         public void Load(object obj, object id)
         {
@@ -209,14 +209,14 @@ namespace NHibernate.Search.Impl
             get { return session.IsConnected; }
         }
 
-    	public bool DefaultReadOnly
-    	{
-    		get { return session.DefaultReadOnly; }
-				set { session.DefaultReadOnly = value; }
-    	}
+        public bool DefaultReadOnly
+        {
+            get { return session.DefaultReadOnly; }
+            set { session.DefaultReadOnly = value; }
+        }
 
         [Obsolete("Use GetCurrentTransaction extension method instead, and check for null.")]
-    	public ITransaction Transaction
+        public ITransaction Transaction
         {
             get { return session.Transaction; }
         }
@@ -301,17 +301,17 @@ namespace NHibernate.Search.Impl
             return session.Merge(entityName, obj);
         }
 
-    	public T Merge<T>(T entity) where T : class
-    	{
-    		return session.Merge(entity);
-    	}
+        public T Merge<T>(T entity) where T : class
+        {
+            return session.Merge(entity);
+        }
 
-    	public T Merge<T>(string entityName, T entity) where T : class
-    	{
-			return session.Merge(entityName, entity);
-    	}
+        public T Merge<T>(string entityName, T entity) where T : class
+        {
+            return session.Merge(entityName, entity);
+        }
 
-    	public void Persist(object obj)
+        public void Persist(object obj)
         {
             session.Persist(obj);
         }
@@ -326,10 +326,10 @@ namespace NHibernate.Search.Impl
             session.Delete(obj);
         }
 
-		public void Delete(string entityName, object obj)
-		{
-			session.Delete(entityName, obj);
-		}
+        public void Delete(string entityName, object obj)
+        {
+            session.Delete(entityName, obj);
+        }
 
         public int Delete(string query)
         {
@@ -396,7 +396,7 @@ namespace NHibernate.Search.Impl
             return session.CreateCriteria<T>(alias);
         }
 
-		public ICriteria CreateCriteria(System.Type persistentClass)
+        public ICriteria CreateCriteria(System.Type persistentClass)
         {
             return session.CreateCriteria(persistentClass);
         }
@@ -416,32 +416,32 @@ namespace NHibernate.Search.Impl
             return session.CreateCriteria(entityName, alias);
         }
 
-    	public IQueryOver<T, T> QueryOver<T>() where T : class
-    	{
-    		return session.QueryOver<T>();
-    	}
+        public IQueryOver<T, T> QueryOver<T>() where T : class
+        {
+            return session.QueryOver<T>();
+        }
 
-    	public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
-    	{
-    		return session.QueryOver(alias);
-    	}
+        public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
+        {
+            return session.QueryOver(alias);
+        }
 
-    	public IQueryOver<T, T> QueryOver<T>(string entityName) where T : class
-    	{
-    		return session.QueryOver<T>(entityName);
-    	}
+        public IQueryOver<T, T> QueryOver<T>(string entityName) where T : class
+        {
+            return session.QueryOver<T>(entityName);
+        }
 
-    	public IQueryOver<T, T> QueryOver<T>(string entityName, Expression<Func<T>> alias) where T : class
-    	{
-			return session.QueryOver(entityName, alias);
-    	}
+        public IQueryOver<T, T> QueryOver<T>(string entityName, Expression<Func<T>> alias) where T : class
+        {
+            return session.QueryOver(entityName, alias);
+        }
 
-    	public IQuery CreateQuery(string queryString)
+        public IQuery CreateQuery(string queryString)
         {
             return session.CreateQuery(queryString);
         }
 
-    	public IQuery CreateFilter(object collection, string queryString)
+        public IQuery CreateFilter(object collection, string queryString)
         {
             return session.CreateFilter(collection, queryString);
         }
@@ -539,7 +539,7 @@ namespace NHibernate.Search.Impl
             {
                 QueryParser queryParser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, defaultField, new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
-                return CreateFullTextQuery(query, typeof (TEntity));
+                return CreateFullTextQuery(query, typeof(TEntity));
             }
         }
 
@@ -547,9 +547,9 @@ namespace NHibernate.Search.Impl
         {
             using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
-                QueryParser queryParser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48,string.Empty, new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
+                QueryParser queryParser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, string.Empty, new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
-                return CreateFullTextQuery(query, typeof (TEntity));
+                return CreateFullTextQuery(query, typeof(TEntity));
             }
         }
 

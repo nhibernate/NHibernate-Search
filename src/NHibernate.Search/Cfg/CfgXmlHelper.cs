@@ -1,12 +1,12 @@
 using System.Xml;
 using System.Xml.XPath;
 
-namespace NHibernate.Search.Cfg 
+namespace NHibernate.Search.Cfg
 {
     /// <summary>
     /// Helper to parse nhv-configuration XmlNode.
     /// </summary>
-    public static class CfgXmlHelper 
+    public static class CfgXmlHelper
     {
         public const string CfgNamespacePrefix = "cfg";
 
@@ -28,8 +28,8 @@ namespace NHibernate.Search.Cfg
         private const string RootPrefixPath = "//" + CfgNamespacePrefix;
 
         private static readonly XmlNamespaceManager nsMgr;
-     
-        static CfgXmlHelper() 
+
+        static CfgXmlHelper()
         {
             NameTable nt = new NameTable();
             nsMgr = new XmlNamespaceManager(nt);

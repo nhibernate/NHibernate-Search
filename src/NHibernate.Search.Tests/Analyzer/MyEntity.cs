@@ -16,7 +16,7 @@ namespace NHibernate.Search.Tests.Analyzer
         [Analyzer(typeof(Test2Analyzer))]
         private string property;
 
-        [Field(Index.Tokenized, Analyzer=typeof(Test3Analyzer))]
+        [Field(Index.Tokenized, Analyzer = typeof(Test3Analyzer))]
         [Analyzer(typeof(Test2Analyzer))]
         private string field;
 

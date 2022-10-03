@@ -37,7 +37,7 @@ namespace NHibernate.Search.Reader
             {
                 try
                 {
-                    readerProvider = (IReaderProvider) Activator.CreateInstance(ReflectHelper.ClassForName(impl));
+                    readerProvider = (IReaderProvider)Activator.CreateInstance(ReflectHelper.ClassForName(impl));
                 }
                 catch (InvalidCastException)
                 {

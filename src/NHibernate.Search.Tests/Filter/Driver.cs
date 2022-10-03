@@ -7,8 +7,8 @@ namespace NHibernate.Search.Tests.Filter
     [Indexed]
     [FullTextFilterDef("bestDriver", typeof(BestDriversFilter))] // Actual Filter implementation
     [FullTextFilterDef("security", typeof(SecurityFilterFactory))] // Filter factory with parameters
-    [FullTextFilterDef("cachetest", typeof(ExcludeAllFilterFactory), Cache=true)] // Filter factory with parameters
-    public class Driver 
+    [FullTextFilterDef("cachetest", typeof(ExcludeAllFilterFactory), Cache = true)] // Filter factory with parameters
+    public class Driver
     {
         [DocumentId]
         private int id;
@@ -39,7 +39,7 @@ namespace NHibernate.Search.Tests.Filter
             get { return teacher; }
             set { teacher = value; }
         }
-        
+
         public int Score
         {
             get { return score; }
@@ -55,10 +55,10 @@ namespace NHibernate.Search.Tests.Filter
         public override int GetHashCode()
         {
             int result = id;
-            result = 31*result + (name != null ? name.GetHashCode() : 0);
-            result = 31*result + (teacher != null ? teacher.GetHashCode() : 0);
-            result = 31*result + score;
-            result = 31*result + (delivery != DateTime.MinValue ? delivery.GetHashCode() : 0);
+            result = 31 * result + (name != null ? name.GetHashCode() : 0);
+            result = 31 * result + (teacher != null ? teacher.GetHashCode() : 0);
+            result = 31 * result + score;
+            result = 31 * result + (delivery != DateTime.MinValue ? delivery.GetHashCode() : 0);
 
             return result;
         }

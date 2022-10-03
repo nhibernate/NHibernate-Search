@@ -106,5 +106,5 @@ namespace NHibernate.Search.Event
         }
 
         #endregion
-    }    
+    }
 }

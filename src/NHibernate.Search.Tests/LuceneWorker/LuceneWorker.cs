@@ -14,7 +14,7 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new string[] {"LuceneWorker.Document.hbm.xml"}; }
+            get { return new string[] { "LuceneWorker.Document.hbm.xml" }; }
         }
 
         /// <summary>

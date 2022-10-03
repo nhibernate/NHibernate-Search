@@ -6,7 +6,7 @@ using Lucene.Net.Index;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
 using NHibernate.Search.Engine;
-using Directory=Lucene.Net.Store.Directory;
+using Directory = Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
 {
@@ -42,7 +42,7 @@ namespace NHibernate.Search.Store
 
         public void Start()
         {
-            
+
         }
 
         public override bool Equals(Object obj)
@@ -52,7 +52,7 @@ namespace NHibernate.Search.Store
             // after initialize call
             if (obj == this) return true;
             if (obj == null || !(obj is RAMDirectoryProvider)) return false;
-            return indexName.Equals(((RAMDirectoryProvider) obj).indexName);
+            return indexName.Equals(((RAMDirectoryProvider)obj).indexName);
         }
 
         public override int GetHashCode()
@@ -61,7 +61,7 @@ namespace NHibernate.Search.Store
             // but from a practical POV this is fine since we only call this method
             // after initialize call
             int hash = 7;
-            return 29*hash + indexName.GetHashCode();
+            return 29 * hash + indexName.GetHashCode();
         }
     }
 }

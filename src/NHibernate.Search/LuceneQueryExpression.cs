@@ -47,13 +47,13 @@ namespace NHibernate.Search
             CriteriaImpl impl = criteria as CriteriaImpl;
             return impl != null ?
                 impl.GetRootEntityTypeIfAvailable()
-                : GetCriteriaClass(((CriteriaImpl.Subcriteria) criteria).Parent);
+                : GetCriteriaClass(((CriteriaImpl.Subcriteria)criteria).Parent);
         }
 
         public ISession GetSession(ICriteria criteria)
         {
             CriteriaImpl impl = criteria as CriteriaImpl;
-            return impl != null ? (ISession) impl.Session : this.GetSession(((CriteriaImpl.Subcriteria) criteria).Parent);
+            return impl != null ? (ISession)impl.Session : this.GetSession(((CriteriaImpl.Subcriteria)criteria).Parent);
         }
     }
 }

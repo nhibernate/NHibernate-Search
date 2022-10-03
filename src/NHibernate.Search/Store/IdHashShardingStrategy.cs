@@ -35,7 +35,7 @@ namespace NHibernate.Search.Store
         {
             return string.IsNullOrEmpty(idInString)
                        ? providers
-                       : new IDirectoryProvider[] {providers[HashKey(idInString)]};
+                       : new IDirectoryProvider[] { providers[HashKey(idInString)] };
         }
 
         #endregion

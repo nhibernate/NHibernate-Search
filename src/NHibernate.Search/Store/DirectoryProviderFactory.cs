@@ -99,7 +99,7 @@ namespace NHibernate.Search.Store
                 try
                 {
                     System.Type shardingStrategyClass = ReflectHelper.ClassForName(shardingStrategyName);
-                    shardingStrategy = (IIndexShardingStrategy) Activator.CreateInstance(shardingStrategyClass);
+                    shardingStrategy = (IIndexShardingStrategy)Activator.CreateInstance(shardingStrategyClass);
                 }
                 catch
                 {
@@ -281,7 +281,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     TRANSACTION + MERGE_FACTOR,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.MergeFactor = value;
                         indexingParams.TransactionIndexParameters.MergeFactor = value;
@@ -290,7 +290,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     TRANSACTION + MAX_MERGE_DOCS,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.MaxMergeDocs = value;
                         indexingParams.TransactionIndexParameters.MaxMergeDocs = value;
@@ -299,7 +299,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     TRANSACTION + MAX_BUFFERED_DOCS,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
                         indexingParams.TransactionIndexParameters.MaxBufferedDocs = value;
@@ -308,7 +308,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     TRANSACTION + RAM_BUFFER_SIZE,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
                         indexingParams.TransactionIndexParameters.RamBufferSizeMb = value;
@@ -317,7 +317,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     TRANSACTION + TERM_INDEX_INTERVAL,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.TermIndexInterval = value;
                         indexingParams.TransactionIndexParameters.TermIndexInterval = value;
@@ -326,7 +326,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     BATCH + MERGE_FACTOR,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.MergeFactor = value;
                     });
@@ -334,7 +334,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     BATCH + MAX_MERGE_DOCS,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.MaxMergeDocs = value;
                     });
@@ -342,7 +342,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     BATCH + MAX_BUFFERED_DOCS,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.MaxBufferedDocs = value;
                     });
@@ -350,7 +350,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     BATCH + RAM_BUFFER_SIZE,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.RamBufferSizeMb = value;
                     });
@@ -358,7 +358,7 @@ namespace NHibernate.Search.Store
             ConfigureProp(
                     BATCH + TERM_INDEX_INTERVAL,
                     indexProps,
-                    delegate(int value)
+                    delegate (int value)
                     {
                         indexingParams.BatchIndexParameters.TermIndexInterval = value;
                     });

@@ -7,7 +7,7 @@ using Lucene.Net.Index;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
-using FieldInfo=System.Reflection.FieldInfo;
+using FieldInfo = System.Reflection.FieldInfo;
 
 namespace NHibernate.Search.Reader
 {
@@ -16,7 +16,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class SharedReaderProvider : IReaderProvider
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(SharedReaderProvider));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(SharedReaderProvider));
         private static FieldInfo subReadersField;
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NHibernate.Search.Reader
             DirectoryReader reader;
 
             // Since out of lock protection, can have multiple readers created in //
-		    // not worse than NotShared and limit the locking time, hence scalability
+            // not worse than NotShared and limit the locking time, hence scalability
             try
             {
                 reader = DirectoryReader.Open(directoryProvider.Directory);
@@ -231,7 +231,7 @@ namespace NHibernate.Search.Reader
                 try
                 {
                     // TODO: Need to account for Medium Trust - can't reflect on private members
-                    readers = (IndexReader[]) subReadersField.GetValue(reader);
+                    readers = (IndexReader[])subReadersField.GetValue(reader);
                 }
                 catch (Exception e)
                 {

@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace NHibernate.Search.Util {
+namespace NHibernate.Search.Util
+{
     using Type = System.Type;
 
     public class TypeDictionary<TValue> : IDictionary<Type, TValue>
@@ -10,7 +11,7 @@ namespace NHibernate.Search.Util {
 
         public TypeDictionary() : this(true)
         {
-            
+
         }
 
         public TypeDictionary(bool matchInterfaces)
@@ -27,7 +28,7 @@ namespace NHibernate.Search.Util {
         {
             inner.Add(key, value);
         }
-        
+
         public bool Remove(Type key)
         {
             return inner.Remove(key);
@@ -50,7 +51,8 @@ namespace NHibernate.Search.Util {
 
         public bool ContainsKey(Type key)
         {
-            foreach (var type in GetAllMatchingTypes(key)) {
+            foreach (var type in GetAllMatchingTypes(key))
+            {
                 if (inner.ContainsKey(type))
                     return true;
             }
@@ -65,7 +67,8 @@ namespace NHibernate.Search.Util {
 
         public bool TryGetValue(Type key, out TValue value)
         {
-            foreach (var type in GetAllMatchingTypes(key)) {
+            foreach (var type in GetAllMatchingTypes(key))
+            {
                 if (inner.TryGetValue(type, out value))
                     return true;
             }
@@ -76,12 +79,12 @@ namespace NHibernate.Search.Util {
 
         public TValue this[Type key]
         {
-			get
-			{
-				TValue value;
-				TryGetValue(key, out value);
-				return value;
-			}
+            get
+            {
+                TValue value;
+                TryGetValue(key, out value);
+                return value;
+            }
             set { inner[key] = value; }
         }
 
@@ -133,7 +136,7 @@ namespace NHibernate.Search.Util {
         }
 
         public bool MatchesInterfaces { get; private set; }
-        
+
         #region IEnumerable Members
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

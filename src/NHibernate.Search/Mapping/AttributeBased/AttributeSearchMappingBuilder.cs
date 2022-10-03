@@ -13,15 +13,16 @@ using NHibernate.Search.Mapping.Definition;
 namespace NHibernate.Search.Mapping.AttributeBased
 {
     using Type = System.Type;
-    
-    public class AttributeSearchMappingBuilder {
-		private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(AttributeSearchMappingBuilder));
+
+    public class AttributeSearchMappingBuilder
+    {
+        private static readonly INHibernateLogger logger = NHibernateLogger.For(typeof(AttributeSearchMappingBuilder));
 
         private int level;
         private int maxLevel = int.MaxValue;
 
         #region BuildContext class
-        
+
         public class BuildContext
         {
             public BuildContext()
@@ -72,10 +73,12 @@ namespace NHibernate.Search.Mapping.AttributeBased
                 Cache = attribute.Cache
             };
 
-            try {
+            try
+            {
                 Activator.CreateInstance(filterDef.Impl);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new SearchException("Unable to create Filter class: " + filterDef.Impl.FullName, e);
             }
 
@@ -118,7 +121,8 @@ namespace NHibernate.Search.Mapping.AttributeBased
             IList<System.Type> hierarchy = new List<System.Type>();
             System.Type currClass = documentMapping.MappedClass;
 
-            do {
+            do
+            {
                 hierarchy.Add(currClass);
                 currClass = currClass.BaseType;
                 // NB Java stops at null we stop at object otherwise we process the class twice
@@ -176,7 +180,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
 
             var analyzer = GetAnalyzer(member) ?? parentAnalyzer;
             var boost = GetBoost(member);
-            
+
             var getter = GetGetterFast(documentMapping.MappedClass, member);
 
             var documentIdAttribute = AttributeUtil.GetAttribute<DocumentIdAttribute>(member);
@@ -194,7 +198,8 @@ namespace NHibernate.Search.Mapping.AttributeBased
 
                     documentMapping.DocumentId = new DocumentIdMapping(
                         documentIdName, member.Name, (ITwoWayFieldBridge)bridge, getter
-                    ) { Boost = boost };
+                    )
+                    { Boost = boost };
                 }
                 else
                 {
@@ -210,7 +215,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
                     });
                 }
             }
-            
+
             var fieldAttributes = AttributeUtil.GetFields(member);
             if (fieldAttributes.Length > 0)
             {
@@ -223,7 +228,8 @@ namespace NHibernate.Search.Mapping.AttributeBased
                     var field = new FieldMapping(
                         GetAttributeName(member, fieldAttribute.Name),
                         bridge, getter
-                    ) {
+                    )
+                    {
                         Store = fieldAttribute.Store,
                         Index = fieldAttribute.Index,
                         Analyzer = fieldAnalyzer,
@@ -265,10 +271,12 @@ namespace NHibernate.Search.Mapping.AttributeBased
                 if (level <= maxLevel)
                 {
                     context.Processed.Add(elementType); // push
-                    var embedded = new EmbeddedMapping(new DocumentMapping(elementType) {
+                    var embedded = new EmbeddedMapping(new DocumentMapping(elementType)
+                    {
                         Boost = GetBoost(member),
                         Analyzer = GetAnalyzer(member) ?? parentAnalyzer
-                    }, getter) {
+                    }, getter)
+                    {
                         Prefix = localPrefix
                     };
 
@@ -318,7 +326,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
         {
             if (member is PropertyInfo)
                 return new BasicPropertyAccessor.BasicGetter(type, (PropertyInfo)member, member.Name);
-            
+
             if (member is FieldInfo)
                 return new FieldAccessor.FieldGetter((FieldInfo)member, type, member.Name);
 
@@ -340,7 +348,7 @@ namespace NHibernate.Search.Mapping.AttributeBased
         {
             var classAnalyzer = GetAnalyzerByType(ann.Analyzer) ?? parentAnalyzer;
             return new ClassBridgeMapping(ann.Name, BridgeFactory.ExtractType(ann))
-            {                           
+            {
                 Boost = ann.Boost,
                 Analyzer = classAnalyzer,
                 Index = ann.Index,
@@ -367,15 +375,17 @@ namespace NHibernate.Search.Mapping.AttributeBased
             if (analyzerType == null)
                 return null;
 
-            try {
+            try
+            {
                 return (Analyzer)Activator.CreateInstance(analyzerType);
             }
-            catch {
+            catch
+            {
                 // TODO: See if we can get a tigher exception trap here
                 throw new SearchException("Failed to instantiate lucene analyzer with type  " + analyzerType.FullName);
             }
         }
-        
+
         private static System.Type GetMemberTypeOrGenericArguments(MemberInfo member)
         {
             Type type = GetMemberType(member);

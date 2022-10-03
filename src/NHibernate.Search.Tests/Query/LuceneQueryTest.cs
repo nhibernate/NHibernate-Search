@@ -234,37 +234,37 @@ namespace NHibernate.Search.Tests.Query
         [Test]
         [Ignore("Not implemented")]
         public void DefaultFetchSize()
-        {            
+        {
         }
 
         [Test]
         [Ignore("Not implemented")]
         public void FetchSizeLargerThanHits()
-        {            
+        {
         }
 
         [Test]
         [Ignore("Not implemented")]
         public void FetchSizeDefaultFirstAndMax()
-        {            
+        {
         }
 
         [Test]
         [Ignore("Not implemented")]
         public void FetchSizeNonDefaultFirstAndMax()
-        {            
+        {
         }
 
         [Test]
         [Ignore("Not implemented")]
         public void FetchSizeNonDefaultFirstAndMaxNoHits()
-        {            
+        {
         }
 
         [Test]
         [Ignore("Not implemented")]
         public void Current()
-        {            
+        {
         }
 
         [Test]
@@ -342,7 +342,7 @@ namespace NHibernate.Search.Tests.Query
             IList result = hibQuery.List();
             Assert.NotNull(result);
             Assert.AreEqual(1, result.Count, "Query with no explicit criteria");
-            book = (Book) result[0];
+            book = (Book)result[0];
             //Assert.IsFalse(NHibernate.IsInitialized(book.Authors), "Association should not be initialized");
 
             result = s.CreateFullTextQuery(query).SetCriteriaQuery(s.CreateCriteria(typeof(Book)).Fetch(SelectMode.Fetch, "Authors")).List();
@@ -367,9 +367,9 @@ namespace NHibernate.Search.Tests.Query
             s.Save(clock);
             tx.Commit();
 
-			IList list = s.CreateFullTextQuery<Clock>("Brand:seiko")
-				.SetCriteriaQuery(s.CreateCriteria(typeof(Clock)).Add(Restrictions.IdEq(1)))
-				.List();
+            IList list = s.CreateFullTextQuery<Clock>("Brand:seiko")
+                .SetCriteriaQuery(s.CreateCriteria(typeof(Clock)).Add(Restrictions.IdEq(1)))
+                .List();
             Assert.AreEqual(1, list.Count, "should get result back from query");
 
             s.Delete(clock);
@@ -380,13 +380,13 @@ namespace NHibernate.Search.Tests.Query
         [Test]
         [Ignore("Not implemented")]
         public void ListEmptyHits()
-        {            
+        {
         }
 
         [Test]
         [Ignore("Not implemented")]
         public void IterateEmptyHits()
-        {            
+        {
         }
 
         #endregion

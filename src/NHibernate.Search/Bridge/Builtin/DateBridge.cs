@@ -34,9 +34,9 @@ namespace NHibernate.Search.Bridge.Builtin
             object res = parameters["resolution"];
             Resolution hibResolution;
             if (res is string)
-                hibResolution = (Resolution) Enum.Parse(typeof(Resolution), res.ToString());
+                hibResolution = (Resolution)Enum.Parse(typeof(Resolution), res.ToString());
             else
-                hibResolution = (Resolution) res;
+                hibResolution = (Resolution)res;
 
             SetResolution(hibResolution);
         }
@@ -60,7 +60,7 @@ namespace NHibernate.Search.Bridge.Builtin
 
         public String ObjectToString(Object obj)
         {
-            return obj != null ? DateTools.DateToString((DateTime) obj, resolution) : null;
+            return obj != null ? DateTools.DateToString((DateTime)obj, resolution) : null;
         }
 
         #endregion

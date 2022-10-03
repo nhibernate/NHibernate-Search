@@ -11,7 +11,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 {
     public class LuceneWorker
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(LuceneWorker));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(LuceneWorker));
         private readonly Workspace workspace;
 
         #region Constructors
@@ -29,15 +29,15 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         {
             if (luceneWork.Work is AddLuceneWork)
             {
-                PerformWork((AddLuceneWork) luceneWork.Work, luceneWork.Provider);
+                PerformWork((AddLuceneWork)luceneWork.Work, luceneWork.Provider);
             }
             else if (luceneWork.Work is DeleteLuceneWork)
             {
-                PerformWork((DeleteLuceneWork) luceneWork.Work, luceneWork.Provider);
+                PerformWork((DeleteLuceneWork)luceneWork.Work, luceneWork.Provider);
             }
             else if (luceneWork.Work is OptimizeLuceneWork)
             {
-                PerformWork((OptimizeLuceneWork) luceneWork.Work, luceneWork.Provider);
+                PerformWork((OptimizeLuceneWork)luceneWork.Work, luceneWork.Provider);
             }
             else if (luceneWork.Work is PurgeAllLuceneWork)
             {

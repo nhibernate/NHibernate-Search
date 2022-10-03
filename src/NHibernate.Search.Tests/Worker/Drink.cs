@@ -2,7 +2,7 @@ using NHibernate.Search.Attributes;
 
 namespace NHibernate.Search.Tests.Worker
 {
-    [Indexed(Index="consumable")]
+    [Indexed(Index = "consumable")]
     public class Drink
     {
         private int id;

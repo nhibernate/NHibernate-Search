@@ -18,12 +18,12 @@ namespace NHibernate.Search.Mapping
             this.Index = Attributes.Index.Tokenized;
         }
 
-        public string Name              { get; private set; }
-        public IFieldBridge Bridge      { get; private set; }
-        
-        public float? Boost             { get; set; }
-        public Analyzer Analyzer        { get; set; }
-        public Attributes.Store Store   { get; set; }
-        public Index Index              { get; set; }
+        public string Name { get; private set; }
+        public IFieldBridge Bridge { get; private set; }
+
+        public float? Boost { get; set; }
+        public Analyzer Analyzer { get; set; }
+        public Attributes.Store Store { get; set; }
+        public Index Index { get; set; }
     }
 }

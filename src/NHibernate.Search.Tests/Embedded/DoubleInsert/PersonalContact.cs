@@ -7,17 +7,17 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
     [Indexed]
     public class PersonalContact : Contact
     {
-        [Field(Index = Index.Tokenized, Store = Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string firstname;
 
-        [Field(Index = Index.Tokenized, Store = Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string surname;
 
         private DateTime dateOfBirth;
 
         private bool notifyBirthDay;
 
-        [Field(Index = Index.Tokenized, Store = Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string myFacesUrl;
 
         private int reminderCount;

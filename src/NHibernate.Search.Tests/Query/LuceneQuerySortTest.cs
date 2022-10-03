@@ -43,7 +43,7 @@ namespace NHibernate.Search.Tests.Query
             // now the same query, but with a lucene sort specified.
             query = parser.Parse("Summary:lucene");
             hibQuery = s.CreateFullTextQuery(query, typeof(Book));
-            Sort sort = new Sort(new SortField("Id", SortFieldType.INT32,  true));
+            Sort sort = new Sort(new SortField("Id", SortFieldType.INT32, true));
             hibQuery.SetSort(sort);
             result = hibQuery.List();
             Assert.IsNotNull(result);
@@ -63,7 +63,7 @@ namespace NHibernate.Search.Tests.Query
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.AreEqual(4, result.Count, "Wrong number of test results.");
-            Assert.AreEqual("Groovy in Action", ((Book) result[0]).Summary);
+            Assert.AreEqual("Groovy in Action", ((Book)result[0]).Summary);
 
             // order by summary backwards
             query = parser.Parse("Summary:lucene OR Summary:action");
@@ -73,7 +73,7 @@ namespace NHibernate.Search.Tests.Query
             result = hibQuery.List();
             Assert.IsNotNull(result);
             Assert.AreEqual(4, result.Count, "Wrong number of test results.");
-            Assert.AreEqual("Hibernate & Lucene", ((Book) result[0]).Summary);
+            Assert.AreEqual("Hibernate & Lucene", ((Book)result[0]).Summary);
 
             // order by date backwards
             query = parser.Parse("Summary:lucene OR Summary:action");
@@ -87,7 +87,7 @@ namespace NHibernate.Search.Tests.Query
             {
                 //System.out.println(book.getSummary() + " : " + book.getPublicationDate());
             }
-            Assert.AreEqual("Groovy in Action", ((Book) result[0]).Summary);
+            Assert.AreEqual("Groovy in Action", ((Book)result[0]).Summary);
 
             tx.Commit();
 

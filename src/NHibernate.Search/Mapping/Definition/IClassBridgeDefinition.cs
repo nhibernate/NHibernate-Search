@@ -8,12 +8,12 @@ namespace NHibernate.Search.Mapping.Definition
 
     public interface IClassBridgeDefinition
     {
-        string Name                           { get; }
-        Attributes.Store Store                { get; }
-        Index Index                           { get; }
-        Type Analyzer                         { get; }
-        float Boost                           { get; }
-        Type Impl                             { get; }
+        string Name { get; }
+        Attributes.Store Store { get; }
+        Index Index { get; }
+        Type Analyzer { get; }
+        float Boost { get; }
+        Type Impl { get; }
         Dictionary<string, object> Parameters { get; }
     }
 }

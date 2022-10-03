@@ -5,10 +5,10 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
     [Indexed]
     public class BusinessContact : Contact
     {
-        [Field(Index = Index.Tokenized, Store = Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string businessName;
 
-        [Field(Index = Index.Tokenized, Store = Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Store.Yes)]
         private string url;
 
         public string BusinessName

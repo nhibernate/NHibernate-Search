@@ -24,7 +24,7 @@ namespace NHibernate.Search.Tests.Bridge
                 fieldValue1 = string.Empty;
             else
             {
-                string fieldValue = (string) equips[fieldValue1];
+                string fieldValue = (string)equips[fieldValue1];
                 field = new Field(name, fieldValue, fieldType);
                 if (boost != null)
                     field.Boost = (float)boost;

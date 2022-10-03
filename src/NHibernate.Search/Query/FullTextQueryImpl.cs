@@ -21,7 +21,7 @@ namespace NHibernate.Search.Query
 
     public partial class FullTextQueryImpl : QueryImpl, IFullTextQuery
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FullTextQueryImpl));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FullTextQueryImpl));
         private readonly Dictionary<string, FullTextFilterImpl> filterDefinitions;
         private readonly Lucene.Net.Search.Query luceneQuery;
         private System.Type[] classes;
@@ -147,8 +147,8 @@ namespace NHibernate.Search.Query
 
                         try
                         {
-                            System.Type entityType = ((CriteriaImpl) criteria).GetRootEntityTypeIfAvailable();
-                            classes = new System.Type[] {entityType};
+                            System.Type entityType = ((CriteriaImpl)criteria).GetRootEntityTypeIfAvailable();
+                            classes = new System.Type[] { entityType };
                         }
                         catch (Exception e)
                         {
@@ -178,7 +178,7 @@ namespace NHibernate.Search.Query
                 }
             }
         }
-        
+
         protected override IDictionary<string, LockMode> LockModes
         {
             get { return null; }

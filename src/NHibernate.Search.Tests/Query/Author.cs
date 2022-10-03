@@ -5,7 +5,7 @@ namespace NHibernate.Search.Tests.Query
     [Indexed]
     public class Author
     {
-        [DocumentId] 
+        [DocumentId]
         private int id;
         private string name;
 

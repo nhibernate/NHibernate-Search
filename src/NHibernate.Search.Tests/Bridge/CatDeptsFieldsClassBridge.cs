@@ -18,7 +18,7 @@ namespace NHibernate.Search.Tests.Bridge
             // from the name field of the ClassBridge Annotation. This is not
             // a requirement. It just works that way in this instance. The
             // actual name could be supplied by hard coding it below.
-            Departments dep = (Departments) value;
+            Departments dep = (Departments)value;
             string fieldValue1 = dep.Branch ?? string.Empty;
             string fieldValue2 = dep.Network ?? string.Empty;
             string fieldValue = fieldValue1 + sepChar + fieldValue2;
@@ -37,7 +37,7 @@ namespace NHibernate.Search.Tests.Bridge
 
         public void SetParameterValues(Dictionary<string, object> parameters)
         {
-            sepChar = (string) parameters["sepChar"];
+            sepChar = (string)parameters["sepChar"];
         }
 
         #endregion

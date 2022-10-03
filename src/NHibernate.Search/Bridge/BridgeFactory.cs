@@ -55,13 +55,13 @@ namespace NHibernate.Search.Bridge
                         object instance = Activator.CreateInstance(impl);
                         if (instance is IFieldBridge)
                         {
-                            bridge = (IFieldBridge) instance;
+                            bridge = (IFieldBridge)instance;
                         }
 
                         if (cb.Parameters.Count > 0 && instance is IParameterizedBridge)
                         {
                             // Already converted the parameters by this stage
-                            ((IParameterizedBridge) instance).SetParameterValues(cb.Parameters);
+                            ((IParameterizedBridge)instance).SetParameterValues(cb.Parameters);
                         }
                     }
                     catch (Exception e)
@@ -81,7 +81,7 @@ namespace NHibernate.Search.Bridge
         }
 
         public static IFieldBridge GuessType(
-            string fieldName, 
+            string fieldName,
             System.Type fieldType,
             IFieldBridgeDefinition fieldBridgeDefinition,
             IDateBridgeDefinition dateBridgeDefinition
@@ -96,20 +96,20 @@ namespace NHibernate.Search.Bridge
                     object instance = Activator.CreateInstance(impl);
                     if (instance is IFieldBridge)
                     {
-                        bridge = (IFieldBridge) instance;
+                        bridge = (IFieldBridge)instance;
                     }
                     else if (instance is ITwoWayStringBridge)
                     {
-                        bridge = new TwoWayString2FieldBridgeAdaptor((ITwoWayStringBridge) instance);
+                        bridge = new TwoWayString2FieldBridgeAdaptor((ITwoWayStringBridge)instance);
                     }
                     else if (instance is IStringBridge)
                     {
-                        bridge = new String2FieldBridgeAdaptor((IStringBridge) instance);
+                        bridge = new String2FieldBridgeAdaptor((IStringBridge)instance);
                     }
 
                     if (fieldBridgeDefinition.Parameters.Count > 0 && instance is IParameterizedBridge)
                     {
-                        ((IParameterizedBridge) instance).SetParameterValues(fieldBridgeDefinition.Parameters);
+                        ((IParameterizedBridge)instance).SetParameterValues(fieldBridgeDefinition.Parameters);
                     }
                 }
                 catch (Exception e)

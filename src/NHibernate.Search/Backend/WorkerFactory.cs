@@ -10,7 +10,7 @@ namespace NHibernate.Search.Backend
         public static IWorker CreateWorker(Configuration cfg, SearchFactoryImpl searchFactory)
         {
             IWorker worker = new TransactionalWorker();
-            worker.Initialize((IDictionary) cfg.Properties, searchFactory);
+            worker.Initialize((IDictionary)cfg.Properties, searchFactory);
             return worker;
         }
     }

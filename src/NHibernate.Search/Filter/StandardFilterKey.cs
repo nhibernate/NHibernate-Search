@@ -62,7 +62,7 @@ namespace NHibernate.Search.Filter
                 return false;
             }
 
-            StandardFilterKey that = (StandardFilterKey) obj;
+            StandardFilterKey that = (StandardFilterKey)obj;
 
             int size = parameters.Count;
             if (size != that.parameters.Count)

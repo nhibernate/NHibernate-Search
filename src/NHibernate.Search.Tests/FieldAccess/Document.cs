@@ -1,40 +1,47 @@
 using NHibernate.Search.Attributes;
 
-namespace NHibernate.Search.Tests.FieldAccess {
+namespace NHibernate.Search.Tests.FieldAccess
+{
     [Indexed(Index = "DocumentField")]
-    public class Document {
+    public class Document
+    {
         [DocumentId] private int id;
 
-        [Field(Index.Tokenized, Name = "Abstract", Store= Attributes.Store.No)] private string summary;
+        [Field(Index.Tokenized, Name = "Abstract", Store = Attributes.Store.No)] private string summary;
 
-        [Field(Index.Tokenized, Store= Attributes.Store.No)] private string text;
+        [Field(Index.Tokenized, Store = Attributes.Store.No)] private string text;
 
-        [Field(Index.Tokenized, Store= Attributes.Store.Yes)] [Boost(2)] private string title;
+        [Field(Index.Tokenized, Store = Attributes.Store.Yes)][Boost(2)] private string title;
 
-        public Document() {}
+        public Document() { }
 
-        public Document(string title, string summary, string text) {
+        public Document(string title, string summary, string text)
+        {
             this.title = title;
             this.summary = summary;
             this.text = text;
         }
 
-        public virtual int Id {
+        public virtual int Id
+        {
             get { return id; }
             set { id = value; }
         }
 
-        public virtual string Title {
+        public virtual string Title
+        {
             get { return title; }
             set { title = value; }
         }
 
-        public virtual string Summary {
+        public virtual string Summary
+        {
             get { return summary; }
             set { summary = value; }
         }
 
-        public virtual string Text {
+        public virtual string Text
+        {
             get { return text; }
             set { text = value; }
         }

@@ -4,7 +4,8 @@ using NHibernate.Mapping;
 using NHibernate.Properties;
 using NHibernate.Search.Bridge;
 
-namespace NHibernate.Search.Mapping {
+namespace NHibernate.Search.Mapping
+{
     public class DocumentIdMapping : PropertyMappingBase
     {
         public const string DefaultIndexedName = "id";
@@ -14,7 +15,7 @@ namespace NHibernate.Search.Mapping {
         {
         }
 
-        public DocumentIdMapping(string name, ITwoWayFieldBridge bridge, IGetter getter) 
+        public DocumentIdMapping(string name, ITwoWayFieldBridge bridge, IGetter getter)
             : this(name, RootClass.DefaultIdentifierColumnName, bridge, getter)
         {
         }
@@ -26,10 +27,10 @@ namespace NHibernate.Search.Mapping {
             this.Bridge = bridge;
         }
 
-        public string Name               { get; private set; }
-        public string PropertyName       { get; private set; }
+        public string Name { get; private set; }
+        public string PropertyName { get; private set; }
         public ITwoWayFieldBridge Bridge { get; private set; }
 
-        public float? Boost              { get; set; }
+        public float? Boost { get; set; }
     }
 }

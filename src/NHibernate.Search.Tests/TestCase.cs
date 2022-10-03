@@ -57,7 +57,7 @@ namespace NHibernate.Test
 
         protected ISessionFactoryImplementor Sfi
         {
-            get { return (ISessionFactoryImplementor) sessions; }
+            get { return (ISessionFactoryImplementor)sessions; }
         }
 
         protected virtual bool RunFixtureSetUpAndTearDownForEachTest
@@ -259,7 +259,7 @@ namespace NHibernate.Test
                 {
                     if (prop.Value.IsSimpleValue)
                     {
-                        IType type = ((SimpleValue) prop.Value).Type;
+                        IType type = ((SimpleValue)prop.Value).Type;
                         if (type == NHibernateUtil.BinaryBlob)
                         {
                             hasLob = true;

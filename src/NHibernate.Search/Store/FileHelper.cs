@@ -7,7 +7,7 @@ namespace NHibernate.Search.Store
     public class FileHelper
     {
         private const int LastWriteTimePrecision = 2000;
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FileHelper));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FileHelper));
 
         public static void Synchronize(DirectoryInfo source, DirectoryInfo destination, bool smart)
         {
@@ -53,8 +53,8 @@ namespace NHibernate.Search.Store
             foreach (FileInfo sourceFile in sources)
             {
                 FileInfo destinationFile = new FileInfo(Path.Combine(destination.FullName, sourceFile.Name));
-                long destinationChanged = destinationFile.LastWriteTime.Ticks/LastWriteTimePrecision;
-                long sourceChanged = sourceFile.LastWriteTime.Ticks/LastWriteTimePrecision;
+                long destinationChanged = destinationFile.LastWriteTime.Ticks / LastWriteTimePrecision;
+                long sourceChanged = sourceFile.LastWriteTime.Ticks / LastWriteTimePrecision;
                 if (!smart || destinationChanged != sourceChanged)
                 {
                     sourceFile.CopyTo(destinationFile.FullName, true);

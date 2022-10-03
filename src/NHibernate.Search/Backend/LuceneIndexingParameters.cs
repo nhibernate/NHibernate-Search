@@ -8,7 +8,7 @@ namespace NHibernate.Search.Backend
     /// triggered by <code>FullTextSessoin.Index(Object entity)</code>
     /// </summary>
     public class LuceneIndexingParameters
-    {        
+    {
         private readonly ParameterSet batchIndexParameters;
         private readonly ParameterSet transactionIndexParameters;
 
@@ -31,7 +31,7 @@ namespace NHibernate.Search.Backend
         {
             get { return batchIndexParameters; }
         }
-   
+
         public ParameterSet TransactionIndexParameters
         {
             get { return transactionIndexParameters; }

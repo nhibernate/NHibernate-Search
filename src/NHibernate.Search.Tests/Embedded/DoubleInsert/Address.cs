@@ -7,30 +7,30 @@ namespace NHibernate.Search.Tests.Embedded.DoubleInsert
     [Indexed]
     public class Address
     {
-        [DocumentId] 
+        [DocumentId]
         private long id;
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
         private string address1;
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
         private string address2;
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
         private string town;
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
         private string county;
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
         private string country;
-        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)] 
+        [Field(Index = Index.Tokenized, Store = Attributes.Store.Yes)]
         private string postcode;
         private bool active;
         private DateTime createdOn;
         private DateTime lastUpdatedOn;
-        [IndexedEmbedded] 
+        [IndexedEmbedded]
         private Contact contact;
 
         #region Constructors
 
         public Address()
-        {            
+        {
         }
 
         public Address(string address1, string address2, string town,

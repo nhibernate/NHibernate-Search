@@ -55,7 +55,7 @@ namespace NHibernate.Search.Tests.Query
             get { return mainAuthor; }
             set { mainAuthor = value; }
         }
-                
+
         public virtual ISet<Author> Authors
         {
             get { return authors; }

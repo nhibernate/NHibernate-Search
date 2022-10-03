@@ -14,7 +14,7 @@ namespace NHibernate.Search.Store.Optimization
     /// </summary>
     public class IncrementalOptimizerStrategy : IOptimizerStrategy
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(IncrementalOptimizerStrategy));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(IncrementalOptimizerStrategy));
 
         private int operationMax = -1;
         private int transactionMax = -1;

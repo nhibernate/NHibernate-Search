@@ -30,7 +30,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             LuceneWorker worker = new LuceneWorker(workspace);
             try
             {
-                List<LuceneWorker.WorkWithPayload> queueWithFlatDPs = new List<LuceneWorker.WorkWithPayload>(queue.Count*2);
+                List<LuceneWorker.WorkWithPayload> queueWithFlatDPs = new List<LuceneWorker.WorkWithPayload>(queue.Count * 2);
                 foreach (LuceneWork work in queue)
                 {
                     DocumentBuilder documentBuilder = searchFactoryImplementor.DocumentBuilders[work.EntityClass];
@@ -97,7 +97,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
         /// </summary>
         private static void DeadLockFreeQueue(List<LuceneWorker.WorkWithPayload> queue)
         {
-            queue.Sort(delegate(LuceneWorker.WorkWithPayload x, LuceneWorker.WorkWithPayload y)
+            queue.Sort(delegate (LuceneWorker.WorkWithPayload x, LuceneWorker.WorkWithPayload y)
             {
                 long h1 = GetWorkHashCode(x);
                 long h2 = GetWorkHashCode(y);

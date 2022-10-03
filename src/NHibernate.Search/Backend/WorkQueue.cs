@@ -45,7 +45,7 @@ namespace NHibernate.Search.Backend
 
         public List<LuceneWork> GetSealedQueue()
         {
-            if (sealedQueue == null) 
+            if (sealedQueue == null)
                 throw new AssertionFailure("Access a Sealed WorkQueue which has not been sealed");
             return sealedQueue;
         }

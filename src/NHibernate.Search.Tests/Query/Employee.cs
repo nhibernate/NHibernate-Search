@@ -10,7 +10,7 @@ namespace NHibernate.Search.Tests.Query
         private string dept;
 
         public Employee()
-        {            
+        {
         }
 
         public Employee(int id, string lastname, string dept)

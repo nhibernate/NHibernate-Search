@@ -16,7 +16,7 @@ namespace NHibernate.Search.Tests.FieldAccess
         {
             get
             {
-                return new[] {"FieldAccess.Document.hbm.xml"};
+                return new[] { "FieldAccess.Document.hbm.xml" };
             }
         }
 

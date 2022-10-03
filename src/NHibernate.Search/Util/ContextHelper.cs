@@ -9,7 +9,7 @@ namespace NHibernate.Search.Util
     {
         public static ISearchFactoryImplementor GetSearchFactory(ISession session)
         {
-            return GetSearchFactoryBySFI((ISessionImplementor) session);
+            return GetSearchFactoryBySFI((ISessionImplementor)session);
         }
 
         public static ISearchFactoryImplementor GetSearchFactoryBySFI(ISessionImplementor session)
@@ -22,7 +22,7 @@ namespace NHibernate.Search.Util
             {
                 if (candidate is FullTextIndexEventListener)
                 {
-                    listener = (FullTextIndexEventListener) candidate;
+                    listener = (FullTextIndexEventListener)candidate;
                     break;
                 }
             }

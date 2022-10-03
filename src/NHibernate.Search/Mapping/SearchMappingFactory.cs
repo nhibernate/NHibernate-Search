@@ -8,7 +8,7 @@ using NHibernate.Util;
 
 namespace NHibernate.Search.Mapping
 {
-    public static class SearchMappingFactory 
+    public static class SearchMappingFactory
     {
         public static ISearchMapping CreateMapping(Configuration cfg)
         {
@@ -37,7 +37,8 @@ namespace NHibernate.Search.Mapping
             return (ISearchMapping)instance;
         }
 
-        private static System.Type GetMappingClass(string mappingClassName) {
+        private static System.Type GetMappingClass(string mappingClassName)
+        {
             if (mappingClassName == null)
                 return typeof(AttributeSearchMapping);
 

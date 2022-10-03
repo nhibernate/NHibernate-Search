@@ -20,11 +20,14 @@ namespace NHibernate.Search.Tests.Shards
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new[]
+            get
+            {
+                return new[]
                              {
-                             "Shards.Animal.hbm.xml", 
+                             "Shards.Animal.hbm.xml",
                              "Shards.Furniture.hbm.xml"
-                             }; }
+                             };
+            }
         }
 
         protected override bool RunFixtureSetUpAndTearDownForEachTest
@@ -37,7 +40,7 @@ namespace NHibernate.Search.Tests.Shards
         [Test]
         public void IdShardingStrategy()
         {
-            IDirectoryProvider[] dps = new IDirectoryProvider[] {new RAMDirectoryProvider(), new RAMDirectoryProvider()};
+            IDirectoryProvider[] dps = new IDirectoryProvider[] { new RAMDirectoryProvider(), new RAMDirectoryProvider() };
             IdHashShardingStrategy shardingStrategy = new IdHashShardingStrategy();
             shardingStrategy.Initialize(null, dps);
             Assert.AreSame(dps[1], shardingStrategy.GetDirectoryProviderForAddition(typeof(Animal), 1, "1", null));
@@ -62,7 +65,7 @@ namespace NHibernate.Search.Tests.Shards
             s.Clear();
 
             tx = s.BeginTransaction();
-            a = (Animal) s.Get(typeof(Animal), 1);
+            a = (Animal)s.Get(typeof(Animal), 1);
             a.Name = "Mouse";
             Furniture fur = new Furniture();
             fur.Color = "dark blue";
@@ -128,7 +131,7 @@ namespace NHibernate.Search.Tests.Shards
             }
 
             tx = s.BeginTransaction();
-            a = (Animal) s.Get(typeof(Animal),1);
+            a = (Animal)s.Get(typeof(Animal), 1);
             a.Name = "Mouse";
             tx.Commit();
 

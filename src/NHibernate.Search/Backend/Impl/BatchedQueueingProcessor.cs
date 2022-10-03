@@ -24,9 +24,9 @@ namespace NHibernate.Search.Backend.Impl
         {
             this.searchFactoryImplementor = searchFactoryImplementor;
             //default to sync if none defined
-            this.sync = !"async".Equals((string) properties[Environment.WorkerExecution],StringComparison.InvariantCultureIgnoreCase);
+            this.sync = !"async".Equals((string)properties[Environment.WorkerExecution], StringComparison.InvariantCultureIgnoreCase);
 
-            string backend = (string) properties[Environment.WorkerBackend];
+            string backend = (string)properties[Environment.WorkerBackend];
             batchSize = 0;//(int) properties[Environment.WorkerBatchSize];
             if (StringHelper.IsEmpty(backend) || "lucene".Equals(backend, StringComparison.InvariantCultureIgnoreCase))
             {
@@ -37,7 +37,7 @@ namespace NHibernate.Search.Backend.Impl
                 try
                 {
                     System.Type processorFactoryClass = ReflectHelper.ClassForName(backend);
-                    backendQueueProcessorFactory = (IBackendQueueProcessorFactory) Activator.CreateInstance(processorFactoryClass);
+                    backendQueueProcessorFactory = (IBackendQueueProcessorFactory)Activator.CreateInstance(processorFactoryClass);
                 }
                 catch (Exception e)
                 {
@@ -109,7 +109,7 @@ namespace NHibernate.Search.Backend.Impl
              * fail purging the index for that entity. 
              * I am not sure if the Java version has the same problem.
              */
-            for (int i = initialSize - 1; i >=0 ; i--)
+            for (int i = initialSize - 1; i >= 0; i--)
             {
                 Work work = queue[i];
                 if (work == null || !layer.IsRightLayer(work.WorkType))

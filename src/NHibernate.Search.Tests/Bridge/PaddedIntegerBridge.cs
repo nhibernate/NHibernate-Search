@@ -16,13 +16,13 @@
             object value;
             if (parameters.TryGetValue(PADDING_PROPERTY, out value))
             {
-                this.padding = (int) value;
+                this.padding = (int)value;
             }
         }
 
         public string ObjectToString(object obj)
         {
-            int value = (int) obj;
+            int value = (int)obj;
             string rawInteger = value.ToString();
             if (rawInteger.Length > padding)
             {

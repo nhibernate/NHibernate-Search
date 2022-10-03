@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Xml;
-using Configuration=NHibernate.Cfg.Configuration;
+using Configuration = NHibernate.Cfg.Configuration;
 
 namespace NHibernate.Search.Cfg
 {

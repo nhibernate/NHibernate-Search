@@ -4,9 +4,9 @@ namespace NHibernate.Search.Tests.Bridge
 
     [Indexed]
     [ClassBridge(typeof(CatFieldsClassBridge),
-                Name="branchnetwork", 
-                Index=Index.Tokenized, 
-                Store=Attributes.Store.Yes)]
+                Name = "branchnetwork",
+                Index = Index.Tokenized,
+                Store = Attributes.Store.Yes)]
     [Parameter("sepChar", " ")]
     public class Department
     {
@@ -29,7 +29,7 @@ namespace NHibernate.Search.Tests.Bridge
         /// <summary>
         /// 
         /// </summary>
-        [Field(Index.Tokenized, Store=Attributes.Store.Yes)]
+        [Field(Index.Tokenized, Store = Attributes.Store.Yes)]
         public virtual string BranchHead
         {
             get { return branchHead; }
@@ -39,7 +39,7 @@ namespace NHibernate.Search.Tests.Bridge
         /// <summary>
         /// 
         /// </summary>
-        [Field(Index.Tokenized, Store=Attributes.Store.Yes)]
+        [Field(Index.Tokenized, Store = Attributes.Store.Yes)]
         public virtual string Network
         {
             get { return network; }
@@ -49,7 +49,7 @@ namespace NHibernate.Search.Tests.Bridge
         /// <summary>
         /// 
         /// </summary>
-        [Field(Index.Tokenized, Store=Attributes.Store.Yes)]
+        [Field(Index.Tokenized, Store = Attributes.Store.Yes)]
         public virtual string Branch
         {
             get { return branch; }
@@ -59,7 +59,7 @@ namespace NHibernate.Search.Tests.Bridge
         /// <summary>
         /// 
         /// </summary>
-        [Field(Index.UnTokenized, Store=Attributes.Store.Yes)]
+        [Field(Index.UnTokenized, Store = Attributes.Store.Yes)]
         public virtual int MaxEmployees
         {
             get { return maxEmployees; }

@@ -15,7 +15,7 @@ namespace NHibernate.Search.Mapping
         }
 
         public DocumentMapping Class { get; private set; }
-        public string Prefix         { get; set; }
-        public bool IsCollection     { get; set; }
+        public string Prefix { get; set; }
+        public bool IsCollection { get; set; }
     }
 }

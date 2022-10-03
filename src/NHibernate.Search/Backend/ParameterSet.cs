@@ -42,7 +42,7 @@
             set { ramBufferSizeMb = value; }
         }
 
-        public void ApplyToWriterConfig(IndexWriterConfig  writer)
+        public void ApplyToWriterConfig(IndexWriterConfig writer)
         {
             try
             {

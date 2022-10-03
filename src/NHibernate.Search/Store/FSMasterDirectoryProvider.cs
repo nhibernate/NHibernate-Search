@@ -9,7 +9,7 @@ using Lucene.Net.Index;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
 using NHibernate.Search.Engine;
-using Directory=Lucene.Net.Store.Directory;
+using Directory = Lucene.Net.Store.Directory;
 
 namespace NHibernate.Search.Store
 {
@@ -22,7 +22,7 @@ namespace NHibernate.Search.Store
     /// </summary>
     public class FSMasterDirectoryProvider : IDirectoryProvider
     {
-		private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FSMasterDirectoryProvider));
+        private static readonly INHibernateLogger log = NHibernateLogger.For(typeof(FSMasterDirectoryProvider));
         private FSDirectory directory;
         private int current;
         private string indexName;
@@ -71,14 +71,14 @@ namespace NHibernate.Search.Store
             this.directoryProviderName = directoryProviderName;
 
             // source guessing
-            source = DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source, directoryProviderName, (IDictionary) properties);
+            source = DirectoryProviderHelper.GetSourceDirectory(Environment.SourceBase, Environment.Source, directoryProviderName, (IDictionary)properties);
             if (source == null)
             {
                 throw new ArgumentException("FSMasterDirectoryProvider requires a viable source directory");
             }
 
             log.Debug("Source directory: " + source);
-            indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary) properties);
+            indexDir = DirectoryProviderHelper.DetermineIndexDir(directoryProviderName, (IDictionary)properties);
             indexName = indexDir.FullName;
             directory = FSDirectory.Open(indexDir);
             log.Debug("Index directory: " + indexDir);
@@ -114,12 +114,12 @@ namespace NHibernate.Search.Store
             string refreshPeriod = properties.ContainsKey("refresh") ? properties["refresh"] : "3600";
             long period;
             if (!long.TryParse(refreshPeriod, out period))
-            {                
+            {
                 period = 3600;
                 log.Warn("Error parsing refresh period, defaulting to 1 hour");
             }
 
-            log.Debug("Refresh period {0} seconds", period);            
+            log.Debug("Refresh period {0} seconds", period);
             period *= 1000;  // per second
 
             try
@@ -145,7 +145,7 @@ namespace NHibernate.Search.Store
                 File.Delete(Path.Combine(source, "current1"));
                 File.Delete(Path.Combine(source, "current2"));
                 log.Debug("Current directory: " + current);
-                
+
             }
             catch (IOException e)
             {
@@ -171,7 +171,7 @@ namespace NHibernate.Search.Store
                 return false;
             }
 
-            return indexName.Equals(((FSMasterDirectoryProvider) obj).indexName);
+            return indexName.Equals(((FSMasterDirectoryProvider)obj).indexName);
         }
 
         public override int GetHashCode()
@@ -180,7 +180,7 @@ namespace NHibernate.Search.Store
             // but from a practical POV this is fine since we only call this method
             // after initialize call
             int hash = 11;
-            return 37*hash + indexName.GetHashCode();
+            return 37 * hash + indexName.GetHashCode();
         }
 
         #endregion

@@ -4,7 +4,7 @@ using NHibernate.Util;
 
 namespace NHibernate.Search.Filter
 {
-    public class MruFilterCachingStrategy : IFilterCachingStrategy 
+    public class MruFilterCachingStrategy : IFilterCachingStrategy
     {
         private const string SIZE = Environment.FilterCachingStrategy + ".size";
         private SoftLimitMRUCache cache;
@@ -30,7 +30,7 @@ namespace NHibernate.Search.Filter
         {
             try
             {
-                return (Lucene.Net.Search.Filter) cache[key];
+                return (Lucene.Net.Search.Filter)cache[key];
             }
             catch (NullReferenceException)
             {
