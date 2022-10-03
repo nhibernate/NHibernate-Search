@@ -77,7 +77,7 @@ namespace NHibernate.Search.Tests.Util
                 di.Create();
             }
 
-            string fileName = di.FullName + "\\" + name;
+            string fileName = Path.Combine(di.FullName, name);
             StreamWriter sw = File.CreateText(fileName);
             try
             {

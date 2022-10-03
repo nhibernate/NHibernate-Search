@@ -14,7 +14,7 @@ namespace NHibernate.Search.Tests
             get
             {
                 FileInfo current = new FileInfo(".");
-                FileInfo sub = new FileInfo(current.FullName + "\\indextemp");
+                FileInfo sub = new FileInfo(Path.Combine(current.FullName, "indextemp"));
                 return sub;
             }
         }

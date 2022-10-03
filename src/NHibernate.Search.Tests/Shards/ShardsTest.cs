@@ -105,7 +105,7 @@ namespace NHibernate.Search.Tests.Shards
             tx.Commit();
 
             s.Clear();
-            DirectoryReader reader = DirectoryReader.Open(FSDirectory.Open(new DirectoryInfo(BaseIndexDir.FullName + "\\Animal00")));
+            DirectoryReader reader = DirectoryReader.Open(FSDirectory.Open(new DirectoryInfo(Path.Combine(BaseIndexDir.FullName, "Animal00"))));
             try
             {
                 int num = reader.NumDocs;
@@ -116,7 +116,7 @@ namespace NHibernate.Search.Tests.Shards
                 reader.Dispose();
             }
 
-            reader = DirectoryReader.Open(FSDirectory.Open(new DirectoryInfo(BaseIndexDir.FullName + "\\Animal.1")));
+            reader = DirectoryReader.Open(FSDirectory.Open(new DirectoryInfo(Path.Combine(BaseIndexDir.FullName, "Animal.1"))));
             try
             {
                 int num = reader.NumDocs;
@@ -134,7 +134,7 @@ namespace NHibernate.Search.Tests.Shards
 
             s.Clear();
 
-            reader = DirectoryReader.Open(FSDirectory.Open(new DirectoryInfo(BaseIndexDir.FullName + "\\Animal.1")));
+            reader = DirectoryReader.Open(FSDirectory.Open(new DirectoryInfo(Path.Combine(BaseIndexDir.FullName, "Animal.1"))));
             try
             {
                 int num = reader.NumDocs;
