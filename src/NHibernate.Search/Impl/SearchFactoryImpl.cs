@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-
-using Iesi.Collections.Generic;
-
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
-
+using Lucene.Net.Util;
 using NHibernate.Cfg;
 using NHibernate.Engine;
 using NHibernate.Search.Backend;
@@ -19,7 +16,6 @@ using NHibernate.Search.Store;
 using NHibernate.Search.Store.Optimization;
 using NHibernate.Search.Util;
 using NHibernate.Util;
-using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Impl
 {
@@ -143,10 +139,10 @@ namespace NHibernate.Search.Impl
                     return (Analyzer)constructor.Invoke(Array.Empty<object>());
                 }
 
-                constructor = analyzerClass.GetConstructor(new[] { typeof(Version) });
+                constructor = analyzerClass.GetConstructor(new[] { typeof(LuceneVersion) });
                 if (constructor != null)
                 {
-                    return (Analyzer)constructor.Invoke(new object[] { Version.LUCENE_30 });
+                    return (Analyzer)constructor.Invoke(new object[] { LuceneVersion.LUCENE_48 });
                 }
 
                 throw new SearchException("Failed to instantiate lucene analyzer with type " + analyzerClassName);

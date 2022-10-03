@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>NHSearch.snk</AssemblyOriginatorKeyFile>
     <LangVersion>9</LangVersion>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -22,7 +20,7 @@
     <EmbeddedResource Include="**/*.xsd" />
   </ItemGroup>
   <ItemGroup>
-	<PackageReference Include="Lucene.Net" Version="3.0.3" />
+	<PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00016" />
     <PackageReference Include="NHibernate" Version="5.3.13" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
   </ItemGroup>

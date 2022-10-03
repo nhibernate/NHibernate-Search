@@ -25,13 +25,13 @@ namespace NHibernate.Search.Reader
         /// <p/>
         /// protected by semaphoreIndexReaderLock
         /// </summary>
-        private readonly Dictionary<IDirectoryProvider, IndexReader> activeSearchIndexReaders = new Dictionary<IDirectoryProvider, IndexReader>();
+        private readonly Dictionary<IDirectoryProvider, DirectoryReader> activeSearchIndexReaders = new Dictionary<IDirectoryProvider, DirectoryReader>();
 
         /// <summary>
         /// contains the semaphore and the directory provider per IndexReader opened
         /// all read / update have to be protected by semaphoreIndexReaderLock
         /// </summary>
-        private readonly Dictionary<IndexReader, ReaderData> searchIndexReaderSemaphores = new Dictionary<IndexReader, ReaderData>();
+        private readonly Dictionary<DirectoryReader, ReaderData> searchIndexReaderSemaphores = new Dictionary<DirectoryReader, ReaderData>();
 
         /// <summary>
         /// nonfair lock. Need to be acquired on indexReader acquisition or release (semaphore)
@@ -48,20 +48,20 @@ namespace NHibernate.Search.Reader
 
         #region Private methods
 
-        private IndexReader ReplaceActiveReader(IndexReader outOfDateReader, object directoryProviderLock,
+        private DirectoryReader ReplaceActiveReader(DirectoryReader outOfDateReader, object directoryProviderLock,
                                                 IDirectoryProvider directoryProvider, IndexReader[] readers)
         {
             bool trace = log.IsInfoEnabled();
-            IndexReader oldReader;
+            DirectoryReader oldReader;
             bool closeOldReader = false;
             bool closeOutOfDateReader = false;
-            IndexReader reader;
+            DirectoryReader reader;
 
             // Since out of lock protection, can have multiple readers created in //
 		    // not worse than NotShared and limit the locking time, hence scalability
             try
             {
-                reader = IndexReader.Open(directoryProvider.Directory, false);
+                reader = DirectoryReader.Open(directoryProvider.Directory);
             }
             catch (IOException e)
             {
@@ -159,7 +159,7 @@ namespace NHibernate.Search.Reader
             for (int index = 0; index < length; index++)
             {
                 IDirectoryProvider directoryProvider = directoryProviders[index];
-                IndexReader reader;
+                DirectoryReader reader;
                 object directoryProviderLock = perDirectoryProviderManipulationLocks[directoryProvider];
                 if (trace) log.Info("Opening IndexReader from " + directoryProvider.Directory);
                 lock (directoryProviderLock)
@@ -189,7 +189,7 @@ namespace NHibernate.Search.Reader
                         if (trace)
                             log.Info("Out of date shared IndexReader found, opening a new one: " +
                                      directoryProvider.Directory);
-                        IndexReader outOfDateReader = reader;
+                        DirectoryReader outOfDateReader = reader;
                         reader = ReplaceActiveReader(outOfDateReader, directoryProviderLock, directoryProvider, readers);
                     }
                     else
@@ -244,11 +244,11 @@ namespace NHibernate.Search.Reader
                 throw new AssertionFailure("Everything should be wrapped in a MultiReader");
             }
 
-            foreach (IndexReader subReader in readers)
+            foreach (DirectoryReader subReader in readers)
                 CloseInternalReader(trace, subReader, false);
         }
 
-        private void CloseInternalReader(bool trace, IndexReader subReader, bool finalClose)
+        private void CloseInternalReader(bool trace, DirectoryReader subReader, bool finalClose)
         {
             ReaderData readerData;
             // TODO: can we avoid the lock?
@@ -259,7 +259,7 @@ namespace NHibernate.Search.Reader
 
             if (readerData == null)
             {
-                log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory());
+                log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory);
                 // TODO: Should we try to close?
                 return;
             }
@@ -269,7 +269,7 @@ namespace NHibernate.Search.Reader
             bool closeReader = false;
             lock (directoryProviderLock)
             {
-                IndexReader reader;
+                DirectoryReader reader;
                 bool isActive = activeSearchIndexReaders.TryGetValue(readerData.Provider, out reader)
                     && reader == subReader;
                 if (trace) log.Info("IndexReader not active: " + subReader);
@@ -278,7 +278,7 @@ namespace NHibernate.Search.Reader
                     readerData = searchIndexReaderSemaphores[subReader];
                     if (readerData == null)
                     {
-                        log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory());
+                        log.Error("Trying to close a Lucene IndexReader not present: " + subReader.Directory);
                         // TODO: Should we try to close?
                         return;
                     }
@@ -292,7 +292,7 @@ namespace NHibernate.Search.Reader
                     }
 
                     if (readerData.Semaphore < 0)
-                        log.Error("Semaphore negative: " + subReader.Directory());
+                        log.Error("Semaphore negative: " + subReader.Directory);
 
                     if (!isActive && readerData.Semaphore == 0)
                     {
@@ -325,9 +325,8 @@ namespace NHibernate.Search.Reader
             {
                 // TODO: If we check for CacheableMultiReader we could avoid reflection here!
                 // TODO: Need to account for Medium Trust - can't reflect on private members
-                subReadersField = typeof(MultiReader).GetField("subReaders",
-                                                               BindingFlags.NonPublic | BindingFlags.Instance |
-                                                               BindingFlags.IgnoreCase);
+                subReadersField = typeof(BaseCompositeReader<IndexReader>)
+                    .GetField("subReaders", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
             }
 
             HashSet<IDirectoryProvider> providers =
@@ -340,16 +339,16 @@ namespace NHibernate.Search.Reader
         public void Destroy()
         {
             bool trace = log.IsInfoEnabled();
-            List<IndexReader> readers;
+            List<DirectoryReader> readers;
             lock (semaphoreIndexReaderLock)
             {
                 //release active readers
                 activeSearchIndexReaders.Clear();
-                readers = new List<IndexReader>();
+                readers = new List<DirectoryReader>();
                 readers.AddRange(searchIndexReaderSemaphores.Keys);
             }
 
-            foreach (IndexReader reader in readers)
+            foreach (DirectoryReader reader in readers)
             {
                 CloseInternalReader(trace, reader, true);
             }

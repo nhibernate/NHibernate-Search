@@ -7,9 +7,9 @@ using System.Threading;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using Lucene.Net.Util;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
-using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Store
 {
@@ -85,7 +85,7 @@ namespace NHibernate.Search.Store
             try
             {
                 // NB Do we need to do this since we are passing the create flag to Lucene?
-                bool create = !IndexReader.IndexExists(directory);
+                bool create = !DirectoryReader.IndexExists(directory);
                 if (create)
                 {
                     log.Debug("Index directory not found, creating '{0}'", indexDir.FullName);
@@ -96,7 +96,8 @@ namespace NHibernate.Search.Store
                 if (create)
                 {
                     indexName = indexDir.FullName;
-                    IndexWriter iw = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.UNLIMITED);
+                    var config = new IndexWriterConfig(LuceneVersion.LUCENE_48, new StandardAnalyzer(LuceneVersion.LUCENE_48));
+                    IndexWriter iw = new IndexWriter(directory, config);
                     iw.Dispose();
                 }
             }

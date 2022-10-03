@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-
+using Lucene.Net.Analysis;
 using NHibernate.Search.Engine;
 
-using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 
 namespace NHibernate.Search.Mapping
 {

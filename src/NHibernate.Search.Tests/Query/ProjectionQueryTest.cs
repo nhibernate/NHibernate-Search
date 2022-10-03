@@ -6,7 +6,7 @@ namespace NHibernate.Search.Tests.Query
 
     using Lucene.Net.Analysis.Standard;
     using Lucene.Net.Documents;
-    using Lucene.Net.QueryParsers;
+    using Lucene.Net.QueryParsers.Classic;
     using Lucene.Net.Search;
 
     using NUnit.Framework;
@@ -40,7 +40,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -72,7 +72,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -95,7 +95,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.IsTrue(map[ProjectionConstants.DOCUMENT] is Document, "incorrect transformation");
             Assert.AreEqual(
                     "1002",
-                    ((Document)map[ProjectionConstants.DOCUMENT]).GetField("Id").StringValue,
+                    ((Document)map[ProjectionConstants.DOCUMENT]).GetField("Id").GetStringValue(),
                     "incorrect transformation");
 
             // cleanup
@@ -112,7 +112,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -137,7 +137,7 @@ namespace NHibernate.Search.Tests.Query
                 Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
                 Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
                 Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-                Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
+                Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
             }
             Assert.AreEqual(4, counter, "incorrect number of results returned");
 
@@ -155,7 +155,7 @@ namespace NHibernate.Search.Tests.Query
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, "Dept", new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
+            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("Dept:Accounting");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -180,10 +180,10 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual("Accounting", projection[2], "dept incorrect");
             Assert.AreEqual("Jackson", ((Employee)projection[3]).Lastname, "THIS incorrect");
             Assert.AreEqual(projection[3], s.Get<Employee>(projection[0]), "THIS incorrect");
-            Assert.AreEqual(float.NaN, projection[4], "SCORE incorrect");
+            Assert.AreEqual(1.91629076f, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1001, projection[7], "ID incorrect");
             Assert.IsNotNull(projection[8], "Lucene internal doc id");
 
@@ -206,9 +206,9 @@ namespace NHibernate.Search.Tests.Query
             Assert.IsNotNull(projection);
 
             Assert.IsTrue(projection[0] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[0]).GetFields().Count, "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[0]).Fields.Count, "DOCUMENT size incorrect");
             Assert.AreEqual(projection[1], s.Get<Employee>(projection[4]), "THIS incorrect");
-            Assert.AreEqual(float.NaN, projection[2], "SCORE incorrect");
+            Assert.AreEqual(1.91629076f, projection[2], "SCORE incorrect");
             Assert.IsNull(projection[3], "BOOST not removed");
             Assert.AreEqual(1001, projection[4], "ID incorrect");
             Assert.AreEqual(1001, projection[5], "id incorrect");
@@ -246,7 +246,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-            Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
+            Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1000, projection[7], "legacy ID incorrect");
         }
 
@@ -260,7 +260,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
+						Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1004, projection[7], "legacy ID incorrect");
         }
 
@@ -274,7 +274,7 @@ namespace NHibernate.Search.Tests.Query
             Assert.AreEqual(1.0F, projection[4], "SCORE incorrect");
             Assert.AreEqual(1.0F, projection[5], "BOOST incorrect");
             Assert.IsTrue(projection[6] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(4, ((Document)projection[6]).GetFields().Count, "DOCUMENT size incorrect");
+						Assert.AreEqual(4, ((Document)projection[6]).Fields.Count, "DOCUMENT size incorrect");
             Assert.AreEqual(1003, projection[7], "legacy ID incorrect");
         }
 

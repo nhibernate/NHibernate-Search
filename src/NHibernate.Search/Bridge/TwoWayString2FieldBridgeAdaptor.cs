@@ -17,15 +17,15 @@ namespace NHibernate.Search.Bridge
 
         #region ITwoWayFieldBridge Members
 
-        public object Get(String name, Document document)
+        public object Get(string name, Document document)
         {
-            Field field = document.GetField(name);
+            var field = document.GetField(name);
             if (field == null)
             {
                 return null;
             }
 
-            return stringBridge.StringToObject(field.StringValue);
+            return stringBridge.StringToObject(field.GetStringValue());
         }
 
         public string ObjectToString(object obj)

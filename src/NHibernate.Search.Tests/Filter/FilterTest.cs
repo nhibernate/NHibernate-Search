@@ -1,13 +1,13 @@
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Search;
 using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Version = Lucene.Net.Util.Version;
+using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Filter
 {
@@ -86,7 +86,7 @@ namespace NHibernate.Search.Tests.Filter
                 using (var session = OpenSession())
 				using (var ftSession = Search.CreateFullTextSession(session))
 				{
-					var parser = new QueryParser(Version.LUCENE_29, "name", new StandardAnalyzer(Version.LUCENE_29));
+					var parser = new QueryParser(LuceneVersion.LUCENE_48, "name", new StandardAnalyzer(LuceneVersion.LUCENE_48));
 					var query = parser.Parse("name:" + y);
 					var ftQuery = ftSession.CreateFullTextQuery(query, typeof (Driver));
 					ftQuery.EnableFullTextFilter("security").SetParameter("Login", y);
@@ -199,7 +199,7 @@ namespace NHibernate.Search.Tests.Filter
 
                     IFullTextQuery ftQuery = s.CreateFullTextQuery(query, typeof(Driver));
                     ftQuery.EnableFullTextFilter("bestDriver");
-                    Lucene.Net.Search.Filter dateFilter = new TermRangeFilter("delivery", "2001", "2005", true, true);
+                    Lucene.Net.Search.Filter dateFilter = new TermRangeFilter("delivery", new BytesRef("2001"), new BytesRef("2005"), true, true);
                     ftQuery.SetFilter(dateFilter);
                     Assert.AreEqual(1, ftQuery.ResultSize, "Should select only liz");
 

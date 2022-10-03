@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using Lucene.Net.Analysis;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.Analysis.Core;
+using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Util;
 using NHibernate.Search.Impl;
 using NUnit.Framework;
@@ -55,7 +54,7 @@ namespace NHibernate.Search.Tests.Session
             s.Clear();
 
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StopAnalyzer(LuceneVersion.LUCENE_48));
             IList result = s.CreateFullTextQuery(parser.Parse("Body:create")).List();
             Assert.AreEqual(14, result.Count);
 
@@ -80,7 +79,7 @@ namespace NHibernate.Search.Tests.Session
             // check non created object does get found!!1
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StopAnalyzer(LuceneVersion.LUCENE_48));
             IList result = s.CreateFullTextQuery(parser.Parse("Body:create")).List();
             Assert.IsEmpty(result);
             tx.Commit();
@@ -104,7 +103,7 @@ namespace NHibernate.Search.Tests.Session
 
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
-            parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
+            parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StopAnalyzer(LuceneVersion.LUCENE_48));
             result = s.CreateFullTextQuery(parser.Parse("Body:write")).List();
             Assert.IsEmpty(result);
             result = s.CreateCriteria(typeof (Email)).List();

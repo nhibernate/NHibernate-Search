@@ -62,7 +62,6 @@ namespace NHibernate.Search.Query
 
                 try
                 {
-                    searcher.SetDefaultFieldSortScoring(true, true);
                     TopDocs topDocs = GetTopDocs(searcher);
                     SetResultSize(topDocs);
                     int first = First();
@@ -84,7 +83,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    DisposeSearcher(searcher);
+                    CloseSearcher(searcher);
                 }
             }
         }
@@ -189,7 +188,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    DisposeSearcher(searcher);
+                    CloseSearcher(searcher);
                 }
             }
         }

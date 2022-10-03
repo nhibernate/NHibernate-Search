@@ -5,9 +5,9 @@ using System.IO;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using Lucene.Net.Util;
 using NHibernate.Search.Engine;
 using Directory=Lucene.Net.Store.Directory;
-using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Store
 {
@@ -29,16 +29,17 @@ namespace NHibernate.Search.Store
             {
                 directory = FSDirectory.Open(indexDir);
                 indexName = indexDir.FullName;
-                if (IndexReader.IndexExists(directory))
+                if (DirectoryReader.IndexExists(directory))
                 {
                     return;
                 }
 
-                IndexWriter iw = new IndexWriter(directory,
-                    new StandardAnalyzer(Version.LUCENE_30),
-                    true,
-                    new KeepOnlyLastCommitDeletionPolicy(),
-                    IndexWriter.MaxFieldLength.UNLIMITED);
+                var config = new IndexWriterConfig(LuceneVersion.LUCENE_48, new StandardAnalyzer(LuceneVersion.LUCENE_48))
+                {
+                    IndexDeletionPolicy = new KeepOnlyLastCommitDeletionPolicy(),
+                };
+
+                IndexWriter iw = new IndexWriter(directory, config);
                 iw.Dispose();
 
                 //searchFactory.RegisterDirectoryProviderForLocks(this);

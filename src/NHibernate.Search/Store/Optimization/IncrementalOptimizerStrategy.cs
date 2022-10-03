@@ -83,7 +83,7 @@ namespace NHibernate.Search.Store.Optimization
             IndexWriter writer = workspace.GetIndexWriter(directoryProvider);
             try
             {
-                writer.Optimize();
+                writer.ForceMerge(1);
             }
             catch (IOException e)
             {

@@ -11,7 +11,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Lucene.Net.Analysis.Standard;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Util;
 using NUnit.Framework;
 
@@ -81,7 +81,7 @@ namespace NHibernate.Search.Tests.Embedded
             await (tx.CommitAsync());
 
             IFullTextSession session = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StandardAnalyzer(Version.LUCENE_30));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StandardAnalyzer(LuceneVersion.LUCENE_48));
 
             Lucene.Net.Search.Query query = parser.Parse("address.street:place");
             IList result = await (session.CreateFullTextQuery(query).ListAsync());
@@ -161,7 +161,7 @@ namespace NHibernate.Search.Tests.Embedded
             s.Clear();
 
             IFullTextSession session = Search.CreateFullTextSession(s);
-            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StandardAnalyzer(Version.LUCENE_30));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StandardAnalyzer(LuceneVersion.LUCENE_48));
 
             Lucene.Net.Search.Query query = parser.Parse("address.street:peachtree");
             IList result = await (session.CreateFullTextQuery(query).ListAsync());

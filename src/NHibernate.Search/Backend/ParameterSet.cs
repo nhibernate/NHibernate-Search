@@ -42,28 +42,34 @@
             set { ramBufferSizeMb = value; }
         }
 
-        public void ApplyToWriter(IndexWriter writer)
+        public void ApplyToWriterConfig(IndexWriterConfig  writer)
         {
             try
             {
-                if (MergeFactor != null)
+                var mergePolicy = new LogDocMergePolicy();
+                if (MergeFactor.HasValue)
                 {
-                    writer.MergeFactor = (int)MergeFactor;
+                    mergePolicy.MergeFactor = MergeFactor.Value;
                 }
 
-                if (MaxMergeDocs != null)
+                if (MaxMergeDocs.HasValue)
                 {
-                    writer.MaxMergeDocs = (int)MaxMergeDocs;
+                    mergePolicy.MaxMergeDocs = MaxMergeDocs.Value;
                 }
 
-                if (MaxBufferedDocs != null)
+                if (MergeFactor.HasValue || MaxMergeDocs.HasValue)
                 {
-                    writer.SetMaxBufferedDocs((int) MaxBufferedDocs);
+                    writer.MergePolicy = mergePolicy;
                 }
 
-                if (RamBufferSizeMb != null)
+                if (MaxBufferedDocs.HasValue)
                 {
-                    writer.SetRAMBufferSizeMB((int) RamBufferSizeMb);
+                    writer.MaxBufferedDocs = MaxBufferedDocs.Value;
+                }
+
+                if (RamBufferSizeMb.HasValue)
+                {
+                    writer.RAMBufferSizeMB = RamBufferSizeMb.Value;
                 }
 
                 if (TermIndexInterval != null)

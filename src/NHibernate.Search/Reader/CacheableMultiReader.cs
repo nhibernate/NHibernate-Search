@@ -1,3 +1,4 @@
+using System;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 
@@ -9,7 +10,7 @@ namespace NHibernate.Search.Reader
     /// </summary>
     public class CacheableMultiReader : MultiReader
     {
-        private new readonly IndexReader[] subReaders;
+        private readonly IndexReader[] subReaders;
 
         public CacheableMultiReader(IndexReader[] subReaders) : base(subReaders)
         {
@@ -29,27 +30,12 @@ namespace NHibernate.Search.Reader
             return true;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj != null && BusinessEquals(obj as CacheableMultiReader);
-        }
-
         public bool Equals(CacheableMultiReader obj)
         {
             // NB We need to cast down to obj to get the simple "=="
             if (obj == null) return false;
 
             return BusinessEquals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            int result = 0;
-            foreach (object reader in subReaders)
-            {
-                result = 31*result + reader.GetHashCode();
-            }
-            return result;
         }
     }
 }

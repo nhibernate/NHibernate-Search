@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using Lucene.Net.Util;
 
 namespace NHibernate.Search.Filter
 {
@@ -22,7 +24,7 @@ namespace NHibernate.Search.Filter
 			private HashSet<int> DocIdSetToHashSet(DocIdSet docs)
 			{
 				var result = new HashSet<int>();
-				var iterator = docs.Iterator();
+				var iterator = docs.GetIterator();
 
 				int docId;
 				while ((docId = iterator.NextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
@@ -31,7 +33,7 @@ namespace NHibernate.Search.Filter
 				return result;
 			}
 
-			public override DocIdSet GetDocIdSet(IndexReader reader)
+			public override DocIdSet GetDocIdSet(AtomicReaderContext context, IBits acceptDocs)
 			{
 				if (chainedFilters.Count == 0)
 				{
@@ -39,12 +41,12 @@ namespace NHibernate.Search.Filter
 				}
 
 				// Create HashSet of first filter's contents
-				HashSet<int> result = DocIdSetToHashSet(chainedFilters[0].GetDocIdSet(reader));
+				HashSet<int> result = DocIdSetToHashSet(chainedFilters[0].GetDocIdSet(context, acceptDocs));
 
 				// For each remaining filter, fill another HashSet and intersect it with the first.
 				for (int i = 1; i < chainedFilters.Count; i++)
 				{
-					var nextSet = DocIdSetToHashSet(chainedFilters[i].GetDocIdSet(reader));
+					var nextSet = DocIdSetToHashSet(chainedFilters[i].GetDocIdSet(context, acceptDocs));
 					result.IntersectWith(nextSet);
 				}
 
@@ -85,11 +87,11 @@ namespace NHibernate.Search.Filter
 			///             <c>EMPTY_DOCIDSET.Iterator()</c> if there
 			///             are no docs that match. 
 			/// </summary>
-			public override DocIdSetIterator Iterator()
-			{
-				return new EnumerableBasedDocIdSetIterator(_items);
-			}
-		}
+            public override DocIdSetIterator GetIterator()
+            {
+                return new EnumerableBasedDocIdSetIterator(_items);
+            }
+        }
 
 		public class EnumerableBasedDocIdSetIterator : DocIdSetIterator
 		{
@@ -124,17 +126,25 @@ namespace NHibernate.Search.Filter
 				return currentDocId;
 			}
 
-			public override int DocID()
-			{
-				if (currentDocId == NO_MORE_DOCS || currentDocId == -1)
-				{
-					return NO_MORE_DOCS;
-				}
+            public override long GetCost()
+            {
+                throw new NotSupportedException();
+            }
 
-				return iterator.Current;
-			}
+            public override int DocID
+            {
+                get
+                {
+                    if (currentDocId == NO_MORE_DOCS || currentDocId == -1)
+                    {
+                        return NO_MORE_DOCS;
+                    }
 
-			public override int NextDoc()
+                    return iterator.Current;
+                }
+            }
+
+            public override int NextDoc()
 			{
 				if (currentDocId == NO_MORE_DOCS)
 				{

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
+using Lucene.Net.Util;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Store;
@@ -88,9 +90,7 @@ namespace NHibernate.Search.Backend
                 throw new AssertionFailure("Tries to read for update a index while a writer is accessed" + entity);
             }
 
-            IndexReader reader;
-            readers.TryGetValue(provider, out reader);
-            if (reader != null)
+            if (readers.TryGetValue(provider, out var reader))
             {
                 return reader;
             }
@@ -100,7 +100,7 @@ namespace NHibernate.Search.Backend
 
             try
             {
-                reader = IndexReader.Open(provider.Directory, false);
+                reader = DirectoryReader.Open(provider.Directory);
                 readers.Add(provider, reader);
             }
             catch (IOException e)
@@ -126,27 +126,9 @@ namespace NHibernate.Search.Backend
         public IndexWriter GetIndexWriter(IDirectoryProvider provider, System.Type entity, bool modificationOperation)
         {
             // Have to close the reader before the writer is accessed.
-            IndexReader reader;
-            readers.TryGetValue(provider, out reader);
-            if (reader != null)
+            if (readers.TryGetValue(provider, out var reader))
             {
-                try
-                {
-                    reader.Dispose();
-                }
-                catch (IOException ex)
-                {
-                    throw new SearchException("Exception while closing IndexReader", ex);
-                }
-                finally
-                {
-                    readers.Remove(provider);
-
-                    // PH - Moved the exit lock out of the try otherwise it won't take place when we have an error closing the reader.
-                    // Exit Lock added by Kailuo Wang, because the lock needs to be obtained immediately afterwards
-                    object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
-                    Monitor.Exit(syncLock);
-                }
+                CloseReader(provider, reader);
             }
 
             if (writers.ContainsKey(provider))
@@ -163,21 +145,21 @@ namespace NHibernate.Search.Backend
 
             try
             {
-                Analyzer analyzer = entity != null
-                                        ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
-                                        : new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
-                IndexWriter writer = new IndexWriter(provider.Directory, analyzer, false,IndexWriter.MaxFieldLength.UNLIMITED);
-
-                LuceneIndexingParameters indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
+                var analyzer = entity != null
+                    ? searchFactoryImplementor.DocumentBuilders[entity].Analyzer
+                    : new StandardAnalyzer(LuceneVersion.LUCENE_48);
+                var config = new IndexWriterConfig(LuceneVersion.LUCENE_48, analyzer);
+                var indexingParams = searchFactoryImplementor.GetIndexingParameters(provider);
                 if (IsBatch)
                 {
-                    indexingParams.BatchIndexParameters.ApplyToWriter(writer);
+                    indexingParams.BatchIndexParameters.ApplyToWriterConfig(config);
                 }
                 else
                 {
-                    indexingParams.TransactionIndexParameters.ApplyToWriter(writer);
+                    indexingParams.TransactionIndexParameters.ApplyToWriterConfig(config);
                 }
 
+                IndexWriter writer = new IndexWriter(provider.Directory, config);
                 writers.Add(provider, writer);
 
                 return writer;
@@ -190,6 +172,27 @@ namespace NHibernate.Search.Backend
             return null;
         }
 
+        private void CloseReader(IDirectoryProvider provider, IndexReader reader)
+        {
+            try
+            {
+                reader.Dispose();
+            }
+            catch (IOException ex)
+            {
+                throw new SearchException("Exception while closing IndexReader", ex);
+            }
+            finally
+            {
+                readers.Remove(provider);
+
+                // PH - Moved the exit lock out of the try otherwise it won't take place when we have an error closing the reader.
+                // Exit Lock added by Kailuo Wang, because the lock needs to be obtained immediately afterwards
+                object syncLock = searchFactoryImplementor.GetLockableDirectoryProviders()[provider];
+                Monitor.Exit(syncLock);
+            }
+        }
+        
         public void Optimize(IDirectoryProvider provider)
         {
             IOptimizerStrategy optimizerStrategy = searchFactoryImplementor.GetOptimizerStrategy(provider);

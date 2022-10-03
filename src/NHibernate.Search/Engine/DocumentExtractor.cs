@@ -28,7 +28,7 @@ namespace NHibernate.Search.Engine
             return entityInfo;
         }
 
-        public EntityInfo Extract(TopDocs topDocs, Searcher searcher, int index)
+        public EntityInfo Extract(TopDocs topDocs, IndexSearcher searcher, int index)
         {
             ScoreDoc scoreDoc = topDocs.ScoreDocs[index];
             Document doc = searcher.Doc(scoreDoc.Doc);
@@ -59,7 +59,7 @@ namespace NHibernate.Search.Engine
                             break;
 
                         case ProjectionConstants.BOOST:
-                            eip[x] = doc.Boost;
+                            eip[x] = doc.GetField(DocumentBuilder.CLASS_FIELDNAME).Boost;
                             break;
 
                         case ProjectionConstants.THIS:

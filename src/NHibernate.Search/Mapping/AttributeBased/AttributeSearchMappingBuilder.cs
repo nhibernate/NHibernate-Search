@@ -2,9 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-
-using Iesi.Collections.Generic;
-
 using Lucene.Net.Analysis;
 using NHibernate.Properties;
 using NHibernate.Search.Attributes;
@@ -12,7 +9,6 @@ using NHibernate.Search.Bridge;
 using NHibernate.Search.Engine;
 using NHibernate.Search.Impl;
 using NHibernate.Search.Mapping.Definition;
-using NHibernate.Search.Util;
 
 namespace NHibernate.Search.Mapping.AttributeBased
 {

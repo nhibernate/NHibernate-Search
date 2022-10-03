@@ -8,7 +8,6 @@
 //------------------------------------------------------------------------------
 
 
-using System.Collections;
 using System.Collections.Generic;
 using Lucene.Net.Index;
 using NHibernate.Cfg;
@@ -22,10 +21,10 @@ namespace NHibernate.Search.Tests.IndexingStrategy
     {
         private int GetDocumentNbr()
         {
-            IndexReader reader = IndexReader.Open(GetDirectory(typeof(DocumentTop)), false);
+            var reader = DirectoryReader.Open(GetDirectory(typeof(DocumentTop)));
             try
             {
-                return reader.NumDocs();
+                return reader.NumDocs;
             }
             finally
             {

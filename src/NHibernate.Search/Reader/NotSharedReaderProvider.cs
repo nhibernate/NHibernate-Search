@@ -19,7 +19,7 @@ namespace NHibernate.Search.Reader
             try
             {
                 for (int index = 0; index < length; index++)
-                    readers[index] = IndexReader.Open(directoryProviders[index].Directory, false);
+                    readers[index] = DirectoryReader.Open(directoryProviders[index].Directory);
             }
             catch (System.IO.IOException ex)
             {

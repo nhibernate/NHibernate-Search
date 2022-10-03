@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Lucene.Net.Analysis.Standard;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 using NHibernate.Engine;
 using NHibernate.Event;
 using NHibernate.Impl;
@@ -537,7 +537,7 @@ namespace NHibernate.Search.Impl
         {
             using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
-                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30, defaultField, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
+                QueryParser queryParser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, defaultField, new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
                 return CreateFullTextQuery(query, typeof (TEntity));
             }
@@ -547,7 +547,7 @@ namespace NHibernate.Search.Impl
         {
             using (SessionIdLoggingContext.CreateOrNull(sessionImplementor.SessionId))
             {
-                QueryParser queryParser = new QueryParser(Lucene.Net.Util.Version.LUCENE_30,string.Empty, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
+                QueryParser queryParser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48,string.Empty, new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
                 Lucene.Net.Search.Query query = queryParser.Parse(queryString);
                 return CreateFullTextQuery(query, typeof (TEntity));
             }

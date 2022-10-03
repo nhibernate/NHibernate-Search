@@ -16,7 +16,7 @@ namespace NHibernate.Search.Bridge.Builtin
         public static readonly ITwoWayStringBridge DATE_SECOND = new DateBridge(Resolution.Second);
         public static readonly ITwoWayStringBridge DATE_YEAR = new DateBridge(Resolution.Year);
 
-        private DateTools.Resolution resolution;
+        private DateResolution resolution;
 
         public DateBridge()
         {
@@ -70,25 +70,25 @@ namespace NHibernate.Search.Bridge.Builtin
             switch (hibResolution)
             {
                 case Resolution.Year:
-                    resolution = DateTools.Resolution.YEAR;
+                    resolution = DateResolution.YEAR;
                     break;
                 case Resolution.Month:
-                    resolution = DateTools.Resolution.MONTH;
+                    resolution = DateResolution.MONTH;
                     break;
                 case Resolution.Day:
-                    resolution = DateTools.Resolution.DAY;
+                    resolution = DateResolution.DAY;
                     break;
                 case Resolution.Hour:
-                    resolution = DateTools.Resolution.HOUR;
+                    resolution = DateResolution.HOUR;
                     break;
                 case Resolution.Minute:
-                    resolution = DateTools.Resolution.MINUTE;
+                    resolution = DateResolution.MINUTE;
                     break;
                 case Resolution.Second:
-                    resolution = DateTools.Resolution.SECOND;
+                    resolution = DateResolution.SECOND;
                     break;
                 case Resolution.Millisecond:
-                    resolution = DateTools.Resolution.MILLISECOND;
+                    resolution = DateResolution.MILLISECOND;
                     break;
                 default:
                     throw new AssertionFailure("Unknown Resolution: " + hibResolution);

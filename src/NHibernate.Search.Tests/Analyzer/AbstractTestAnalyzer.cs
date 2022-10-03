@@ -1,8 +1,8 @@
-using System;
 using System.IO;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Analysis.Tokenattributes;
+using Lucene.Net.Analysis.TokenAttributes;
+using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Analyzer
 {
@@ -10,23 +10,23 @@ namespace NHibernate.Search.Tests.Analyzer
     {
         protected abstract string[] Tokens { get; }
 
-        public override TokenStream TokenStream(string fieldName, TextReader reader)
+        protected override TokenStreamComponents CreateComponents(string fieldName, TextReader reader)
         {
-            return new InternalTokenStream(Tokens);
+            return new TokenStreamComponents(
+                new StandardTokenizer(LuceneVersion.LUCENE_48, reader),
+                new InternalTokenStream(Tokens));
         }
 
-        #region Nested type: InternalTokenStream
-
-        private class InternalTokenStream : TokenStream
+        private sealed class InternalTokenStream : TokenStream
         {
             private readonly string[] tokens;
             private int position;
-            private readonly ITermAttribute termAttribute;
+            private readonly IPayloadAttribute attribute;
 
             public InternalTokenStream(string[] tokens)
             {
                 this.tokens = tokens;
-                termAttribute = AddAttribute<ITermAttribute>();
+                attribute = AddAttribute<IPayloadAttribute>();
             }
 
             public override bool IncrementToken()
@@ -34,7 +34,7 @@ namespace NHibernate.Search.Tests.Analyzer
                 ClearAttributes();
                 if (position < tokens.Length)
                 {
-                    termAttribute.SetTermBuffer(tokens[position++]);
+                    attribute.Payload = new BytesRef(tokens[position++]);
                 }
 
                 return false;
@@ -44,7 +44,5 @@ namespace NHibernate.Search.Tests.Analyzer
             {
             }
         }
-
-        #endregion
     }
 }

@@ -17,8 +17,8 @@ namespace NHibernate.Search.Tests.Session
 
     using Impl;
 
-    using Lucene.Net.Analysis;
-    using Lucene.Net.QueryParsers;
+    using Lucene.Net.Analysis.Core;
+    using Lucene.Net.QueryParsers.Classic;
 
     using NUnit.Framework;
     using System.Threading.Tasks;
@@ -54,7 +54,7 @@ namespace NHibernate.Search.Tests.Session
             // Check non-indexed object get indexed by s.index;
             s = new FullTextSessionImpl(OpenSession());
             tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Version.LUCENE_30, "id", new StopAnalyzer(Version.LUCENE_30));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StopAnalyzer(LuceneVersion.LUCENE_48));
             int result = (await (s.CreateFullTextQuery(parser.Parse("Body:wrote")).ListAsync())).Count;
             Assert.AreEqual(2000, result);
 

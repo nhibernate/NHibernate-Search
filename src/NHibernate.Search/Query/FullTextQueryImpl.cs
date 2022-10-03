@@ -85,7 +85,6 @@ namespace NHibernate.Search.Query
 
                 try
                 {
-                    searcher.SetDefaultFieldSortScoring(true, true);
                     TopDocs topDocs = GetTopDocs(searcher);
                     SetResultSize(topDocs);
                     int first = First();
@@ -107,7 +106,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    DisposeSearcher(searcher);
+                    CloseSearcher(searcher);
                 }
             }
         }
@@ -219,7 +218,7 @@ namespace NHibernate.Search.Query
                             }
                             finally
                             {
-                                DisposeSearcher(searcher);
+                                CloseSearcher(searcher);
                             }
                     }
                     return resultSize;
@@ -315,7 +314,7 @@ namespace NHibernate.Search.Query
                 }
                 finally
                 {
-                    DisposeSearcher(searcher);
+                    CloseSearcher(searcher);
                 }
             }
         }
@@ -400,14 +399,14 @@ namespace NHibernate.Search.Query
             return this;
         }
 
-        private TopDocs GetTopDocs(Searcher searcher)
+        private TopDocs GetTopDocs(IndexSearcher searcher)
         {
             using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
                 LogQuery();
                 Lucene.Net.Search.Query query = FullTextSearchHelper.FilterQueryByClasses(classesAndSubclasses, luceneQuery);
                 BuildFilters();
-                TopDocs topDocs = searcher.Search(query, this.filter, int.MaxValue, this.sort ?? Sort.RELEVANCE);
+                TopDocs topDocs = searcher.Search(query, this.filter, int.MaxValue, this.sort ?? Sort.RELEVANCE, true, false);
 
                 log.Debug("Lucene query returned {0} results", topDocs.TotalHits);
                 this.SetResultSize(topDocs);
@@ -560,7 +559,7 @@ namespace NHibernate.Search.Query
             }
         }
 
-        private void DisposeSearcher(IndexSearcher searcher)
+        private void CloseSearcher(IndexSearcher searcher)
         {
             using (SessionIdLoggingContext.CreateOrNull(Session.SessionId))
             {
@@ -572,7 +571,6 @@ namespace NHibernate.Search.Query
                 try
                 {
                     SearchFactory.ReaderProvider.CloseReader(searcher.IndexReader);
-                    searcher.Dispose();
                 }
                 catch (IOException e)
                 {

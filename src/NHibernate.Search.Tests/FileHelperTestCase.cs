@@ -64,7 +64,7 @@ namespace NHibernate.Search.Tests
             os.Close();
             FileInfo test = new FileInfo(Path.Combine(src.FullName, "c"));
             FileInfo destTest = new FileInfo(Path.Combine(dest.FullName, "c"));
-            Assert.AreNotSame(test.LastWriteTime, destTest.LastWriteTime);
+            Assert.AreNotEqual(test.LastWriteTime, destTest.LastWriteTime);
             FileHelper.Synchronize(src, dest, true);
             destTest.Refresh();
             Assert.AreEqual(test.LastWriteTime, destTest.LastWriteTime);

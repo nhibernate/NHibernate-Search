@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 using NHibernate.Search.Attributes;
 using NHibernate.Search.Bridge;
 

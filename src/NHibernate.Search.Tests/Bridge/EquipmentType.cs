@@ -10,7 +10,7 @@ namespace NHibernate.Search.Tests.Bridge
 
         #region IFieldBridge Members
 
-        public void Set(string name, object value, Document document, Field.Store store, Field.Index index, float? boost)
+        public void Set(string name, object value, Document document, FieldType fieldType, float? boost)
         {
             // In this particular class the name of the new field was passed
             // from the name field of the ClassBridge Annotation. This is not
@@ -25,7 +25,7 @@ namespace NHibernate.Search.Tests.Bridge
             else
             {
                 string fieldValue = (string) equips[fieldValue1];
-                field = new Field(name, fieldValue, store, index);
+                field = new Field(name, fieldValue, fieldType);
                 if (boost != null)
                     field.Boost = (float)boost;
             }

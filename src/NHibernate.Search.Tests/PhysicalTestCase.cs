@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Core;
 
 using NHibernate.Cfg;
 using NHibernate.Search.Store;

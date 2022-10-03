@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
+using Lucene.Net.Util;
 using NUnit.Framework;
-using Version = Lucene.Net.Util.Version;
 
 namespace NHibernate.Search.Tests.Reader
 {
@@ -101,8 +101,8 @@ namespace NHibernate.Search.Tests.Reader
             try
             {
                 Random random = new Random();
-                QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_30, new string[] { "name", "physicalDescription", "suspectCharge" },
-                    new Lucene.Net.Analysis.Standard.StandardAnalyzer(Version.LUCENE_30));
+                QueryParser parser = new MultiFieldQueryParser(LuceneVersion.LUCENE_48, new string[] { "name", "physicalDescription", "suspectCharge" },
+                    new Lucene.Net.Analysis.Standard.StandardAnalyzer(LuceneVersion.LUCENE_48));
                 using (ISession s = OpenSession())
                 {
                     ITransaction tx = s.BeginTransaction();
@@ -159,8 +159,8 @@ namespace NHibernate.Search.Tests.Reader
             try
             {
                 Random random = new Random();
-                QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_30, new string[] { "name", "physicalDescription", "suspectCharge" },
-                    new Lucene.Net.Analysis.Standard.StandardAnalyzer(Version.LUCENE_30));
+                QueryParser parser = new MultiFieldQueryParser(LuceneVersion.LUCENE_48, new string[] { "name", "physicalDescription", "suspectCharge" },
+                    new Lucene.Net.Analysis.Standard.StandardAnalyzer(LuceneVersion.LUCENE_48));
                 IFullTextQuery query;
                 using (ISession s = OpenSession())
                 {

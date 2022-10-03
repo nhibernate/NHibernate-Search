@@ -70,7 +70,7 @@ namespace NHibernate.Search.Backend.Impl.Lucene
 
             try
             {
-                writer.Optimize();
+                writer.ForceMerge(1);
                 workspace.Optimize(provider);
             }
             catch (IOException e)
@@ -87,11 +87,13 @@ namespace NHibernate.Search.Backend.Impl.Lucene
                 log.Debug("PurgeAll Lucene index: " + entity);
             }
 
-            IndexReader reader = workspace.GetIndexReader(provider, entity);
+            IndexWriter writer = workspace.GetIndexWriter(provider, entity, true);
+
             try
             {
                 Term term = new Term(DocumentBuilder.CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entity));
-                reader.DeleteDocuments(term);
+                writer.DeleteDocuments(term);
+                writer.Commit();
             }
             catch (Exception e)
             {
@@ -132,42 +134,14 @@ namespace NHibernate.Search.Backend.Impl.Lucene
             log.Debug("remove from Lucene index: {0}#{1}", entity, id);
             DocumentBuilder builder = workspace.GetDocumentBuilder(entity);
             Term term = builder.GetTerm(id);
-            IndexReader reader = workspace.GetIndexReader(provider, entity);
-            TermDocs termDocs = null;
+            var writer = workspace.GetIndexWriter(provider, entity, true);
             try
             {
-                // TODO is there a faster way?
-                // TODO include TermDocs into the workspace?
-                termDocs = reader.TermDocs(term);
-                string entityName = TypeHelper.LuceneTypeName(entity);
-                while (termDocs.Next())
-                {
-                    int docIndex = termDocs.Doc;
-                    if (entityName.Equals(reader.Document(docIndex).Get(DocumentBuilder.CLASS_FIELDNAME)))
-                    {
-                        // remove only the one of the right class
-                        // loop all to remove all the matches (defensive code)
-                        reader.DeleteDocument(docIndex);
-                    }
-                }
+                writer.DeleteDocuments(term);
             }
             catch (Exception e)
             {
                 throw new SearchException("Unable to remove from Lucene index: " + entity + "#" + id, e);
-            }
-            finally
-            {
-                if (termDocs != null)
-                {
-                    try
-                    {
-                        termDocs.Dispose();
-                    }
-                    catch (IOException e)
-                    {
-                        log.Warn(e, "Unable to close termDocs properly");
-                    }
-                }
             }
         }
 

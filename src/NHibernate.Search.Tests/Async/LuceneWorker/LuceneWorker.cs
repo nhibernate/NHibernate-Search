@@ -10,6 +10,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using Lucene.Net.Index;
 using NHibernate.Search.Backend;
 using NHibernate.Search.Backend.Impl.Lucene;
 using NHibernate.Search.Impl;
@@ -48,14 +49,16 @@ namespace NHibernate.Search.Tests.LuceneWorkerFixture
                     searchFactory.PerformWork(doc, 2, s, WorkType.Add);
                     await (tx.CommitAsync());
                 }
-                Assert.AreEqual(2, workspace.GetIndexReader(provider, targetType).NumDocs(), "Documents created");
+                Assert.AreEqual(2, workspace.GetIndexReader(provider, targetType).NumDocs, "Documents created");
 
                 using (ITransaction tx = s.BeginTransaction())
                 {
                     LuceneWorker luceneWorker = new LuceneWorker(workspace);
                     luceneWorker.PerformWork(new PurgeAllLuceneWork(targetType), provider);
+                    await (tx.CommitAsync());
                 }
-                Assert.AreEqual(0, workspace.GetIndexReader(provider, targetType).NumDocs(), "Document purgation");
+
+                Assert.AreEqual(0, workspace.GetIndexWriter(provider, targetType, false).NumDocs, "Document purgation");
             }
         }
     }

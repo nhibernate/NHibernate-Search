@@ -133,13 +133,13 @@ namespace NHibernate.Search.Engine
 
                 case WorkType.Update:
                 case WorkType.Collection:
-                    /**
-                     * even with Lucene 2.1, use of indexWriter to update is not an option
-                     * We can only delete by term, and the index doesn't have a term that
-                     * uniquely identify the entry.
-                     * But essentially the optimization we are doing is the same Lucene is doing, the only extra cost is the
-                     * double file opening.
-                    */
+                    // 
+                    // even with Lucene 2.1, use of indexWriter to update is not an option
+                    // We can only delete by term, and the index doesn't have a term that
+                    // uniquely identify the entry.
+                    // But essentially the optimization we are doing is the same Lucene is doing, the only extra cost is the
+                    // double file opening.
+                    // 
                     queue.Add(new DeleteLuceneWork(id, idString, entityClass));
                     queue.Add(new AddLuceneWork(id, idString, entityClass, GetDocument(entity, id, entityClass)));
                     searchForContainers = true;
@@ -157,11 +157,11 @@ namespace NHibernate.Search.Engine
                     throw new AssertionFailure("Unknown WorkType: " + workType);
             }
 
-            /**
-		     * When references are changed, either null or another one, we expect dirty checking to be triggered (both sides
-		     * have to be updated)
-		     * When the internal object is changed, we apply the {Add|Update}Work on containedIns
-		    */
+            // 
+		    // When references are changed, either null or another one, we expect dirty checking to be triggered (both sides
+		    // have to be updated)
+		    // When the internal object is changed, we apply the {Add|Update}Work on containedIns
+		    // 
             if (searchForContainers)
             {
                 ProcessContainedIn(entity, queue, rootClassMapping, searchFactoryImplementor);
@@ -172,16 +172,16 @@ namespace NHibernate.Search.Engine
         {
             Document doc = new Document();
 
-            if (rootClassMapping.Boost != null)
-            {
-                doc.Boost = rootClassMapping.Boost.Value;
-            }
-
             // TODO: Check if that should be an else?
             {
-                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entityType), Field.Store.YES, Field.Index.NOT_ANALYZED);
+                Field classField = new Field(CLASS_FIELDNAME, TypeHelper.LuceneTypeName(entityType), StringField.TYPE_STORED);
+                if (rootClassMapping.Boost != null)
+                {
+                    classField.Boost = rootClassMapping.Boost.Value;
+                }
+
                 doc.Add(classField);
-                idMapping.Bridge.Set(idMapping.Name, id, doc, Field.Store.YES, Field.Index.NOT_ANALYZED, idMapping.Boost);
+                idMapping.Bridge.Set(idMapping.Name, id, doc, StringField.TYPE_STORED, idMapping.Boost);
             }
 
             BuildDocumentFields(instance, doc, rootClassMapping, string.Empty);
@@ -281,8 +281,7 @@ namespace NHibernate.Search.Engine
                         bridgeName,
                         unproxiedInstance,
                         doc,
-                        GetStore(bridge.Store),
-                        GetIndex(bridge.Index),
+                        GetFieldType(bridge.Index, bridge.Store),
                         bridge.Boost
                     );
                 }
@@ -303,7 +302,38 @@ namespace NHibernate.Search.Engine
             }
         }
 
-        private void BuildDocumentField(FieldMapping fieldMapping, object unproxiedInstance, Document doc, string prefix)
+        private static FieldType GetFieldType(Index index, Attributes.Store store)
+        {
+            var fieldType = new FieldType
+            {
+                IsStored = store != Attributes.Store.No
+            };
+            switch (index)
+            {
+                case Index.No:
+                    break;
+                case Index.Tokenized:
+                    fieldType.IsIndexed = true;
+                    fieldType.IsTokenized = true;
+                    break;
+                case Index.UnTokenized:
+                    fieldType.IsIndexed = true;
+                    fieldType.IsTokenized = false;
+                    break;
+                case Index.NoNorms:
+                    fieldType.IsIndexed = true;
+                    fieldType.IsTokenized = false;
+                    fieldType.OmitNorms = true;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            fieldType.Freeze();
+            return fieldType;
+        }
+
+        private static void BuildDocumentField(FieldMapping fieldMapping, object unproxiedInstance, Document doc, string prefix)
         {
             var value = fieldMapping.Getter.Get(unproxiedInstance);
             var fieldName = prefix + fieldMapping.Name;
@@ -312,11 +342,7 @@ namespace NHibernate.Search.Engine
                 fieldMapping.Bridge.Set(
                     fieldName,
                     value,
-                    doc,
-                    GetStore(fieldMapping.Store),
-                    GetIndex(fieldMapping.Index),
-                    fieldMapping.Boost
-                );
+                    doc, GetFieldType(fieldMapping.Index, fieldMapping.Store), fieldMapping.Boost);
             }
             catch (Exception e)
             {
@@ -372,39 +398,6 @@ namespace NHibernate.Search.Engine
             }
 
             return -1;
-        }
-
-        private static Field.Index GetIndex(Index index)
-        {
-            switch (index)
-            {
-                case Index.No:
-                    return Field.Index.NO;
-                case Index.NoNorms:
-                    return Field.Index.NOT_ANALYZED_NO_NORMS;
-                case Index.Tokenized:
-                    return Field.Index.ANALYZED;
-                case Index.UnTokenized:
-                    return Field.Index.NOT_ANALYZED;
-                default:
-                    throw new AssertionFailure("Unexpected Index: " + index);
-            }
-        }
-
-        private static Field.Store GetStore(Attributes.Store store)
-        {
-            switch (store)
-            {
-                case Attributes.Store.No:
-                    return Field.Store.NO;
-                case Attributes.Store.Yes:
-#pragma warning disable CS0618
-                case Attributes.Store.Compress:
-#pragma warning restore CS0618
-                    return Field.Store.YES;
-                default:
-                    throw new AssertionFailure("Unexpected Store: " + store);
-            }
         }
 
         private void CollectAnalyzers(

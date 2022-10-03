@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Lucene.Net.Analysis;
 
 namespace NHibernate.Search.Util
@@ -10,6 +11,9 @@ namespace NHibernate.Search.Util
     /// </summary>
     public class ScopedAnalyzer : Analyzer
     {
+        private static readonly MethodInfo CreateComponentsMethod = typeof(Analyzer)
+            .GetMethod("CreateComponents", BindingFlags.Instance | BindingFlags.NonPublic);
+
         private readonly IDictionary<string, Analyzer> scopedAnalyzers = new Dictionary<string, Analyzer>();
         private Analyzer globalAnalyzer;
 
@@ -26,9 +30,10 @@ namespace NHibernate.Search.Util
             scopedAnalyzers.Add(scope, analyzer);
         }
 
-        public override TokenStream TokenStream(string fieldName, TextReader reader)
+        protected override TokenStreamComponents CreateComponents(string fieldName, TextReader reader)
         {
-            return GetAnalyzer(fieldName).TokenStream(fieldName, reader);
+            var components = CreateComponentsMethod.Invoke(GetAnalyzer(fieldName), new object[] { fieldName, reader });
+            return (TokenStreamComponents)components;
         }
 
         public override int GetPositionIncrementGap(string fieldName)

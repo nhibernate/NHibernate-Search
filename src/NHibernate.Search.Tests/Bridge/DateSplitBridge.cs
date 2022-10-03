@@ -8,7 +8,7 @@ namespace NHibernate.Search.Tests.Bridge
 
     public class DateSplitBridge : IFieldBridge
     {
-        public void Set(string name, object value, Document document, Field.Store store, Field.Index index, float? boost)
+        public void Set(string name, object value, Document document, FieldType fieldType, float? boost)
         {
             DateTime date = (DateTime) value;
 
@@ -17,7 +17,7 @@ namespace NHibernate.Search.Tests.Bridge
             int day = date.Day;
 
             // set year
-            Field field = new Field(name + ".year", year.ToString(), store, index);
+            Field field = new Field(name + ".year", year.ToString(), fieldType);
             if (boost != null)
             {
                 field.Boost = boost.Value;
@@ -25,7 +25,7 @@ namespace NHibernate.Search.Tests.Bridge
             document.Add(field);
 
             // set month and pad it if necessary
-            field = new Field(name + ".month", month.ToString("D2"), store, index);
+            field = new Field(name + ".month", month.ToString("D2"), fieldType);
             if (boost != null)
             {
                 field.Boost = boost.Value;
@@ -33,7 +33,7 @@ namespace NHibernate.Search.Tests.Bridge
             document.Add(field);
 
             // set day and pad it if necessary
-            field = new Field(name + ".day", day.ToString("D2"), store, index);
+            field = new Field(name + ".day", day.ToString("D2"), fieldType);
             if (boost != null)
             {
                 field.Boost = boost.Value;

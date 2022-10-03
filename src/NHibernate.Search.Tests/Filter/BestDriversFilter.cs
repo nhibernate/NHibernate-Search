@@ -1,13 +1,13 @@
 using System;
-using System.Collections;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
+using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Filter
 {
     public class BestDriversFilter : Lucene.Net.Search.Filter
     {
-        public override DocIdSet GetDocIdSet(IndexReader reader)
+        public override DocIdSet GetDocIdSet(AtomicReaderContext context, IBits acceptDocs)
         {
             throw new NotImplementedException();
             //BitArray bitArray = new BitArray(reader.MaxDoc());
