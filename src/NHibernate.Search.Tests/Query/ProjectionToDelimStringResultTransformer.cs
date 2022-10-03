@@ -8,13 +8,7 @@ namespace NHibernate.Search.Tests.Query
     {
         public object TransformTuple(object[] tuple, string[] aliases)
         {
-            string s = tuple[0].ToString();
-            for (int i = 1; i < tuple.Length; i++)
-            {
-                s += ", " + tuple[i];
-            }
-
-            return s;
+            return string.Join(", ", tuple);
         }
 
         public IList TransformList(IList collection)

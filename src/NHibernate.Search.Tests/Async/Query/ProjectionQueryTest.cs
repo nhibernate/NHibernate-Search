@@ -8,6 +8,8 @@
 //------------------------------------------------------------------------------
 
 
+using Lucene.Net.Util;
+
 namespace NHibernate.Search.Tests.Query
 {
     using System;
@@ -44,16 +46,15 @@ namespace NHibernate.Search.Tests.Query
         //{
         //}
 
-        [Test, Explicit]
+        [Test]
         public async Task ResultTransformToDelimStringAsync()
         {
-            IFullTextSession s = Search.CreateFullTextSession(this.OpenSession());
-            await (this.PrepEmployeeIndexAsync(s));
+            IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+            await (PrepEmployeeIndexAsync(s));
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
-
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(LuceneVersion.LUCENE_48));
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
             hibQuery.SetProjection(
@@ -66,9 +67,9 @@ namespace NHibernate.Search.Tests.Query
                     ProjectionConstants.ID);
             hibQuery.SetResultTransformer(new ProjectionToDelimStringResultTransformer());
 
-            IList result = await (hibQuery.ListAsync());
-            Assert.IsTrue(((string)result[0]).StartsWith("1000, Griffin, ITech"), "incorrect transformation");
-            Assert.IsTrue(((string)result[1]).StartsWith("1002, Jimenez, ITech"), "incorrect transformation");
+            var result = await (hibQuery.ListAsync<string>());
+            Assert.That(result[3], Does.StartWith("1000, Griffin, ITech"), "incorrect transformation");
+            Assert.That(result[2], Does.StartWith("1002, Jimenez, ITech"), "incorrect transformation");
 
             // cleanup
             await (s.DeleteAsync("from System.Object"));
@@ -76,15 +77,15 @@ namespace NHibernate.Search.Tests.Query
             s.Close();
         }
 
-        [Test, Explicit]
+        [Test]
         public async Task ResultTransformMapAsync()
         {
-            IFullTextSession s = Search.CreateFullTextSession(this.OpenSession());
-            await (this.PrepEmployeeIndexAsync(s));
+            IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+            await (PrepEmployeeIndexAsync(s));
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -99,8 +100,8 @@ namespace NHibernate.Search.Tests.Query
                     ProjectionConstants.ID);
             hibQuery.SetResultTransformer(new ProjectionToMapResultTransformer());
 
-            IList transforms = await (hibQuery.ListAsync());
-            Dictionary<string, object> map = (Dictionary<string, object>)transforms[1];
+            var transforms = await (hibQuery.ListAsync<Dictionary<string, object>>());
+            var map = transforms[2];
 
             Assert.AreEqual("ITech", map["Dept"], "incorrect transformation");
             Assert.AreEqual(1002, map["Id"], "incorrect transformation");
@@ -119,12 +120,12 @@ namespace NHibernate.Search.Tests.Query
         [Test]
         public async Task LuceneObjectsProjectionWithIterateAsync()
         {
-            IFullTextSession s = Search.CreateFullTextSession(this.OpenSession());
-            await (this.PrepEmployeeIndexAsync(s));
+            IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+            await (PrepEmployeeIndexAsync(s));
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("Dept:ITech");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
@@ -162,12 +163,12 @@ namespace NHibernate.Search.Tests.Query
         [Test]
         public async Task LuceneObjectsProjectionWithListAsync()
         {
-            IFullTextSession s = Search.CreateFullTextSession(this.OpenSession());
-            await (this.PrepEmployeeIndexAsync(s));
+            IFullTextSession s = Search.CreateFullTextSession(OpenSession());
+            await (PrepEmployeeIndexAsync(s));
 
             s.Clear();
             ITransaction tx = s.BeginTransaction();
-            QueryParser parser = new QueryParser(Lucene.Net.Util.LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(Lucene.Net.Util.LuceneVersion.LUCENE_48));
+            QueryParser parser = new QueryParser(LuceneVersion.LUCENE_48, "Dept", new StandardAnalyzer(LuceneVersion.LUCENE_48));
 
             Query query = parser.Parse("Dept:Accounting");
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Employee));
