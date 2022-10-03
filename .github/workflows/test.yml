@@ -1,4 +1,4 @@
-name: .NET
+name: test
 
 on: [push, pull_request]
 
@@ -30,10 +30,10 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Restore dependencies
-      run: dotnet restore src/NHibernate.Search.sln
+      run: dotnet restore src
 
     - name: Build
-      run: dotnet build src/NHibernate.Search.sln --no-restore
+      run: dotnet build src --no-restore
 
     - name: Configure
       run: |
@@ -42,4 +42,4 @@ jobs:
         xmlstarlet ed -L -N ns="urn:nhibernate-configuration-2.2" -u '//ns:property[@name="connection.connection_string"]' -v '${{matrix.CONNECTION_STRING}}' hibernate.cfg.xml        
 
     - name: Test
-      run: dotnet test src/NHibernate.Search.sln -f net6.0 --no-build --verbosity normal
+      run: dotnet test src -f net6.0 --no-build --verbosity normal

@@ -1,17 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-    <LangVersion>9</LangVersion>
-    <IncludeSymbols>True</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <CLSCompliant>false</CLSCompliant>
-    <VersionPrefix>3.0.0</VersionPrefix>
-    <VersionSuffix>dev</VersionSuffix>
-    <Company>NHibernate.info</Company>
-    <Copyright>Licensed under LGPL.</Copyright>
-    <Authors>NHibernate community, Hibernate community</Authors>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <Description>NHibernate Search - Integration with Lucene.NET</Description>
+    <PackageDescription>NHibernate Search brings the power of full text search engines to the persistence domain model by combining NHibernate with the capabilities of the Lucene.Net search engine.</PackageDescription>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="**/*.xsd" />
@@ -20,9 +12,8 @@
     <EmbeddedResource Include="**/*.xsd" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00016" />
+    <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00016" NoWarn="NU5104" />
     <PackageReference Include="NHibernate" Version="5.3.13" />
-    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <Reference Include="System.Configuration" />

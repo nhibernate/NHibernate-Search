@@ -1,8 +1,32 @@
 <Project>
 	<PropertyGroup>
+		<LangVersion>9</LangVersion>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+
+		<Company>NHibernate.info</Company>
+		<Authors>NHibernate community, Hibernate community</Authors>
+		<Copyright>Licensed under LGPL.</Copyright>
+		<NeutralLanguage>en-US</NeutralLanguage>
+
+		<PackageProjectUrl>https://nhibernate.info</PackageProjectUrl>
+		<PackageTags>NHibernate; Search; Lucene; Lucene.Net; FullText; Text</PackageTags>
+		<PackageIconUrl>https://raw.githubusercontent.com/nhibernate/NHibernate-Search/master/images/logo.png</PackageIconUrl>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>LGPL-2.1-only</PackageLicenseExpression>
+
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		
+		<PublishRepositoryUrl>True</PublishRepositoryUrl>
+		<EmbedUntrackedSources>True</EmbedUntrackedSources>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
+		<None Include="../../images/logo.png" Link="logo.png" Pack="True" PackagePath="/" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.Github" Version="1.1.1" PrivateAssets="All" />
+		<PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
 	</ItemGroup>
 </Project>
