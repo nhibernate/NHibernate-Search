@@ -38,7 +38,7 @@ jobs:
       run: dotnet restore src
 
     - name: Build
-      run: dotnet build src --no-restore --verbosity d
+      run: dotnet build src -m:1 --no-restore
 
     - name: Configure
       run: |
