@@ -4,6 +4,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="**/*.hbm.xml" />
+    <None Update="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="**/*.hbm.xml" />

@@ -22,7 +22,7 @@ namespace NHibernate.Test
 
     public abstract partial class TestCase
     {
-        private static readonly ILog log = LogManager.GetLogger(typeof(TestCase));
+        private static readonly ILog log;
         private const bool OutputDdl = false;
 
         protected Configuration cfg;
@@ -70,7 +70,8 @@ namespace NHibernate.Test
         static TestCase()
         {
             // Configure log4net here since configuration through an attribute doesn't always work.
-            XmlConfigurator.Configure();
+            XmlConfigurator.Configure(new FileInfo("log4net.config"));
+            log = LogManager.GetLogger(typeof(TestCase));
         }
 
         #region Public methods
