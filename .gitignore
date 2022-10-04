@@ -49,3 +49,5 @@ slave/
 master/
 indextemp/
 filehelperdest/
+nhibernate.db
+coverage/
