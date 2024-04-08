@@ -25,11 +25,11 @@
 		<property name="prepare_sql">false</property>
 
 		<!-- the following part is not read by the test, they are here being a  template-->
-		<listener class="NHibernate.Search.Event.FullTextIndexEventListener, NHibernate.Search" type="post-insert"/>
-		<listener class="NHibernate.Search.Event.FullTextIndexEventListener, NHibernate.Search" type="post-update"/>
-		<listener class="NHibernate.Search.Event.FullTextIndexEventListener, NHibernate.Search" type="post-delete"/>
-		<listener class="NHibernate.Search.Event.FullTextIndexCollectionEventListener, NHibernate.Search" type="post-collection-recreate"/>
-		<listener class="NHibernate.Search.Event.FullTextIndexCollectionEventListener, NHibernate.Search" type="post-collection-remove"/>
-		<listener class="NHibernate.Search.Event.FullTextIndexCollectionEventListener, NHibernate.Search" type="post-collection-update"/>
+		<listener class="NHibernate.Search.Event.FullTextIndexEventListener, NHibernate.Search.Lucene" type="post-insert"/>
+		<listener class="NHibernate.Search.Event.FullTextIndexEventListener, NHibernate.Search.Lucene" type="post-update"/>
+		<listener class="NHibernate.Search.Event.FullTextIndexEventListener, NHibernate.Search.Lucene" type="post-delete"/>
+		<listener class="NHibernate.Search.Event.FullTextIndexCollectionEventListener, NHibernate.Search.Lucene" type="post-collection-recreate"/>
+		<listener class="NHibernate.Search.Event.FullTextIndexCollectionEventListener, NHibernate.Search.Lucene" type="post-collection-remove"/>
+		<listener class="NHibernate.Search.Event.FullTextIndexCollectionEventListener, NHibernate.Search.Lucene" type="post-collection-update"/>
 	</session-factory>
 </hibernate-configuration>

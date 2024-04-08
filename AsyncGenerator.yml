@@ -1,5 +1,5 @@
 projects:
-- filePath: src/NHibernate.Search/NHibernate.Search.csproj
+- filePath: src/NHibernate.Search/NHibernate.Search.Lucene.csproj
   targetFramework: net461
   concurrentRun: true
   applyChanges: true
