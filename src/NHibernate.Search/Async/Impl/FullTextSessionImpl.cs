@@ -71,14 +71,14 @@ namespace NHibernate.Search.Impl
             return session.LoadAsync(theType, id, lockMode, cancellationToken);
         }
 
-		public Task<object> LoadAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = default(CancellationToken))
-		{
-		if (cancellationToken.IsCancellationRequested)
-		{
-		return Task.FromCanceled<object>(cancellationToken);
-		}
-			return session.LoadAsync(entityName, id, lockMode, cancellationToken);
-		}
+        public Task<object> LoadAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<object>(cancellationToken);
+            }
+            return session.LoadAsync(entityName, id, lockMode, cancellationToken);
+        }
 
         public Task<object> LoadAsync(System.Type theType, object id, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -107,14 +107,14 @@ namespace NHibernate.Search.Impl
             return session.LoadAsync<T>(id, cancellationToken);
         }
 
-		public Task<object> LoadAsync(string entityName, object id, CancellationToken cancellationToken = default(CancellationToken))
-		{
-		if (cancellationToken.IsCancellationRequested)
-		{
-		return Task.FromCanceled<object>(cancellationToken);
-		}
-			return session.LoadAsync(entityName, id, cancellationToken);
-		}
+        public Task<object> LoadAsync(string entityName, object id, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<object>(cancellationToken);
+            }
+            return session.LoadAsync(entityName, id, cancellationToken);
+        }
 
         public Task LoadAsync(object obj, object id, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -260,30 +260,30 @@ namespace NHibernate.Search.Impl
             return session.MergeAsync(entityName, obj, cancellationToken);
         }
 
-    	public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = default(CancellationToken)) where T : class
-    	{
-    		if (cancellationToken.IsCancellationRequested)
-    		{
-    			return Task.FromCanceled<T>(cancellationToken);
-    		}
-    		return session.MergeAsync(entity, cancellationToken);
-    	}
-
-    	public Task<T> MergeAsync<T>(string entityName, T entity, CancellationToken cancellationToken = default(CancellationToken)) where T : class
-    	{
-    		if (cancellationToken.IsCancellationRequested)
-    		{
-    			return Task.FromCanceled<T>(cancellationToken);
-    		}
-			return session.MergeAsync(entityName, entity, cancellationToken);
-    	}
-
-    	public Task PersistAsync(object obj, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
-    		if (cancellationToken.IsCancellationRequested)
-    		{
-    			return Task.FromCanceled<object>(cancellationToken);
-    		}
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<T>(cancellationToken);
+            }
+            return session.MergeAsync(entity, cancellationToken);
+        }
+
+        public Task<T> MergeAsync<T>(string entityName, T entity, CancellationToken cancellationToken = default(CancellationToken)) where T : class
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<T>(cancellationToken);
+            }
+            return session.MergeAsync(entityName, entity, cancellationToken);
+        }
+
+        public Task PersistAsync(object obj, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<object>(cancellationToken);
+            }
             return session.PersistAsync(obj, cancellationToken);
         }
 
@@ -305,14 +305,14 @@ namespace NHibernate.Search.Impl
             return session.DeleteAsync(obj, cancellationToken);
         }
 
-		public Task DeleteAsync(string entityName, object obj, CancellationToken cancellationToken = default(CancellationToken))
-		{
-		if (cancellationToken.IsCancellationRequested)
-		{
-		return Task.FromCanceled<object>(cancellationToken);
-		}
-			return session.DeleteAsync(entityName, obj, cancellationToken);
-		}
+        public Task DeleteAsync(string entityName, object obj, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<object>(cancellationToken);
+            }
+            return session.DeleteAsync(entityName, obj, cancellationToken);
+        }
 
         public Task<int> DeleteAsync(string query, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -377,12 +377,12 @@ namespace NHibernate.Search.Impl
             return session.RefreshAsync(obj, lockMode, cancellationToken);
         }
 
-    	public Task<IQuery> CreateFilterAsync(object collection, string queryString, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IQuery> CreateFilterAsync(object collection, string queryString, CancellationToken cancellationToken = default(CancellationToken))
         {
-    		if (cancellationToken.IsCancellationRequested)
-    		{
-    			return Task.FromCanceled<IQuery>(cancellationToken);
-    		}
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return Task.FromCanceled<IQuery>(cancellationToken);
+            }
             return session.CreateFilterAsync(collection, queryString, cancellationToken);
         }
 

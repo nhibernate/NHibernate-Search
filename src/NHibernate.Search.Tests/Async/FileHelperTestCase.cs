@@ -14,16 +14,17 @@ using System.Threading;
 using NHibernate.Search.Store;
 using NUnit.Framework;
 
-namespace NHibernate.Search.Tests 
+namespace NHibernate.Search.Tests
 {
     using System.Threading.Tasks;
     [TestFixture]
-    public class FileHelperTestCaseAsync 
+    public class FileHelperTestCaseAsync
     {
         #region Setup/Teardown
 
         [SetUp]
-        public void SetUp() {
+        public void SetUp()
+        {
             DirectoryInfo dir = new DirectoryInfo("./filehelpersrc");
             dir.Create();
             WriteFile(dir, "a");
@@ -34,7 +35,8 @@ namespace NHibernate.Search.Tests
         }
 
         [TearDown]
-        protected void TearDown() {
+        protected void TearDown()
+        {
             DirectoryInfo dir = new DirectoryInfo("./filehelpersrc");
             dir.Delete(true);
             dir = new DirectoryInfo("./filehelperdest");
@@ -43,7 +45,7 @@ namespace NHibernate.Search.Tests
 
         #endregion
 
-        private void WriteFile(DirectoryInfo dir, String name) 
+        private void WriteFile(DirectoryInfo dir, String name)
         {
             FileInfo a = new FileInfo(Path.Combine(dir.FullName, name));
             StreamWriter os = a.CreateText();
@@ -55,7 +57,7 @@ namespace NHibernate.Search.Tests
         }
 
         [Test]
-        public async Task SynchronizeAsync() 
+        public async Task SynchronizeAsync()
         {
             DirectoryInfo src = new DirectoryInfo("./filehelpersrc");
             DirectoryInfo dest = new DirectoryInfo("./filehelperdest");
@@ -66,7 +68,7 @@ namespace NHibernate.Search.Tests
             Assert.IsTrue(File.Exists(path));
 
             //change
-            await (Task.Delay(2*2000));
+            await (Task.Delay(2 * 2000));
             StreamWriter os = File.CreateText(Path.Combine(src.FullName, "c"));
             os.WriteLine(1);
             os.WriteLine(2);
@@ -85,7 +87,7 @@ namespace NHibernate.Search.Tests
             test.Delete();
             FileHelper.Synchronize(src, dest, true);
             destTest.Refresh();
-            Assert.IsTrue(! destTest.Exists);
+            Assert.IsTrue(!destTest.Exists);
         }
     }
 }

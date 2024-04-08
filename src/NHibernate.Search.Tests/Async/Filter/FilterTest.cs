@@ -21,28 +21,28 @@ using Lucene.Net.Util;
 
 namespace NHibernate.Search.Tests.Filter
 {
-	using System.Threading.Tasks;
-	using System.Threading;
-	[TestFixture]
-	public class FilterTestAsync : SearchTestCase
-	{
-		protected override IEnumerable<string> Mappings
-		{
-			get { return new string[] { "Filter.Driver.hbm.xml" }; }
-		}
+    using System.Threading.Tasks;
+    using System.Threading;
+    [TestFixture]
+    public class FilterTestAsync : SearchTestCase
+    {
+        protected override IEnumerable<string> Mappings
+        {
+            get { return new string[] { "Filter.Driver.hbm.xml" }; }
+        }
 
-		private delegate void Method();
+        private delegate void Method();
 
-		#region Tests
+        #region Tests
 
-		//// Broke out NamedFilters into multiple tests as it was trying to do too much in one fixture.
+        //// Broke out NamedFilters into multiple tests as it was trying to do too much in one fixture.
 
-		[Test]
-		public async Task ParameterizedFilterAsync()
-		{
-			try
-			{
-				await (CreateDataAsync());
+        [Test]
+        public async Task ParameterizedFilterAsync()
+        {
+            try
+            {
+                await (CreateDataAsync());
                 using (var s = Search.CreateFullTextSession(OpenSession()))
                 using (var t = s.BeginTransaction())
                 {
@@ -59,21 +59,21 @@ namespace NHibernate.Search.Tests.Filter
                     s.Close();
                 }
             }
-			finally
-			{
-				await (DeleteDataAsync());
-			}
-		}
+            finally
+            {
+                await (DeleteDataAsync());
+            }
+        }
 
-		[Test]
-		public async Task ParameterizedFilterWithSearchQueryAsync()
-		{
-			try
-			{
-				const string n = "NoMatch";
-				const string y = "Match";
+        [Test]
+        public async Task ParameterizedFilterWithSearchQueryAsync()
+        {
+            try
+            {
+                const string n = "NoMatch";
+                const string y = "Match";
 
-				using (var session = OpenSession())
+                using (var session = OpenSession())
                 using (var t = session.BeginTransaction())
                 {
                     var deliveryDate = new DateTime(2000, 1, 1);
@@ -96,90 +96,90 @@ namespace NHibernate.Search.Tests.Filter
                 }
 
                 using (var session = OpenSession())
-				using (var ftSession = Search.CreateFullTextSession(session))
-				{
-					var parser = new QueryParser(LuceneVersion.LUCENE_48, "name", new StandardAnalyzer(LuceneVersion.LUCENE_48));
-					var query = parser.Parse("name:" + y);
-					var ftQuery = ftSession.CreateFullTextQuery(query, typeof (Driver));
-					ftQuery.EnableFullTextFilter("security").SetParameter("Login", y);
-					var results = await (ftQuery.ListAsync());
+                using (var ftSession = Search.CreateFullTextSession(session))
+                {
+                    var parser = new QueryParser(LuceneVersion.LUCENE_48, "name", new StandardAnalyzer(LuceneVersion.LUCENE_48));
+                    var query = parser.Parse("name:" + y);
+                    var ftQuery = ftSession.CreateFullTextQuery(query, typeof(Driver));
+                    ftQuery.EnableFullTextFilter("security").SetParameter("Login", y);
+                    var results = await (ftQuery.ListAsync());
 
-					var expectedIds = new[] {2, 3, 5, 9, 11};
-					var actualIds = results.Cast<Driver>().OrderBy(x => x.Id).Select(x => x.Id);
-					Assert.AreEqual(expectedIds, actualIds, "The query should return only drivers where name AND teacher match.");
-				}
-			}
-			finally
-			{
-				await (DeleteDataAsync());
-			}
-		}
+                    var expectedIds = new[] { 2, 3, 5, 9, 11 };
+                    var actualIds = results.Cast<Driver>().OrderBy(x => x.Id).Select(x => x.Id);
+                    Assert.AreEqual(expectedIds, actualIds, "The query should return only drivers where name AND teacher match.");
+                }
+            }
+            finally
+            {
+                await (DeleteDataAsync());
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Helper methods
+        #region Helper methods
 
-		private async Task DeleteDataAsync(CancellationToken cancellationToken = default(CancellationToken))
-		{
-			ISession s = OpenSession();
-			var t = s.BeginTransaction();
-			await (s.CreateQuery("delete Driver").ExecuteUpdateAsync(cancellationToken));
-			Search.CreateFullTextSession(s).PurgeAll(typeof(Driver));
-			await (t.CommitAsync(cancellationToken));
-			s.Close();
-		}
+        private async Task DeleteDataAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ISession s = OpenSession();
+            var t = s.BeginTransaction();
+            await (s.CreateQuery("delete Driver").ExecuteUpdateAsync(cancellationToken));
+            Search.CreateFullTextSession(s).PurgeAll(typeof(Driver));
+            await (t.CommitAsync(cancellationToken));
+            s.Close();
+        }
 
-		private async Task CreateDataAsync(CancellationToken cancellationToken = default(CancellationToken))
-		{
-			ISession s = OpenSession();
-			var t = s.BeginTransaction();
-			Driver driver = new Driver();
-			driver.Delivery = new DateTime(2006, 10, 11);
-			driver.Id = 1;
-			driver.Name = "Emmanuel";
-			driver.Score = 5;
-			driver.Teacher = "andre";
-			await (s.SaveAsync(driver, cancellationToken));
+        private async Task CreateDataAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ISession s = OpenSession();
+            var t = s.BeginTransaction();
+            Driver driver = new Driver();
+            driver.Delivery = new DateTime(2006, 10, 11);
+            driver.Id = 1;
+            driver.Name = "Emmanuel";
+            driver.Score = 5;
+            driver.Teacher = "andre";
+            await (s.SaveAsync(driver, cancellationToken));
 
-			driver = new Driver();
-			driver.Delivery = new DateTime(2007, 10, 11);
-			driver.Id = 2;
-			driver.Name = "Gavin";
-			driver.Score = 3;
-			driver.Teacher = "aaron";
-			await (s.SaveAsync(driver, cancellationToken));
+            driver = new Driver();
+            driver.Delivery = new DateTime(2007, 10, 11);
+            driver.Id = 2;
+            driver.Name = "Gavin";
+            driver.Score = 3;
+            driver.Teacher = "aaron";
+            await (s.SaveAsync(driver, cancellationToken));
 
-			driver = new Driver();
-			driver.Delivery = new DateTime(2004, 10, 11);
-			driver.Id = 3;
-			driver.Name = "Liz";
-			driver.Score = 5;
-			driver.Teacher = "max";
-			await (s.SaveAsync(driver, cancellationToken));
-			await (t.CommitAsync(cancellationToken));
-			s.Close();
-		}
+            driver = new Driver();
+            driver.Delivery = new DateTime(2004, 10, 11);
+            driver.Id = 3;
+            driver.Name = "Liz";
+            driver.Score = 5;
+            driver.Teacher = "max";
+            await (s.SaveAsync(driver, cancellationToken));
+            await (t.CommitAsync(cancellationToken));
+            s.Close();
+        }
 
-		private static Task saveNewDriverAsync(ISession session, int id, string name, string teacher, DateTime delivery, int score, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			try
-			{
-				var driver = new Driver
-				{
-					Id = id,
-					Name = name,
-					Teacher = teacher,
-					Delivery = delivery,
-					Score = score
-				};
-				return session.SaveAsync(driver, cancellationToken);
-			}
-			catch (Exception ex)
-			{
-				return Task.FromException<object>(ex);
-			}
-		}
+        private static Task saveNewDriverAsync(ISession session, int id, string name, string teacher, DateTime delivery, int score, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                var driver = new Driver
+                {
+                    Id = id,
+                    Name = name,
+                    Teacher = teacher,
+                    Delivery = delivery,
+                    Score = score
+                };
+                return session.SaveAsync(driver, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromException<object>(ex);
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

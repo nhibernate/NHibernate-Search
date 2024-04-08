@@ -20,11 +20,11 @@ namespace NHibernate.Search.Tests.Session
 {
     using System.Threading.Tasks;
     [TestFixture]
-    public class MassIndexTestAsync : SearchTestCase 
+    public class MassIndexTestAsync : SearchTestCase
     {
-        protected override IEnumerable<string> Mappings 
+        protected override IEnumerable<string> Mappings
         {
-            get { return new string[] {"Session.Email.hbm.xml"}; }
+            get { return new string[] { "Session.Email.hbm.xml" }; }
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace NHibernate.Search.Tests.Session
         }
 
         [Test]
-        public async Task TransactionalAsync() 
+        public async Task TransactionalAsync()
         {
             IFullTextSession s = Search.CreateFullTextSession(OpenSession());
             ITransaction tx = s.BeginTransaction();
@@ -98,9 +98,9 @@ namespace NHibernate.Search.Tests.Session
 
             s = new FullTextSessionImpl(OpenSession());
             var t = s.BeginTransaction();
-            using (var cmd = s.Connection.CreateCommand()) 
+            using (var cmd = s.Connection.CreateCommand())
             {
-               t.Enlist(cmd);
+                t.Enlist(cmd);
                 cmd.CommandText = "update Email set Body='Meet the guys who write the software'";
                 await (cmd.ExecuteNonQueryAsync());
 
@@ -117,14 +117,14 @@ namespace NHibernate.Search.Tests.Session
             parser = new QueryParser(LuceneVersion.LUCENE_48, "id", new StopAnalyzer(LuceneVersion.LUCENE_48));
             result = await (s.CreateFullTextQuery(parser.Parse("Body:write")).ListAsync());
             Assert.IsEmpty(result);
-            result = await (s.CreateCriteria(typeof (Email)).ListAsync());
-            for (int i = 0; i < loop/2; i++)
+            result = await (s.CreateCriteria(typeof(Email)).ListAsync());
+            for (int i = 0; i < loop / 2; i++)
             {
                 s.Index(result[i]);
             }
             await (tx.CommitAsync()); //do the process
 
-            s.Index(result[(loop/2)]); //do the process out of tx
+            s.Index(result[(loop / 2)]); //do the process out of tx
 
             tx = s.BeginTransaction();
             for (int i = loop / 2 + 1; i < loop; i++)
@@ -138,7 +138,7 @@ namespace NHibernate.Search.Tests.Session
             tx = s.BeginTransaction();
 
             // object never indexed
-            Email email = (Email) await (s.GetAsync(typeof (Email), loop + 1));
+            Email email = (Email)await (s.GetAsync(typeof(Email), loop + 1));
             s.Index(email);
             await (tx.CommitAsync());
             s.Close();

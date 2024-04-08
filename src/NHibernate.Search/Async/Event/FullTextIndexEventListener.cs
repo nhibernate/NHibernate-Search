@@ -88,5 +88,5 @@ namespace NHibernate.Search.Event
         #region Protected methods
 
         #endregion
-    }    
+    }
 }

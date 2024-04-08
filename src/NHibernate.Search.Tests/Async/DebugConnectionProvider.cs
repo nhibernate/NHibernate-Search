@@ -18,16 +18,16 @@ using NHibernate.Connection;
 
 namespace NHibernate.Test
 {
-	using System.Threading.Tasks;
-	using System.Threading;
-	public partial class DebugConnectionProvider : DriverConnectionProvider
-	{
+    using System.Threading.Tasks;
+    using System.Threading;
+    public partial class DebugConnectionProvider : DriverConnectionProvider
+    {
 
-		public override async Task<DbConnection> GetConnectionAsync(CancellationToken cancellationToken)
-		{
-			var connection = await (base.GetConnectionAsync(cancellationToken));
-			connections.Add(connection);
-			return connection;
-		}
-	}
+        public override async Task<DbConnection> GetConnectionAsync(CancellationToken cancellationToken)
+        {
+            var connection = await (base.GetConnectionAsync(cancellationToken));
+            connections.Add(connection);
+            return connection;
+        }
+    }
 }

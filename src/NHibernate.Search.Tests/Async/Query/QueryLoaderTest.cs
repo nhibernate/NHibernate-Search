@@ -97,9 +97,9 @@ namespace NHibernate.Search.Tests.Query
             IFullTextQuery hibQuery = s.CreateFullTextQuery(query, typeof(Music));
             IList result = await (hibQuery.ListAsync());
             Assert.AreEqual(2, result.Count, "Should have returned 2 Music");
-            music = (Music) result[0];
+            music = (Music)result[0];
             Assert.AreEqual(4, music.Authors.Count, "Music 1 should have 4 authors");
-            music = (Music) result[1];
+            music = (Music)result[1];
             Assert.AreEqual(4, music.Authors.Count, "Music 2 should have 4 authors");
 
             // cleanup

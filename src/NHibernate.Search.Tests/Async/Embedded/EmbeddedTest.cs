@@ -41,11 +41,11 @@ namespace NHibernate.Search.Tests.Embedded
             {
                 return new[]
                            {
-                           "Embedded.Tower.hbm.xml", 
-                           "Embedded.Address.hbm.xml", 
-                           "Embedded.Product.hbm.xml", 
-                           "Embedded.Order.hbm.xml", 
-                           "Embedded.Author.hbm.xml", 
+                           "Embedded.Tower.hbm.xml",
+                           "Embedded.Address.hbm.xml",
+                           "Embedded.Product.hbm.xml",
+                           "Embedded.Order.hbm.xml",
+                           "Embedded.Author.hbm.xml",
                            "Embedded.Country.hbm.xml"
                            };
             }
@@ -173,7 +173,7 @@ namespace NHibernate.Search.Tests.Embedded
             address = await (s.GetAsync<Address>(a.Id));
             IEnumerator en = address.Towers.GetEnumerator();
             en.MoveNext();
-            Tower tower1 = (Tower) en.Current;
+            Tower tower1 = (Tower)en.Current;
             tower1.Address = null;
             address.Towers.Remove(tower1);
             await (tx.CommitAsync());

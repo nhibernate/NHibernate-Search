@@ -35,7 +35,7 @@ namespace NHibernate.Search.Tests.Bridge
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new string[] {"Bridge.Department.hbm.xml", "Bridge.Departments.hbm.xml"}; }
+            get { return new string[] { "Bridge.Department.hbm.xml", "Bridge.Departments.hbm.xml" }; }
         }
 
         #region Tests
@@ -221,7 +221,7 @@ namespace NHibernate.Search.Tests.Bridge
             // Note: This assertion fails when run with other tests because the id is assigned by the database, and previous tests have already used this value
             //Assert.AreEqual(1, ((Departments)projection[0]).Id, "id incorrect");
             Assert.IsTrue(projection[1] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(8, ((Document)projection[1]).Fields.Count, "DOCUMENT size incorrect");
+            Assert.AreEqual(8, ((Document)projection[1]).Fields.Count, "DOCUMENT size incorrect");
             Assert.IsNotNull(((Document)projection[1]).GetField("equiptype"), "equiptype is null");
             Assert.AreEqual(
                     "Cisco", ((Document)projection[1]).GetField("equiptype").GetStringValue(), "equiptype incorrect");
@@ -238,7 +238,7 @@ namespace NHibernate.Search.Tests.Bridge
             // NB This assertion causes the test to break when run with other tests - some leakage?
             //Assert.AreEqual(4, ((Departments)projection[0]).Id, "id incorrect");
             Assert.IsTrue(projection[1] is Document, "DOCUMENT incorrect");
-						Assert.AreEqual(8, ((Document)projection[1]).Fields.Count, "DOCUMENT size incorrect");
+            Assert.AreEqual(8, ((Document)projection[1]).Fields.Count, "DOCUMENT size incorrect");
             Assert.IsNotNull(((Document)projection[1]).GetField("equiptype"), "equiptype is null");
             Assert.AreEqual(
                     "Cisco", ((Document)projection[1]).GetField("equiptype").GetStringValue(), "equiptype incorrect");

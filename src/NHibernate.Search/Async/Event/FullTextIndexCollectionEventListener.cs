@@ -17,7 +17,7 @@ namespace NHibernate.Search.Event
     using System.Threading.Tasks;
     using System.Threading;
 
-    public partial class FullTextIndexCollectionEventListener : FullTextIndexEventListener, 
+    public partial class FullTextIndexCollectionEventListener : FullTextIndexEventListener,
                                     IPostCollectionRecreateEventListener, IPostCollectionRemoveEventListener, IPostCollectionUpdateEventListener
     {
 
