@@ -40,7 +40,7 @@ namespace NHibernate.Search.Tests
             await (s.SaveAsync(clock));
             Book book = new Book(1, "La chute de la petite reine a travers les yeux de Festina", "La chute de la petite reine a travers les yeux de Festina, blahblah");
             await (s.SaveAsync(book));
-            book = new Book(2, "La gloire de mon p�re", "Les deboires de mon p�re en v�lo");
+            book = new Book(2, "La gloire de mon père", "Les deboires de mon père en vélo");
             await (s.SaveAsync(book));
             await (tx.CommitAsync());
             s.Clear();
@@ -86,7 +86,7 @@ namespace NHibernate.Search.Tests
             await (s.SaveAsync(clock));
             Book book = new Book(1, "La chute de la petite reine a travers les yeux de Festina", "La chute de la petite reine a travers les yeux de Festina, blahblah");
             await (s.SaveAsync(book));
-            book = new Book(2, "La gloire de mon p�re", "Les deboires de mon p�re en v�lo");
+            book = new Book(2, "La gloire de mon père", "Les deboires de mon père en vélo");
             await (s.SaveAsync(book));
             await (tx.CommitAsync());
             s.Clear();
