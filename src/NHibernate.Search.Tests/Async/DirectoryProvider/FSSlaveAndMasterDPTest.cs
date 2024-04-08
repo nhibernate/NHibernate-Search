@@ -60,7 +60,7 @@ namespace NHibernate.Search.Tests.DirectoryProvider
             await (tx.CommitAsync());
             session.Close();
 
-            int waitPeriodMilli = 2 * 1 * 1000 + 10; //wait a bit more than 2 refresh (one master / one slave)
+            var waitPeriodMilli = TimeSpan.FromSeconds(1.5 * 2); //wait a bit more than 2 refresh (one master / one slave)
             await (Task.Delay(waitPeriodMilli));
 
             // assert that the master has indexed the snowstorm
