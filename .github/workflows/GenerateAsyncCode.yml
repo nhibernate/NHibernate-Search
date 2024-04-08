@@ -15,7 +15,7 @@ jobs:
       IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.ref }}
