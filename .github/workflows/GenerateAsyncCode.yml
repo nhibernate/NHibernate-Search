@@ -11,9 +11,13 @@ jobs:
   generate-async:
     runs-on: ubuntu-latest
 
+    env:
+      IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
+
     steps:
     - uses: actions/checkout@v3
       with:
+        fetch-depth: 0
         ref: ${{ github.event.pull_request.head.ref }}
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         token: ${{ secrets.NHIBERNATE_BOT_TOKEN }}
