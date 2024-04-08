@@ -30,12 +30,15 @@ namespace NHibernate.Search.Tests.Query
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new string[]
+            get
+            {
+                return new string[]
                              {
-                                     "Query.Author.hbm.xml",                                      
-                                     "Query.Book.hbm.xml", 
+                                     "Query.Author.hbm.xml",
+                                     "Query.Book.hbm.xml",
                                      "Query.Employee.hbm.xml"
-                             }; }
+                             };
+            }
         }
 
         #region Tests
@@ -238,11 +241,11 @@ namespace NHibernate.Search.Tests.Query
         // Implementing these would increase test coverage
 
         public void ProjectionWithEmbedded()
-        {            
+        {
         }
 
         public void ProjectUnstoredField()
-        {            
+        {
         }
 
         #endregion

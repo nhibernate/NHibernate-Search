@@ -31,11 +31,14 @@ namespace NHibernate.Search.Tests.Shards
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new[]
+            get
+            {
+                return new[]
                              {
-                             "Shards.Animal.hbm.xml", 
+                             "Shards.Animal.hbm.xml",
                              "Shards.Furniture.hbm.xml"
-                             }; }
+                             };
+            }
         }
 
         protected override bool RunFixtureSetUpAndTearDownForEachTest
@@ -63,7 +66,7 @@ namespace NHibernate.Search.Tests.Shards
             s.Clear();
 
             tx = s.BeginTransaction();
-            a = (Animal) await (s.GetAsync(typeof(Animal), 1));
+            a = (Animal)await (s.GetAsync(typeof(Animal), 1));
             a.Name = "Mouse";
             Furniture fur = new Furniture();
             fur.Color = "dark blue";
@@ -129,7 +132,7 @@ namespace NHibernate.Search.Tests.Shards
             }
 
             tx = s.BeginTransaction();
-            a = (Animal) await (s.GetAsync(typeof(Animal),1));
+            a = (Animal)await (s.GetAsync(typeof(Animal), 1));
             a.Name = "Mouse";
             await (tx.CommitAsync());
 

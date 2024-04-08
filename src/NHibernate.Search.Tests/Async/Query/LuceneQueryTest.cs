@@ -60,7 +60,7 @@ namespace NHibernate.Search.Tests.Query
             IList result = await (hibQuery.ListAsync());
             Assert.NotNull(result);
             Assert.AreEqual(1, result.Count, "Query with no explicit criteria");
-            book = (Book) result[0];
+            book = (Book)result[0];
             //Assert.IsFalse(NHibernate.IsInitialized(book.Authors), "Association should not be initialized");
 
             result = await (s.CreateFullTextQuery(query).SetCriteriaQuery(s.CreateCriteria(typeof(Book)).Fetch(SelectMode.Fetch, "Authors")).ListAsync());
@@ -85,9 +85,9 @@ namespace NHibernate.Search.Tests.Query
             await (s.SaveAsync(clock));
             await (tx.CommitAsync());
 
-			IList list = await (s.CreateFullTextQuery<Clock>("Brand:seiko")
-				.SetCriteriaQuery(s.CreateCriteria(typeof(Clock)).Add(Restrictions.IdEq(1)))
-				.ListAsync());
+            IList list = await (s.CreateFullTextQuery<Clock>("Brand:seiko")
+                .SetCriteriaQuery(s.CreateCriteria(typeof(Clock)).Add(Restrictions.IdEq(1)))
+                .ListAsync());
             Assert.AreEqual(1, list.Count, "should get result back from query");
 
             await (s.DeleteAsync(clock));

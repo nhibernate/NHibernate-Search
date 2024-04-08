@@ -23,7 +23,7 @@ namespace NHibernate.Search.Tests.Analyzer
     {
         protected override IEnumerable<string> Mappings
         {
-            get { return new string[] {"Analyzer.MyEntity.hbm.xml"}; }
+            get { return new string[] { "Analyzer.MyEntity.hbm.xml" }; }
         }
 
         [Test, Explicit("Broken after 3.0.3 upgrade")]

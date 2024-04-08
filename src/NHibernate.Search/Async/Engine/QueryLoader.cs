@@ -40,7 +40,7 @@ namespace NHibernate.Search.Engine
 
             DocumentBuilder builder = searchFactoryImplementor.DocumentBuilders[entityType];
             string idName = builder.IdentifierName;
-            int loop = maxResults/MAX_IN_CLAUSE;
+            int loop = maxResults / MAX_IN_CLAUSE;
             bool exact = maxResults % MAX_IN_CLAUSE == 0;
             if (!exact) loop++;
 
@@ -48,9 +48,9 @@ namespace NHibernate.Search.Engine
             for (int index = 0; index < loop; index++)
             {
                 int max = index * MAX_IN_CLAUSE + MAX_IN_CLAUSE <= maxResults ?
-					index * MAX_IN_CLAUSE + MAX_IN_CLAUSE :
-					maxResults;
-                IList ids = new ArrayList(max - index*MAX_IN_CLAUSE);
+                    index * MAX_IN_CLAUSE + MAX_IN_CLAUSE :
+                    maxResults;
+                IList ids = new ArrayList(max - index * MAX_IN_CLAUSE);
                 for (int entityInfoIndex = index * MAX_IN_CLAUSE; entityInfoIndex < max; entityInfoIndex++)
                 {
                     ids.Add(entityInfos[entityInfoIndex].Id);

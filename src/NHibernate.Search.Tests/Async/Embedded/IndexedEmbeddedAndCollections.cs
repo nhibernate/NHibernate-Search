@@ -126,7 +126,7 @@ namespace NHibernate.Search.Tests.Embedded
         public async Task CanLookupEntityByValueOfEmbeddedDictionaryValueAsync()
         {
             IFullTextSession session = Search.CreateFullTextSession(s);
-            
+
             // PhraseQuery
             TermQuery query = new TermQuery(new Term("orders.value.orderNumber", "ZERTYD"));
             IList result = await (session.CreateFullTextQuery(query, typeof(Product)).ListAsync());

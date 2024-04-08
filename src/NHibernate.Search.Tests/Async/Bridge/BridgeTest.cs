@@ -32,7 +32,7 @@ namespace NHibernate.Search.Tests.Bridge
 
         protected override IEnumerable<string> Mappings
         {
-            get { return new string[] {"Bridge.Cloud.hbm.xml"}; }
+            get { return new string[] { "Bridge.Cloud.hbm.xml" }; }
         }
 
         [Test]

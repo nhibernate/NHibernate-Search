@@ -29,7 +29,7 @@ namespace NHibernate.Search.Tests
             s.Save(clock);
             Book book = new Book(1, "La chute de la petite reine a travers les yeux de Festina", "La chute de la petite reine a travers les yeux de Festina, blahblah");
             s.Save(book);
-            book = new Book(2, "La gloire de mon père", "Les deboires de mon père en vélo");
+            book = new Book(2, "La gloire de mon pÃ¨re", "Les deboires de mon pÃ¨re en vÃ©lo");
             s.Save(book);
             tx.Commit();
             s.Clear();
@@ -75,7 +75,7 @@ namespace NHibernate.Search.Tests
             s.Save(clock);
             Book book = new Book(1, "La chute de la petite reine a travers les yeux de Festina", "La chute de la petite reine a travers les yeux de Festina, blahblah");
             s.Save(book);
-            book = new Book(2, "La gloire de mon père", "Les deboires de mon père en vélo");
+            book = new Book(2, "La gloire de mon pÃ¨re", "Les deboires de mon pÃ¨re en vÃ©lo");
             s.Save(book);
             tx.Commit();
             s.Clear();
