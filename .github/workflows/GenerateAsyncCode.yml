@@ -43,4 +43,4 @@ jobs:
         fi
         git add -A
         git commit -am "Generate async files"
-        git push origin HEAD:${{ github.event.pull_request.head.ref }}
+        git push
