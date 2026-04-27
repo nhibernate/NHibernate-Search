@@ -11,7 +11,7 @@ jobs:
       IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
